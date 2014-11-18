@@ -33,4 +33,35 @@ examApp.controller('loginController', ['$scope', '$location', function($scope, $
 
 examApp.controller('dashboardController', ['$scope', '$location', function($scope, $location) {
 	
+	$scope.selectedTab = 1;
+
+	$scope.isTabSelected = function(tabIndex) {
+		return tabIndex === $scope.selectedTab;
+	};
+
+	$scope.selectTab = function(tabIndex) {
+		$scope.selectedTab = tabIndex;
+	};
+
+	$scope.courses = [{
+		name: 'CS1010S',
+		description: 'Some module description',
+		exams: [{
+			title: 'test 1',
+			date: 1416329525
+		}, {
+			title: 'test 2',
+			date: 1416322525
+		}]
+	}, {
+		name: 'CS2010',
+		description: 'Some other module description',
+		exams: [{
+			title: 'Mid-term test',
+			date: 1416189525
+		}, {
+			title: 'sit-in test 1',
+			date: 1416232525
+		}]
+	}];
 }]);
