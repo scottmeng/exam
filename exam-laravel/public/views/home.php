@@ -12,6 +12,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.25/angular.min.js"></script>
     <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.25/angular-route.js"></script>
     <script src="app.js"></script>
+    <script src="js/ui-bootstrap-0.12.0.min.js"></script>
 </head>
 <body>
 

@@ -1,3 +1,32 @@
+<script type="text/ng-template" id="myModalContent.html">
+    <div class="modal-header">
+        <h3 class="modal-title">Create new exam</h3>
+    </div>
+    <div class="modal-body">
+    	<form class="form-horizontal" role="form">
+    		<div class="form-group">
+    			<label for="title" class="col-md-2 col-md-offset-1 control-label">Course</label>
+    			<div class="col-md-8">
+					<select class="form-control" data-ng-model="exam.course">
+						<option data-ng-repeat="course in courses">{{ course.name }}</option>
+					</select>
+				</div>
+    		</div>
+    		<div class="form-group">
+    			<label for="title" class="col-md-2 col-md-offset-1 control-label">Title</label>
+			    <div class="col-md-8">
+		      		<input type="text" class="form-control" id="title" placeholder="Exam title" data-ng-model="exam.title">
+			    </div>
+    		</div>	
+    	</form>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-primary" ng-click="ok()">OK</button>
+        <button class="btn btn-info" ng-click="cancel()">Cancel</button>
+    </div>
+</script>
+
+
 <button data-ng-click="addExam();" class="btn btn-primary pull-right">Create new exam</button>
 <ul class="nav nav-tabs">
 	<li role="presentation" data-ng-class="{active:isTabSelected(1)}"><a href data-ng-click="selectTab(1);">Recent</a></li>
