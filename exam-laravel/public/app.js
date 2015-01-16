@@ -3,13 +3,13 @@
 var examApp = angular.module('examApp', ['ngRoute', 'ui.bootstrap']);
 
 
-examApp.config(function($routeProvider) {
+examApp.config(function($routeProvider,$locationProvider) {
 	$routeProvider
-		.when('/', {
-			templateUrl: 'views/login.html',
-			controller: 'loginController'
-		})
-		.when('/dashboard', {
+		// .when('/home', {
+		// 	templateUrl: 'views/dashboard.html',
+		// 	controller: 'loginController'
+		// })
+		.when('/home', {
 			templateUrl: 'views/dashboard.html',
 			controller: 'dashboardController'
 		})
@@ -17,19 +17,38 @@ examApp.config(function($routeProvider) {
 			templateUrl: 'views/create_exam.html',
 			controller: 'newExamController'
 		});
+
+	 $locationProvider.html5Mode(true);
+
 });
 
-examApp.controller('loginController', ['$scope', '$location', function($scope, $location) {
 
-	$scope.signin = function() {
-		$scope.loginError = null;
-		if ($scope.user.userId === 'test' && $scope.user.password === 'test') {
-			$location.path('/dashboard');
-		} else {
-			$scope.loginError = 'Your user id or password is incorrect';
-		}
-	};
-}]);
+// examApp.controller('loginController', ['$scope', '$location', '$window', '$http',
+// 	function($scope, $location, $window, $http) {
+
+// 		$scope.signin = function() {
+
+// 			var loginVar = {
+// 				'username': $scope.user.userId,
+// 				'password': $scope.user.password
+// 			};	
+
+// 			$scope.loginError = null;	
+
+// 			$http.post('/login', loginVar)
+// 				.success(function(data, status, header, config) {
+// 					if(data.success === true){
+// 						$location.path('/dashboard');
+// 					}else {
+// 						$scope.loginError = 'Your user id or password is incorrect';
+// 					}
+// 				})
+// 				.error(function(data, status, header, config) {
+
+// 				});			
+// 		};
+// 	}
+// ]);
 
 examApp.controller('ModalInstanceCtrl', function ($scope, $modalInstance, courses) {
 	$scope.courses = courses;
@@ -43,8 +62,8 @@ examApp.controller('ModalInstanceCtrl', function ($scope, $modalInstance, course
 	};
 });
 
-examApp.controller('dashboardController', ['$scope', '$location', '$modal',
-	function($scope, $location, $modal) {
+examApp.controller('dashboardController', ['$scope', '$location', '$modal', '$http',
+	function($scope, $location, $modal,$http) {
 	
 	$scope.selectedTab = 1;
 
@@ -56,28 +75,16 @@ examApp.controller('dashboardController', ['$scope', '$location', '$modal',
 		$scope.selectedTab = tabIndex;
 	};
 
-	$scope.courses = [{
-		name: 'CS1010S',
-		description: 'Some module description',
-		backdrop: true,
-		exams: [{
-			title: 'test 1',
-			date: 1416329525
-		}, {
-			title: 'test 2',
-			date: 1416322525
-		}]
-	}, {
-		name: 'CS2010',
-		description: 'Some other module description',
-		exams: [{
-			title: 'Mid-term test',
-			date: 1416189525
-		}, {
-			title: 'sit-in test 1',
-			date: 1416232525
-		}]
-	}];
+	$scope.init = function() {
+		$http.get('/get-courses')
+			.success(function(data, status, header, config) {
+				$scope.courses = data;
+				console.log('status: ' + status + '\n Data:' + data);
+			})
+			.error(function(data, status, header, config) {
+
+			});	
+	};
 
 	$scope.addExam = function() {
 		var modalInstance = $modal.open({
@@ -95,6 +102,8 @@ examApp.controller('dashboardController', ['$scope', '$location', '$modal',
 		}, function () {
 		});
 	};
+
+	$scope.init();
 }]);
 
 examApp.controller('newExamController', ['$scope', function($scope) {
