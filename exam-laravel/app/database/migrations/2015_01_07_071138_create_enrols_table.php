@@ -31,7 +31,7 @@ class CreateEnrolsTable extends Migration {
 	 */
 	public function down()
 	{
-		Schema::drop('enrols');
+		Schema::drop('enrolusers');
 	}
 
 }

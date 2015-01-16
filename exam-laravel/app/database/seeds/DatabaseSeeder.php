@@ -51,7 +51,7 @@ class CodeCrunchSeeder extends Seeder {
                 ));
 
 
-                $initUser3 = Student::create(array(
+                $initUser4 = Student::create(array(
                         'name' => 'Scott',
                         'nus_id' => 'A0008888',
                         'comment' => 'test student'
