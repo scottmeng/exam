@@ -8,4 +8,8 @@ class Exam extends Eloquent{
 		return $this->belongsTo('Course');
     }
 
+    public function states(){
+    	return $this->belongsTo('ExamState');
+    }
+
 }

@@ -18,8 +18,6 @@ class CreateCoursesTable extends Migration {
 			$table->string('nus_id');
 			$table->string('name');
 			$table->string('description')->nullable();
-			$table->integer('admin')->unsigned();
-			$table->foreign('admin')->references('id')->on('facilitators');
 			$table->timestamps();
 		});
 	}

@@ -18,7 +18,7 @@ examApp.config(function($routeProvider,$locationProvider) {
 			controller: 'newExamController'
 		});
 
-	 $locationProvider.html5Mode(true);
+	 // $locationProvider.html5Mode(true);
 
 });
 
@@ -50,10 +50,21 @@ examApp.config(function($routeProvider,$locationProvider) {
 // 	}
 // ]);
 
-examApp.controller('ModalInstanceCtrl', function ($scope, $modalInstance, courses) {
+examApp.controller('ModalInstanceCtrl', function ($scope, $modalInstance, $http, courses) {
 	$scope.courses = courses;
 
 	$scope.ok = function () {
+
+		var newExamVar = $scope.exam;
+
+		$http.post('/create-exam', newExamVar)
+		.success(function(data, status, header, config) {
+			console.log = data;
+		})
+		.error(function(data, status, header, config) {
+
+		});	
+
 		$modalInstance.close();
 	};
 

@@ -24,7 +24,9 @@ class CodeCrunchSeeder extends Seeder {
                 DB::table('options')->truncate();
                 DB::table('enrolusers')->truncate();
                 DB::table('exams')->truncate();
+                DB::table('examstates')->truncate();
                 DB::table('questions')->truncate();
+                DB::table('questiontypes')->truncate();
                 DB::table('courses')->truncate();
                 DB::table('facilitators')->truncate();
                 DB::table('students')->truncate();
@@ -33,7 +35,7 @@ class CodeCrunchSeeder extends Seeder {
 
                 //seed users table
                 $initUser1 = Facilitator::create(array(
-                	'name' => 'Lingyi',
+                	'name' => 'Richard',
                         'nus_id' => 'U0001234',
                 	'comment' => 'test facilitator'
                 ));
@@ -57,20 +59,51 @@ class CodeCrunchSeeder extends Seeder {
                         'comment' => 'test student'
                 ));
 
+                $initUser5 = Student::create(array(
+                        'name' => 'Du Lingyi',
+                        'nus_id' => 'A0091628',
+                        'comment' => 'test student'
+                ));
+
                 //seed courses table
 
                 $initCourse1 = Course::create(array(
                 	'nus_id' => 'CS1000',
                 	'name' => 'Your First Programming Course',
-                	'description' => 'test course',
-                	'admin' => $initUser1->id
+                	'description' => 'test course'
                 ));
 
                 $initCourse2 = Course::create(array(
                 	'nus_id' => 'CS1010',
                 	'name' => 'Your Second Programming Course',
-                	'description' => 'test course',
-                	'admin' => $initUser1->id
+                	'description' => 'test course'
+                ));
+
+                $initCourse3 = Course::create(array(
+                        'nus_id' => 'CS1010J',
+                        'name' => 'Programming Methodology',
+                        'description' => 'test course'
+                ));
+
+                //seed question type table
+                $initType1 = Questiontype::create(array(
+                        'name' => 'MCQ',
+                        'description' => 'Multiple Choice Questions'
+                ));
+
+                $initType2 = Questiontype::create(array(
+                        'name' => 'short question',
+                        'description' => 'short answer questions, can be coding or non-coding'
+                ));
+
+                $initState1 = ExamState::create(array(
+                        'name' => 'draft',
+                        'description' => 'draft state' 
+                ));
+
+                $initState1 = ExamState::create(array(
+                        'name' => 'active',
+                        'description' => 'active state' 
                 ));
 
                 //seed relations
@@ -78,6 +111,7 @@ class CodeCrunchSeeder extends Seeder {
                 $initUser2->courses()->save($initCourse2);
                 $initUser3->courses()->save($initCourse1);
                 $initUser3->courses()->save($initCourse2);
+                $initUser5->courses()->save($initCourse2);
 
 	}
 

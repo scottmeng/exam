@@ -20,6 +20,10 @@ class CreateQuestionsTable extends Migration {
 			$table->integer('questiontype_id')->unsigned();
 			$table->string('title')->nullable();
 			$table->string('content')->nullable();
+			$table->boolean('coding_qn')->default(0);
+			$table->boolean('compiler_enable')->default(0);
+			$table->string('marking_scheme')->nullable();
+			$table->integer('full_marks')->default(0);
 			$table->timestamps();
 		});
 

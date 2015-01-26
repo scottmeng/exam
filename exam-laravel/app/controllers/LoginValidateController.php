@@ -3,28 +3,46 @@ use GuzzleHttp\Client;
 
 class LoginValidateController extends BaseController {
 
- 	public function validateLogin($token)
+ 	public function validateLogin()
     {
+
+	   if(Input::has('token'))
+    		$token = Input::get('token');
+
+	    $encryptToken = Crypt::encrypt($token);
+	    Session::put('token', $encryptToken);
+
+    	// $token = Crypt::decrypt(Session::get('token'));
+
 		$client = new Client(['base_url' => 'https://ivle.nus.edu.sg']);
 
-
-		$name = $client->get('/api/Lapi.svc/UserName_Get', [
-		    'query' => ['APIKey' => '6TfFzkSWBlHOT4ExcqFpY','Token' => $token]
-		])->getBody();
-
-		$id = $client->get('/api/Lapi.svc/UserID_Get',[
-			'query' => ['APIKey' => '6TfFzkSWBlHOT4ExcqFpY','Token' => $token]
-		])->getBody();
-
-		$user_name = strtoupper(str_replace('"', "", $name));
-		$user_id = strtoupper( str_replace('"', "", $id));
-
-
-		$user = Student::firstOrCreate(array('name' => $user_name,'nus_id' => $user_id));
+		$message = json_decode(($client->get('/api/Lapi.svc/Validate', [
+	    'query' => ['APIKey' => '6TfFzkSWBlHOT4ExcqFpY','Token' => $token]
+		])->getbody()),true);
 		
-		Session::put('user_type','student');
-		Session::put('user_id',$user->nus_id);
-		
+		if ($message['Success']){
+
+			$user = json_decode(($client->get('/api/Lapi.svc/Profile_View', [
+			    'query' => ['APIKey' => '6TfFzkSWBlHOT4ExcqFpY','AuthToken' => $token]
+			])->getBody()),true);
+
+			$user_name = $user['Results'][0]['Name'];
+			$user_id = $user['Results'][0]['UserID'];
+			$user_name = strtoupper(str_replace('"', "", $user_name));
+			$user_id = strtoupper( str_replace('"', "", $user_id));
+
+			//$user = Student::firstOrCreate(array('name' => $user_name,'nus_id' => $user_id));
+			
+			//Session::put('user_type','student');
+			Session::put('user_id',$user_id);
+			Session::put('status','login successful');
+
+			return Redirect::to('/#/home');
+
+		}
+		else{
+			echo 'invalid login token';
+		}
     }
 
 }
