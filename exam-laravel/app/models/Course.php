@@ -2,26 +2,17 @@
 
 class Course extends Eloquent {
 
-	protected $fillable = array('nus_id','name','description','admin');
+	protected $fillable = array('nus_id','name','description');
 
-	public function facilitators()
-    {
-        return $this->morphedByMany('Facilitator', 'Enroluser');
-    }
-
-    public function students()
-    {
-        return $this->morphedByMany('Student', 'Enroluser');
-    }
 
     public function exams()
     {
         return $this->hasMany('Exam');
     }
 
-    public function user()
+    public function users()
     {
-        return $this->morphTo();
+        return $this->belongsToMany('User')->withPivot('role_id');
     }
 
 }

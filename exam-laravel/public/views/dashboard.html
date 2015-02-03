@@ -8,7 +8,7 @@
     			<label for="title" class="col-md-2 col-md-offset-1 control-label">Course</label>
     			<div class="col-md-8">
 					<select class="form-control" data-ng-model="exam.course">
-						<option data-ng-repeat="course in courses">{{ course.CourseCode }}</option>
+						<option data-ng-repeat="course in courses">{{ course.nus_id }}</option>
 					</select>
 				</div>
     		</div>
@@ -20,6 +20,11 @@
     		</div>	
     	</form>
     </div>
+	<div class="alert alert-danger" role="alert" data-ng-show="createError">
+		<span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+			<span class="sr-only">Error:</span>
+			{{ createError }}
+	</div>
     <div class="modal-footer">
         <button class="btn btn-primary" ng-click="ok()">OK</button>
         <button class="btn btn-info" ng-click="cancel()">Cancel</button>
@@ -44,9 +49,9 @@
 	</div>
 	<div class="tab-pane" data-ng-class="{active:isTabSelected(2)}">
 		<div class="panel panel-primary" data-ng-repeat="course in courses">
-			<div class="panel-heading">{{ course.CourseCode }}
+			<div class="panel-heading">{{ course.nus_id }}
 			</div>
-			<div class="panel-body bg-info">{{ course.CourseName }}</div>
+			<div class="panel-body bg-info">{{ course.name }}</div>
 			<div class="list-group">
 				<a class="list-group-item" data-ng-repeat="exam in course.exams">
 					<span class="badge">{{ exam.date | date:'medium' }}</span> {{ exam.title }}

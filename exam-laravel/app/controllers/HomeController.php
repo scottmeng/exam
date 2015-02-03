@@ -3,20 +3,14 @@ use GuzzleHttp\Client;
 
 class HomeController extends BaseController {
 
-	public function getModules()
+	public function getHome()
 	{
-		$client = new Client(['base_url' => 'https://ivle.nus.edu.sg']);
-
-		$data = json_decode(($client->get('/api/Lapi.svc/Modules', [
-	    'query' => ['APIKey' => '6TfFzkSWBlHOT4ExcqFpY','AuthToken' => $token]
-		])->getbody()),true);
-
-		return $data;
+		return View::make('home');
 	}
 
 	public function getCourses()
 	{
-    	$token = Crypt::decrypt(Session::get('token'));
+    	// $token = Crypt::decrypt(Session::get('token'));
 		// return Course::whereHas('students', function($q)
 		// {
 		// 	//select all courses taken by user
@@ -25,18 +19,21 @@ class HomeController extends BaseController {
 
 		// })->get();
 
-		$client = new Client(['base_url' => 'https://ivle.nus.edu.sg']);
+		// $client = new Client(['base_url' => 'https://ivle.nus.edu.sg']);
 
-		$data = json_decode(($client->get('/api/Lapi.svc/Modules', [
-	    'query' => ['APIKey' => '6TfFzkSWBlHOT4ExcqFpY','AuthToken' => $token]
-		])->getbody()),true);
+		// $data = json_decode(($client->get('/api/Lapi.svc/Modules', [
+	 //    'query' => ['APIKey' => '6TfFzkSWBlHOT4ExcqFpY','AuthToken' => $token]
+		// ])->getbody()),true);
 
-		return $data['Results'];
+		// return $data['Results'];
+		$id = Session::get('userid');
+		$user = User::find($id);
+
+		return Response::make(array('courses'=>($user->courses()->get())));
 	}
-
-	public function getHome()
+	public function getQnTypes()
 	{
-		return View::make('home');
+		return Response::make(array('types'=>(QuestionType::all())));
 	}
 
 }

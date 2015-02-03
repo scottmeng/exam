@@ -16,7 +16,7 @@ class CreateOptionsTable extends Migration {
 		{
 			$table->increments('id');
 			$table->integer('index')->nullable();
-			$table->string('content')->nullable();
+			$table->text('content')->nullable();
 			$table->integer('question_id')->unsigned();
 			$table->timestamps();
 		});

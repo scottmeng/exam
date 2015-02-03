@@ -17,7 +17,7 @@ class CreateExamsTable extends Migration {
 			$table->increments('id');
 			$table->string('name');
 			$table->integer('course_id')->unsigned();
-			$table->string('description')->nullable();
+			$table->text('description')->nullable();
 			$table->integer('examstate_id')->unsigned()->default(1);
 			$table->integer('duration_in_min')->default(60);
 			$table->integer('full_marks')->default(100);

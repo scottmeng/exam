@@ -1,14 +1,14 @@
 // app.js
 
-var examApp = angular.module('examApp', ['ngRoute', 'ui.bootstrap']);
+var examApp = angular.module('examApp', ['ngRoute', 'ui.bootstrap','ui.ace','textAngular']);
 
 
 examApp.config(function($routeProvider,$locationProvider) {
 	$routeProvider
-		// .when('/home', {
-		// 	templateUrl: 'views/dashboard.html',
-		// 	controller: 'loginController'
-		// })
+		.when('/', {
+			templateUrl: 'views/login.html',
+			controller: 'loginController'
+		})
 		.when('/home', {
 			templateUrl: 'views/dashboard.html',
 			controller: 'dashboardController'
@@ -18,37 +18,42 @@ examApp.config(function($routeProvider,$locationProvider) {
 			controller: 'newExamController'
 		});
 
-	 // $locationProvider.html5Mode(true);
-
+	 $locationProvider.html5Mode(true);
 });
 
 
-// examApp.controller('loginController', ['$scope', '$location', '$window', '$http',
-// 	function($scope, $location, $window, $http) {
+examApp.controller('loginController', ['$scope', '$location', '$window', '$http',
+	function($scope, $location, $window, $http) {
 
-// 		$scope.signin = function() {
+		// $scope.init = function(){
+		// 	$window.location.href ='https://ivle.nus.edu.sg/api/login/?apikey=6TfFzkSWBlHOT4ExcqFpY&url=http://localhost:8000/validate';
 
-// 			var loginVar = {
-// 				'username': $scope.user.userId,
-// 				'password': $scope.user.password
-// 			};	
+		// };
 
-// 			$scope.loginError = null;	
+		// $scope.init();
 
-// 			$http.post('/login', loginVar)
-// 				.success(function(data, status, header, config) {
-// 					if(data.success === true){
-// 						$location.path('/dashboard');
-// 					}else {
-// 						$scope.loginError = 'Your user id or password is incorrect';
-// 					}
-// 				})
-// 				.error(function(data, status, header, config) {
+		$scope.signin = function() {
 
-// 				});			
-// 		};
-// 	}
-// ]);
+			var loginVar = {
+				'username': $scope.user.userId,
+				'password': $scope.user.password
+			};	
+
+			$scope.loginError = null;	
+			$http.post('/login', loginVar)
+				.success(function(data, status, header, config) {
+					if(data.success === true){
+						$location.path('/home');
+					}else {
+						$scope.loginError = 'Incorrect user id or password. Login failed!';
+					}
+				})
+				.error(function(data, status, header, config) {
+				});			
+		};
+
+	}
+]);
 
 examApp.controller('ModalInstanceCtrl', function ($scope, $modalInstance, $http, courses) {
 	$scope.courses = courses;
@@ -57,15 +62,18 @@ examApp.controller('ModalInstanceCtrl', function ($scope, $modalInstance, $http,
 
 		var newExamVar = $scope.exam;
 
+		$scope.createError = null;
 		$http.post('/create-exam', newExamVar)
 		.success(function(data, status, header, config) {
-			console.log = data;
+			console.log(data);
+			if(data==='success')
+				$modalInstance.close();
+			else
+				$scope.createError = 'Exam already exists for the selected module!';
 		})
 		.error(function(data, status, header, config) {
 
 		});	
-
-		$modalInstance.close();
 	};
 
 	$scope.cancel = function () {
@@ -89,8 +97,8 @@ examApp.controller('dashboardController', ['$scope', '$location', '$modal', '$ht
 	$scope.init = function() {
 		$http.get('/get-courses')
 			.success(function(data, status, header, config) {
-				$scope.courses = data;
-				console.log('status: ' + status + '\n Data:' + data);
+				$scope.courses = data.courses;
+				console.log(data);
 			})
 			.error(function(data, status, header, config) {
 
@@ -117,27 +125,62 @@ examApp.controller('dashboardController', ['$scope', '$location', '$modal', '$ht
 	$scope.init();
 }]);
 
-examApp.controller('newExamController', ['$scope', function($scope) {
+examApp.controller('newExamController', ['$scope', '$http',function($scope,$http) {
 
-	$scope.questionTypes = [{
-		type: 1,
-		name: 'Multiple Choise Question'
-	}, {
-		type: 2,
-		name: 'Short Answer Question'
-	}];
+	$http.get('/get-qn-types')
+		.success(function(data, status, header, config) {
+			$scope.questionTypes = data.types;
+			console.log(data);
+		})
+		.error(function(data, status, header, config) {
+
+		});	
+
+	// $scope.questionTypes = [{
+	// 	type: 1,
+	// 	name: 'Multiple Choise Question'
+	// }, {
+	// 	type: 2,
+	// 	name: 'Short Answer Question'
+	// }];
+
+	// The ui-ace option
+    $scope.aceOptions = {
+	  useWrapMode : true,
+	  theme:'monokai',
+	  mode: 'javascript',
+	  firstLineNumber: 5,
+	  require:['ace/ext/language_tools'],
+	  advanced:{
+	  	enableSnippets: true,
+	  	enableLiveAutocompletion: true
+	  }
+	  // onLoad: aceLoaded,
+	  // onChange: aceChanged
+	
+      // onLoad: function (_ace) {
+ 
+      // // HACK to have the ace instance in the scope...
+      //   $scope.modeChanged = function () {
+      //     _ace.getSession().setMode("ace/mode/" + $scope.mode.toLowerCase());
+      //   };
+ 
+      //  } 
+    };
 
 	$scope.questions = [{
-		type: 2,
+		type: 1,
 		content: ''
 	}];
 
+	$scope.moreOptionsCollapsed = true;
+
 	$scope.isMCQ = function(type) {
-		return type === 1;
+		return type == 1;
 	};
 
 	$scope.addNewQuestion = function() {
-		$scope.questions.push({type: 2, content: ''});
+		$scope.questions.push({type: 1, content: ''});
 	};
 
 	$scope.removeQuestion = function(index) {

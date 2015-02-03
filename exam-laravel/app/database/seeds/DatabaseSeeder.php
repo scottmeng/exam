@@ -22,64 +22,36 @@ class CodeCrunchSeeder extends Seeder {
 	{
                 DB::statement('SET FOREIGN_KEY_CHECKS = 0'); 
                 DB::table('options')->truncate();
-                DB::table('enrolusers')->truncate();
+                DB::table('course_user')->truncate();
                 DB::table('exams')->truncate();
                 DB::table('examstates')->truncate();
                 DB::table('questions')->truncate();
                 DB::table('questiontypes')->truncate();
                 DB::table('courses')->truncate();
-                DB::table('facilitators')->truncate();
-                DB::table('students')->truncate();
+                DB::table('roles')->truncate();
+                DB::table('users')->truncate();
                 DB::statement('SET FOREIGN_KEY_CHECKS = 0'); 
 
 
                 //seed users table
-                $initUser1 = Facilitator::create(array(
-                	'name' => 'Richard',
-                        'nus_id' => 'U0001234',
-                	'comment' => 'test facilitator'
-                ));
-
-                $initUser2 = Facilitator::create(array(
-                        'name' => 'Molly',
-                        'nus_id' => 'U7654321',
-                        'comment' => 'test facilitator'
-                ));
-
-                $initUser3 = Student::create(array(
-                	'name' => 'Livia',
-                        'nus_id' => 'A0101111',
-                	'comment' => 'test student'
-                ));
-
-
-                $initUser4 = Student::create(array(
-                        'name' => 'Scott',
-                        'nus_id' => 'A0008888',
-                        'comment' => 'test student'
-                ));
-
-                $initUser5 = Student::create(array(
-                        'name' => 'Du Lingyi',
+                $initUser1 = User::create(array(
+                	'name' => 'Lingyi',
                         'nus_id' => 'A0091628',
-                        'comment' => 'test student'
+                ));
+
+                $initUser2 = User::create(array(
+                        'name' => 'Lingyi',
+                        'nus_id' => 'A000',
+                ));
+
+                $initUser3 = User::create(array(
+                        'name' => 'Lingyi',
+                        'nus_id' => 'A123',
                 ));
 
                 //seed courses table
 
                 $initCourse1 = Course::create(array(
-                	'nus_id' => 'CS1000',
-                	'name' => 'Your First Programming Course',
-                	'description' => 'test course'
-                ));
-
-                $initCourse2 = Course::create(array(
-                	'nus_id' => 'CS1010',
-                	'name' => 'Your Second Programming Course',
-                	'description' => 'test course'
-                ));
-
-                $initCourse3 = Course::create(array(
                         'nus_id' => 'CS1010J',
                         'name' => 'Programming Methodology',
                         'description' => 'test course'
@@ -92,7 +64,7 @@ class CodeCrunchSeeder extends Seeder {
                 ));
 
                 $initType2 = Questiontype::create(array(
-                        'name' => 'short question',
+                        'name' => 'Short Answer Question',
                         'description' => 'short answer questions, can be coding or non-coding'
                 ));
 
@@ -106,12 +78,27 @@ class CodeCrunchSeeder extends Seeder {
                         'description' => 'active state' 
                 ));
 
+                $initRole1 = Role::create(array(
+                        'name'=>'admin',
+                        'description'=>'administrator of the course'
+                ));
+
+
+                $initRole2 = Role::create(array(
+                        'name'=>'facilitator',
+                        'description'=>'facilitator of the course'
+                ));
+
+
+                $initRole3 = Role::create(array(
+                        'name'=>'student',
+                        'description'=>'student of the course'
+                ));
+
                 //seed relations
-                $initUser1->courses()->save($initCourse1);
-                $initUser2->courses()->save($initCourse2);
-                $initUser3->courses()->save($initCourse1);
-                $initUser3->courses()->save($initCourse2);
-                $initUser5->courses()->save($initCourse2);
+                $initUser1->courses()->save($initCourse1,array('role_id'=>$initRole1->id));
+                $initUser2->courses()->save($initCourse1,array('role_id'=>$initRole2->id));
+                $initUser3->courses()->save($initCourse1,array('role_id'=>$initRole3->id));
 
 	}
 

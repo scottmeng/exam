@@ -5,9 +5,7 @@
 	"license": "MIT",
 	"type": "project",
 	"require": {
-		"laravel/framework": "4.2.*",
-		"dsdevbe/ldap-connector": "2.*",
-		"guzzlehttp/guzzle": "~5.0"
+		"laravel/framework": "4.2.*"
 	},
 	"autoload": {
 		"classmap": [

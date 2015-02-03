@@ -13,6 +13,13 @@
     <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.25/angular-route.js"></script>
     <script src="app.js"></script>
     <script src="js/ui-bootstrap-0.12.0.min.js"></script>
+    <script src="js/ace/ace.js" type="text/javascript" charset="utf-8"></script>
+    <script src="js/ui-ace.js"></script>
+    <script src="js/ace/ext-language_tools.js"></script>
+    <link rel='stylesheet' href='styles/textAngular.css'>
+    <script src='js/textAngular/textAngular-rangy.min.js'></script>
+    <script src='js/textAngular/textAngular-sanitize.min.js'></script>
+    <script src='js/textAngular/textAngular.min.js'></script>
 </head>
 <body>
 
