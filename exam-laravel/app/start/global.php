@@ -51,6 +51,7 @@ App::error(function(Exception $exception, $code)
 	Log::error($exception);
 });
 
+
 /*
 |--------------------------------------------------------------------------
 | Maintenance Mode Handler
@@ -79,3 +80,25 @@ App::down(function()
 */
 
 require app_path().'/filters.php';
+
+Response::macro('success', function($data)
+{
+    return Response::make(array(
+    	'code'=>200,
+    	'data'=>$data
+    ));
+});
+
+
+Response::macro('error', function($code,$message)
+{
+    return Response::make(array(
+    	'code'=>$code,
+    	'data'=>$message
+    ));
+});
+
+
+
+
+

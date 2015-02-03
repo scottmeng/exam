@@ -16,17 +16,19 @@ Route::post('/login', 'LoginValidateController@validateLogin');
 Route::get('/api/get-courses','HomeController@getCourses');
 Route::get('/api/get-qn-types','HomeController@getQnTypes');
 
-Route::get('/home', 'HomeController@getHome'); 
-Route::get('create-exam','HomeController@getHome');
+// Route::get('/home', 'HomeController@getHome'); 
+// Route::get('create-exam','HomeController@getHome');
 
 
 // send default page back when 404
 App::missing(function($exception) {
     return View::make('home');
+});
 
 Route::post('/api/create-exam','ExamController@newExam');
 
 Route::controller('/api/exam/{exam_id}','ExamController');
+
 
 
 
@@ -112,11 +114,8 @@ Route::get('/test', function() {
 	// 		var_dump($result);
 	// 	}       
 	// }
-		$exam = Exam::whereRaw('course_id = ? and name = ?',array(1,'test'))->get();
+	return	Question::destroy(10);
 
-		if($exam->isEmpty())
-			return 'success';
-		else
-			return 'fail';
+
 
 });
