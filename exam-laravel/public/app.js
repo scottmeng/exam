@@ -66,7 +66,7 @@ examApp.controller('ModalInstanceCtrl', function ($scope, $modalInstance, $http,
 		var newExamVar = $scope.exam;
 
 		$scope.createError = null;
-		$http.post('/create-exam', newExamVar)
+		$http.post('/api/create-exam', newExamVar)
 		.success(function(data, status, header, config) {
 			console.log(data);
 			if(data==='success')
@@ -98,7 +98,7 @@ examApp.controller('dashboardController', ['$scope', '$location', '$modal', '$ht
 	};
 
 	$scope.init = function() {
-		$http.get('/get-courses')
+		$http.get('/api/get-courses')
 			.success(function(data, status, header, config) {
 				$scope.courses = data.courses;
 				console.log(data);
@@ -130,7 +130,7 @@ examApp.controller('dashboardController', ['$scope', '$location', '$modal', '$ht
 
 examApp.controller('newExamController', ['$scope', '$http',function($scope,$http) {
 
-	$http.get('/get-qn-types')
+	$http.get('/api/get-qn-types')
 		.success(function(data, status, header, config) {
 			$scope.questionTypes = data.types;
 			console.log(data);
