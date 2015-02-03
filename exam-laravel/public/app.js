@@ -16,6 +16,9 @@ examApp.config(function($routeProvider,$locationProvider) {
 		.when('/create-exam', {
 			templateUrl: 'views/create_exam.html',
 			controller: 'newExamController'
+		})
+		.otherwise({
+			templateUrl: 'views/not_found.html'
 		});
 
 	 $locationProvider.html5Mode(true);
