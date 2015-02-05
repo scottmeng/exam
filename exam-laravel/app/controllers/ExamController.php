@@ -15,7 +15,7 @@ class ExamController extends BaseController {
 
 		// return $valid?'True':'False';
 
-		// $course = Course::where('nus_id','like',$course_id)->firstorFail();
+		$course = Course::find($course_id);
 		$valid_exam = Exam::whereRaw('course_id = ? and name = ?',array($course_id,$name))->get()->isEmpty();
 
 		if($valid_exam == True){
@@ -32,15 +32,14 @@ class ExamController extends BaseController {
 
 	}
 
-	public function putEditexam()
+	public function putEditexam($exam_id)
 	{
 	 // protected $fillable = array('name', 'course_id', 'examstate_id','description','duration_in_min','full_marks','total_qn', 'start_time');
 
-		$id = Input::get('id');
-		$exam = Exam::find($id);
+		$exam = Exam::find($exam_id);
+		Log::info($exam);
 
 		$exam->name = Input::get('title');
-		$exam->course_id = Input::get('course');
 		$exam->description = Input::get('description');
 		$exam->duration_in_min = Input::get('duration');
 		$exam->full_marks = Input::get('fullmarks');
