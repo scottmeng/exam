@@ -156,7 +156,7 @@ examApp.controller('newExamController', ['$scope', '$http',function($scope,$http
 
 		});	
 
-	$scope.isExamInfoCollapsed = false;
+	$scope.isExamInfoCollapsed = true;
 	$scope.ExamName="CS1010 Mid-Term Exam";
 
 	$scope.exam={
@@ -167,6 +167,13 @@ examApp.controller('newExamController', ['$scope', '$http',function($scope,$http
 	};
 
 	$scope.defaultDate = "2015-02-05T08:00:01.534Z"; // (formatted: 2/5/15 4:00 PM)
+	$scope.isMarkingSchemeCollapsed = true;
+	$scope.hasMarkingScheme = false;
+
+	$scope.toggleMarkingScheme=function(){
+		// $scope.hasMarkingScheme = !($scope.hasMarkingScheme);
+		$scope.isMarkingSchemeCollapsed = !($scope.isMarkingSchemeCollapsed);
+	};
 
 	// The ui-ace option
     $scope.aceOptions = {
