@@ -1,6 +1,7 @@
 // app.js
 
-var examApp = angular.module('examApp', ['ngRoute', 'ui.bootstrap','ui.ace','textAngular','mgcrea.ngStrap']);
+var examApp = angular.module('examApp', ['ngRoute', 'ui.bootstrap','ui.ace','textAngular',
+	'mgcrea.ngStrap.datepicker','mgcrea.ngStrap.timepicker']);
 
 examApp.config(function($routeProvider,$locationProvider,$provide) {
 	$routeProvider
@@ -45,13 +46,6 @@ examApp.config(function($routeProvider,$locationProvider,$provide) {
 examApp.controller('loginController', ['$scope', '$location', '$window', '$http',
 	function($scope, $location, $window, $http) {
 
-		// $scope.init = function(){
-		// 	$window.location.href ='https://ivle.nus.edu.sg/api/login/?apikey=6TfFzkSWBlHOT4ExcqFpY&url=http://localhost:8000/validate';
-
-		// };
-
-		// $scope.init();
-
 		$scope.signin = function() {
 
 			var loginVar = {
@@ -86,10 +80,13 @@ examApp.controller('ModalInstanceCtrl', function ($scope, $modalInstance, $http,
 		$http.post('/api/create-exam', newExamVar)
 		.success(function(data, status, header, config) {
 			console.log(data);
-			if(data==='success')
+			if(data['code']==200){
+				console.log('success');
 				$modalInstance.close();
+				$scope.exam = data['data'];
+			}
 			else
-				$scope.createError = 'Exam already exists for the selected module!';
+				$scope.createError = data['data'];
 		})
 		.error(function(data, status, header, config) {
 
@@ -155,6 +152,15 @@ examApp.controller('newExamController', ['$scope', '$http',function($scope,$http
 		.error(function(data, status, header, config) {
 
 		});	
+
+	$scope.saveExam=function(){
+		$scope.isExamInfoCollapsed = true;
+		$http.put('/api/exam/1/editexam',$scope.exam)
+			.success(function(data){
+				if(data['code']==200)
+					$scope.exam = data;
+			})
+	};
 
 	$scope.isExamInfoCollapsed = true;
 	$scope.ExamName="CS1010 Mid-Term Exam";

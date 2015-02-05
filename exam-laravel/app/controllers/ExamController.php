@@ -9,7 +9,13 @@ class ExamController extends BaseController {
 		$course_id = Input::get('course');
 		$name = Input::get('title');
 
-		$course = Course::where('nus_id','like',$course_id)->firstorFail();
+		// $exams = Exam::whereRaw('course_id = ? and name = ?',array($course_id,$name))->get();
+		// $valid = $exams->isEmpty();
+
+
+		// return $valid?'True':'False';
+
+		// $course = Course::where('nus_id','like',$course_id)->firstorFail();
 		$valid_exam = Exam::whereRaw('course_id = ? and name = ?',array($course_id,$name))->get()->isEmpty();
 
 		if($valid_exam == True){
@@ -20,13 +26,29 @@ class ExamController extends BaseController {
 			return Response::success($exam);
 		}
 		else{
-		    return Response::error(200,'Exam already exists!');
+		    return Response::error(406,'Exam already exists!');
 		}
 
-		App::error(function(ModelNotFoundException $e)
-		{
-		    return Response::error(404,'Course not found!');
-		});
+
+	}
+
+	public function putEditexam()
+	{
+	 // protected $fillable = array('name', 'course_id', 'examstate_id','description','duration_in_min','full_marks','total_qn', 'start_time');
+
+		$id = Input::get('id');
+		$exam = Exam::find($id);
+
+		$exam->name = Input::get('title');
+		$exam->course_id = Input::get('course');
+		$exam->description = Input::get('description');
+		$exam->duration_in_min = Input::get('duration');
+		$exam->full_marks = Input::get('fullmarks');
+		$exam->total_qn = Input::get('totalqn');
+		$exam->start_time = Input::get('starttime');
+
+		$exam->save();
+		return Response::success($exam);
 	}
 
 
@@ -34,62 +56,39 @@ class ExamController extends BaseController {
 	{
 		$question = Input::all();
 
-		$index = $question->index;
-		$subindex = $question->subindex;
-		$question_type = $question->type;
-		$title = $question->title;
-		$content = htmlentities($question->content);
-		$coding_qn = $question->coding_qn;
-		$compiler_enable = $question->compiler_enable;
-		$marking_scheme = $question->marking_scheme;
-		$full_marks = $question->full_marks;
-
 		$question = new Question(array(
-			'index'=>$index,
-			'subindex' => $subindex,
-			'questiontype' => $question_type,
-			'title' => $title,
-			'content' => $content,
-			'coding_qn' => $coding_qn,
-			'compiler_enable' => $compiler_enable,
-			'marking_scheme' => $marking_scheme,
-			'full_marks' => $full_marks,
-			'exam' => $exam_id
+			'index'=>Input::get('index'),
+			'subindex' => Input::get('subindex'),
+			'questiontype' => Input::get('question_type'),
+			'title' => Input::get('title'),
+			'content' => Input::get('content'),
+			'coding_qn' => Input::get('coding_qn'),
+			'compiler_enable' => Input::get('compiler_enable'),
+			'marking_scheme' => Input::get('marking_scheme'),
+			'full_marks' => Input::get('full_marks'),
+			'exam' => Input::get('exam_id')
 		));
 
 		$question->save();
-
 		return Response::success($question);
 	}
 
 	public function putQuestion($exam_id)
 	{
-		$question = Input::all();
-	
-		$id = $question->id;
-		$index = $question->index;
-		$subindex = $question->subindex;
-		$question_type = $question->type;
-		$title = $question->title;
-		$content = htmlentities($question->content);
-		$coding_qn = $question->coding_qn;
-		$compiler_enable = $question->compiler_enable;
-		$marking_scheme = $question->marking_scheme;
-		$full_marks = $question->full_marks;
-
+		$id = Input::get('id');
 		$question = Question::findOrFail($id);
-		$question->index = $index;
-		$question->subindex = $subindex;
-		$question->questiontype = $question_type;
-		$question->title = $title;
-		$question->content = $content;
-		$question->coding_qn = $coding_qn;
-		$question->compiler_enable = $compiler_enable;
-		$question->marking_scheme = $marking_scheme;
-		$question->full_marks = $full_marks;
+
+		$question->index = Input::get('index');
+		$question->subindex = Input::get('subindex');
+		$question->questiontype = Input::get('question_type');
+		$question->title = Input::get('title');
+		$question->content = Input::get('content');
+		$question->coding_qn = Input::get('coding_qn');
+		$question->compiler_enable = Input::get('compiler_enable');
+		$question->marking_scheme = Input::get('marking_scheme');
+		$question->full_marks = Input::get('full_marks');
 
 		$question->save();
-
 		return Response::success($question);
 	}
 

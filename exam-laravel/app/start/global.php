@@ -83,7 +83,7 @@ require app_path().'/filters.php';
 
 Response::macro('success', function($data)
 {
-    return Response::make(array(
+    return Response::json(array(
     	'code'=>200,
     	'data'=>$data
     ));
@@ -92,7 +92,7 @@ Response::macro('success', function($data)
 
 Response::macro('error', function($code,$message)
 {
-    return Response::make(array(
+    return Response::json(array(
     	'code'=>$code,
     	'data'=>$message
     ));

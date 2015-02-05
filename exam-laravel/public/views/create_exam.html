@@ -1,5 +1,5 @@
 <div class="row" style="margin:5px" >
-	<h2 data-ng-click="isExamInfoCollapsed=!isExamInfoCollapsed"><small>Editing {{ExamName}}
+	<h2 data-ng-click="isExamInfoCollapsed=!isExamInfoCollapsed"><small>Editing {{exam.title}}
 	<i class="fa fa-pencil-square-o fa-lg" style="color:green"></i></small></h2>
 </div>
 <div class="panel-body" collapse="isExamInfoCollapsed">
@@ -18,10 +18,10 @@
 		<div class="row form-group">
 			<label class="col-md-1 text-right">Exam Time:</label>
 		    <div class="form-group col-md-2">
-		      <input type="text" size="6" class="form-control" data-ng-model="defaultDate" data-autoclose="1" placeholder="Date" bs-datepicker>
+		      <input type="text" size="6" class="form-control" data-ng-model="exam.starttime" data-autoclose="1" placeholder="Date" bs-datepicker>
 		    </div>
 		    <div class="form-group col-md-2">
-		      <input type="text" size="6" class="form-control" data-ng-model="defaultDate" data-autoclose="1" placeholder="Time" bs-timepicker >
+		      <input type="text" size="6" class="form-control" data-ng-model="exam.starttime" data-autoclose="1" placeholder="Time" bs-timepicker >
 		    </div>
 			<label class="col-md-1 text-right">Duration in Minute:</label>
 		    <div class="col-md-4">
@@ -30,7 +30,7 @@
 		</div>
 	</form>
 	<div class="row">
-		<button class="btn btn-success col-md-offset-9 col-md-1 text-right" ng-click="ok()">OK</button>
+		<button class="btn btn-success col-md-offset-9 col-md-1 text-right" ng-click="saveExam()">OK</button>
 	</div>
 </div>
 
@@ -102,7 +102,7 @@
 			      			<input type="checkbox" data-ng-model="question.coding_qn">
 			      			<label> Enable Code Editor In Exam</label>
 		      			</div>
-		      			<div class="panel-body" data-ng-show="question.coding_qn">
+		      			<div class="panel-body" data-ng-show="question.coding_qn" data-ng-click="question.compiler_enable=!question.compiler_enable">
 		      				<input type="checkbox" data-ng-model="question.compiler_enable">
 		      				<label> Enable Compiler In Exam</label>
 		      			</div>
