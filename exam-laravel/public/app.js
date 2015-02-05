@@ -1,6 +1,6 @@
 // app.js
 
-var examApp = angular.module('examApp', ['ngRoute', 'ui.bootstrap','ui.ace','textAngular']);
+var examApp = angular.module('examApp', ['ngRoute', 'ui.bootstrap','ui.ace','textAngular','mgcrea.ngStrap']);
 
 examApp.config(function($routeProvider,$locationProvider,$provide) {
 	$routeProvider
@@ -156,11 +156,17 @@ examApp.controller('newExamController', ['$scope', '$http',function($scope,$http
 
 		});	
 
-	$scope.hideTools = true;
-	$scope.onFocusQuestionBody = function(){
-		console.log('test click');
-		$scope.hideTools=false;
-	}
+	$scope.isExamInfoCollapsed = false;
+	$scope.ExamName="CS1010 Mid-Term Exam";
+
+	$scope.exam={
+		title:"Mid Term Test",
+		course:"CS1010J",
+		fullmarks:100,
+		duration:90
+	};
+
+	$scope.defaultDate = "2015-02-05T08:00:01.534Z"; // (formatted: 2/5/15 4:00 PM)
 
 	// The ui-ace option
     $scope.aceOptions = {

@@ -9,8 +9,12 @@
     <link rel="stylesheet" href="styles/style.css">
     <!-- SPELLS -->
     <!-- load angular and angular route via CDN -->
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.25/angular.min.js"></script>
+     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.25/angular.min.js"></script>
+    <!-- // <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.12/angular.min.js"></script> -->
+
     <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.25/angular-route.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/angular-strap/2.1.2/angular-strap.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/angular-strap/2.1.2/angular-strap.tpl.min.js"></script>
     <script src="app.js"></script>
     <script src="js/ui-bootstrap-0.12.0.min.js"></script>
     <script src="js/ace/ace.js" type="text/javascript" charset="utf-8"></script>
