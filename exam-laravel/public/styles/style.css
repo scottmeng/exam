@@ -1,3 +1,25 @@
 .ace_editor  {
   height : 300px;
 }
+
+.tab-content{
+	padding: 5px;
+}
+
+.ta-editor{
+	padding: 10px;
+	height: auto;
+    overflow: auto;
+    font-family: inherit;
+	min-height: 100px;
+	width: auto;
+	visibility: 
+}
+
+.question-body{
+	padding: 10px;
+}
+
+.hideElement{
+	visibility: hidden;
+}

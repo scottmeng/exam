@@ -2,8 +2,7 @@
 
 var examApp = angular.module('examApp', ['ngRoute', 'ui.bootstrap','ui.ace','textAngular']);
 
-
-examApp.config(function($routeProvider,$locationProvider) {
+examApp.config(function($routeProvider,$locationProvider,$provide) {
 	$routeProvider
 		.when('/', {
 			templateUrl: 'views/login.html',
@@ -22,6 +21,24 @@ examApp.config(function($routeProvider,$locationProvider) {
 		});
 
 	 $locationProvider.html5Mode(true);
+
+
+	 //*********test adding tools**********
+
+	  // $provide.decorator('taOptions', ['taRegisterTool', '$delegate', function(taRegisterTool, taOptions){
+   //      // $delegate is the taOptions we are decorating
+   //      // register the tool with textAngular
+   //      taRegisterTool('colourRed', {
+   //          iconclass: "fa fa-square red",
+   //          action: function(){
+   //              this.$editor().wrapSelection('forecolor', 'red');
+   //          }
+   //      });
+   //      // add the button to the default toolbar definition
+   //      taOptions.toolbar[1].push('colourRed');
+   //      return taOptions;
+   //  }]);
+
 });
 
 
@@ -139,13 +156,11 @@ examApp.controller('newExamController', ['$scope', '$http',function($scope,$http
 
 		});	
 
-	// $scope.questionTypes = [{
-	// 	type: 1,
-	// 	name: 'Multiple Choise Question'
-	// }, {
-	// 	type: 2,
-	// 	name: 'Short Answer Question'
-	// }];
+	$scope.hideTools = true;
+	$scope.onFocusQuestionBody = function(){
+		console.log('test click');
+		$scope.hideTools=false;
+	}
 
 	// The ui-ace option
     $scope.aceOptions = {
@@ -170,6 +185,11 @@ examApp.controller('newExamController', ['$scope', '$http',function($scope,$http
  
       //  } 
     };
+
+    $scope.textAreaSetup = function($element){
+	  $element.attr('ui-codemirror', '');
+	};
+
 
 	$scope.questions = [{
 		type: 1,

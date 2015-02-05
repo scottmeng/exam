@@ -11,45 +11,57 @@
 	</div>
 	<div class="panel-body">
 		<tabset>
-		    <tab heading="Static title">
-			<div>
-				<form class="form-horizontal">
-					<div class="form-group">
-						<label class="col-md-3 control-label">Question body</label>
-						<div ui-ace="aceOptions" class="col-md-8">
-							<textarea class="form-control" rows="3"></textarea>
-						</div>
+		    <tab>
+	    	<tab-heading>
+	        	<i class="glyphicon glyphicon-pencil"></i> Edit
+	        </tab-heading>
+			<div class="tab-content">
+				<form class="container">
 
-						<div text-angular ng-model="htmlVariable">test test</div>
-
-					</div>
-					<code>function() {<br>
-					}</code>
-
-					<div class="form-group" data-ng-show="isMCQ(question.type);">
-						<label class="col-md-3 control-label">Question options</label>
-						<div class="col-md-8">
-							<div class="row" style="margin-bottom: 10px" data-ng-repeat="option in question.options">
-								<div class="col-md-9">
-									<input class="form-control" type="text" placeholder="Option text" data-ng-model="option.content">
+					<div class="row" style="margin:10px">
+						<div class="form-group">
+							<label class="col-md-2 control-label text-right">Question body</label>
+							<!-- <div ui-ace="aceOptions" class="col-md-8"> -->
+	<!-- 						<div class="col-md-8">
+								<textarea class="form-control" rows="3"></textarea>
+							</div> -->
+							<div class="col-md-8">
+								<div class="row toolbar" text-angular-toolbar ta-toolbar="[['h1','h2','h3','quote'],['bold','italics','underline'],['ul','ol','html'],['justifyLeft','justifyCenter','justifyRight']]" name="toolbar">
 								</div>
-								<label class="checkbox-inline">
-									<input type="checkbox" id="inlineCheckbox1" value="option1" data-ng-model="option.correct"> correct option
-								</label>
 							</div>
-							<button class="btn btn-primary" data-ng-click="addOption(question);">Add new option</button>
+						</div>
+					</div>
+
+					<div class="row" style="margin:10px">
+						<div class="col-md-8 col-md-offset-2" text-angular ta-target-toolbars="toolbar" ng-model="htmlcontent">
+						</div>
+						<button class="col-md-1 btn btn-default" ng-click="hideTools=false">
+										<i class="glyphicon glyphicon-plus"></i>
+						</button>
+					</div>
+							
+					<div class="row" style="margin:10px">
+						<div class="form-group" data-ng-show="isMCQ(question.type);">
+							<label class="col-md-2 control-label text-right">Question Options</label>
+							<div class="col-md-8">
+								<div class="row" style="margin-bottom: 10px" data-ng-repeat="option in question.options">
+									<div class="col-md-9">
+										<input class="form-control" type="text" placeholder="Option text" data-ng-model="option.content">
+									</div>
+									<label class="checkbox-inline">
+										<input type="checkbox" id="inlineCheckbox1" value="option1" data-ng-model="option.correct"> correct option
+									</label>
+								</div>
+								<button class="btn btn-primary" data-ng-click="addOption(question);">Add new option</button>
+							</div>
 						</div>
 					</div>
 				</form>
 			</div>
-
 		    </tab>
-		    <tab ng-repeat="tab in tabs" heading="{{tab.title}}" active="tab.active" disabled="tab.disabled">
-		      {{tab.content}}
-		    </tab>
-		    <tab select="alertMe()">
+		    <tab>
 		      <tab-heading>
-		        <i class="glyphicon glyphicon-bell"></i> Alert!
+		        <i class="glyphicon glyphicon-cog"></i> Settings
 		      </tab-heading>
 		      I've got an HTML heading, and a select callback. Pretty cool!
 		    </tab>
