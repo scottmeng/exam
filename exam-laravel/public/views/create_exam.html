@@ -88,6 +88,12 @@
 		        <i class="glyphicon glyphicon-cog"></i> Settings
 		      </tab-heading>
 			      <div class="container col-md-10" style="margin:10px">
+			      	<div class="panel panel-warning">
+		      			<div class="panel-heading">	
+		      				<label> Full Marks</label>
+			      			<input type="email" data-ng-model="question.full_marks">
+		      			</div>
+		      		</div>
 		      		<div class="panel panel-warning">
 		      			<div class="panel-heading" data-ng-click="question.coding_qn=!question.coding_qn">
 			      			<input type="checkbox" data-ng-model="question.coding_qn">
@@ -115,5 +121,5 @@
 </div>
 <div class="pull-right">
 	<button class="btn btn-primary" data-ng-click="addNewQuestion();">Add new question</button>
-	<button class="btn btn-success">Save</button>
+	<button class="btn btn-success" data-ng-click="finishEditExam()">Save</button>
 </div>

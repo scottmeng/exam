@@ -51,7 +51,7 @@ class ExamController extends BaseController {
 
 	public function postQuestion($exam_id)
 	{
-		$type = Questiontype::find(Input::get('questiontype'));
+		$exam = Exam::find($exam_id);
 
 		$question = new Question(array(
 			'index'=>Input::get('index',-1),
@@ -62,12 +62,11 @@ class ExamController extends BaseController {
 			'coding_qn' => Input::get('coding_qn',False),
 			'compiler_enable' => Input::get('compiler_enable',False),
 			'marking_scheme' => Input::get('marking_scheme',NULL),
-			'full_marks' => Input::get('full_marks',0),
-			'exam_id' => $exam_id
+			'full_marks' => Input::get('full_marks',0)
 		));
 
-		$question->save();
-		// populateOptions(Input::get('options'));
+		$exam->questions()->save($question);
+		//this->populateOptions(Input::get('options'));
 		return Response::success($question);
 	}
 
@@ -90,7 +89,7 @@ class ExamController extends BaseController {
 		return Response::success($question);
 	}
 
-	public function getQuestion($exam_id)
+	public function getQuestions($exam_id)
 	{
 		$exam = Exam::find($exam_id);
 		$questions = $exam->questions()->get();
@@ -109,6 +108,7 @@ class ExamController extends BaseController {
 		return Response::success($question);
 	}
 
+	//TODO:populated inserted options to Options table
 	private function populateOptions($options){
 
 	}

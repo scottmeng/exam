@@ -148,8 +148,8 @@ examApp.controller('dashboardController', ['$scope', '$location', '$modal', '$ht
 	$scope.init();
 }]);
 
-examApp.controller('newExamController', ['$scope', '$http', '$routeParams', 
-	function($scope, $http, $routeParams) {
+examApp.controller('newExamController', ['$scope', '$location','$http', '$routeParams',
+	function($scope, $location, $http, $routeParams) {
 
 	$scope.examId = $routeParams.examId;
 
@@ -163,7 +163,7 @@ examApp.controller('newExamController', ['$scope', '$http', '$routeParams',
 			});	
 	};
 
-	$scope.saveExam=function(){
+	$scope.saveExam = function(){
 		$scope.isExamInfoCollapsed = true;
 		$http.put('/api/exam/' + $scope.examId + '/editexam',$scope.exam)
 			.success(function(data){
@@ -172,6 +172,10 @@ examApp.controller('newExamController', ['$scope', '$http', '$routeParams',
 					$scope.exam = data.data;
 				}
 			})
+	};
+
+	$scope.finishEditExam = function(){
+		$location.path('/home');
 	};
 
 	$scope.getExamInfo = function() {
@@ -214,18 +218,25 @@ examApp.controller('newExamController', ['$scope', '$http', '$routeParams',
 		$http.get('/api/exam/' + $scope.examId + '/questions')
 		.success(function(data){
 			if (data.code === 200) {
-				console.log('questions list:');
-				console.log(data);
-				$scope.questions = data.data;
+				if(data.data.length>0)
+					$scope.questions = data.data;
+				else{	
+					$scope.questions = [{
+						questiontype: 1,
+						content: '',
+						options: []
+					}];
+				}
+
 			}
 		})	
 	}
 
-	$scope.questions = [{
-		questiontype: 1,
-		content: '',
-		options: []
-	}];
+	// $scope.questions = [{
+	// 	questiontype: 1,
+	// 	content: '',
+	// 	options: []
+	// }];
 
 	$scope.submitQuestion = function(index){
 		
@@ -288,4 +299,5 @@ examApp.controller('newExamController', ['$scope', '$http', '$routeParams',
 	// initialization
 	$scope.getExamInfo();
 	$scope.getQuestionTypes();
+	$scope.initQuestions();
 }]);
