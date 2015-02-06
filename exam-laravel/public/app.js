@@ -3,25 +3,26 @@
 var examApp = angular.module('examApp', ['ngRoute', 'ui.bootstrap','ui.ace','textAngular',
 	'mgcrea.ngStrap.datepicker','mgcrea.ngStrap.timepicker']);
 
-examApp.config(function($routeProvider,$locationProvider,$provide) {
-	$routeProvider
-		.when('/', {
-			templateUrl: 'views/login.html',
-			controller: 'loginController'
-		})
-		.when('/home', {
-			templateUrl: 'views/dashboard.html',
-			controller: 'dashboardController'
-		})
-		.when('/create-exam', {
-			templateUrl: 'views/create_exam.html',
-			controller: 'newExamController'
-		})
-		.otherwise({
-			templateUrl: 'views/not_found.html'
-		});
+examApp.config(['$routeProvider', '$locationProvider', 
+	function($routeProvider, $locationProvider) {
+		$routeProvider
+			.when('/', {
+				templateUrl: 'views/login.html',
+				controller: 'loginController'
+			})
+			.when('/home', {
+				templateUrl: 'views/dashboard.html',
+				controller: 'dashboardController'
+			})
+			.when('/exam/:examId/edit', {
+				templateUrl: 'views/create_exam.html',
+				controller: 'newExamController'
+			})
+			.otherwise({
+				templateUrl: 'views/not_found.html'
+			});
 
-	 $locationProvider.html5Mode(true);
+		$locationProvider.html5Mode(true);
 
 
 	 //*********test adding tools**********
@@ -40,7 +41,8 @@ examApp.config(function($routeProvider,$locationProvider,$provide) {
    //      return taOptions;
    //  }]);
 
-});
+	}
+]);
 
 
 examApp.controller('loginController', ['$scope', '$location', '$window', '$http',
@@ -78,19 +80,18 @@ examApp.controller('ModalInstanceCtrl', function ($scope, $modalInstance, $http,
 
 		$scope.createError = null;
 		$http.post('/api/create-exam', newExamVar)
-		.success(function(data, status, header, config) {
-			console.log(data);
-			if(data['code']==200){
-				console.log('success');
-				$modalInstance.close();
-				$scope.exam = data['data'];
-			}
-			else
-				$scope.createError = data['data'];
-		})
-		.error(function(data, status, header, config) {
+			.success(function(data, status, header, config) {
+				console.log(data);
+				if (data.code === 200) {
+					var exam = data.data;
+					$modalInstance.close(exam);
+				} else {
+					$scope.createError = data.data;
+				}
+			})
+			.error(function(data, status, header, config) {
 
-		});	
+			});	
 	};
 
 	$scope.cancel = function () {
@@ -99,7 +100,7 @@ examApp.controller('ModalInstanceCtrl', function ($scope, $modalInstance, $http,
 });
 
 examApp.controller('dashboardController', ['$scope', '$location', '$modal', '$http',
-	function($scope, $location, $modal,$http) {
+	function($scope, $location, $modal, $http) {
 	
 	$scope.selectedTab = 1;
 
@@ -133,8 +134,9 @@ examApp.controller('dashboardController', ['$scope', '$location', '$modal', '$ht
 			}
 		});
 
-		modalInstance.result.then(function (selectedItem) {
-			$location.path('/create-exam');
+		modalInstance.result.then(function (exam) {
+			console.log('test');
+			$location.path('/exam/' + exam.id + '/edit');
 		}, function () {
 		});
 	};
@@ -142,35 +144,47 @@ examApp.controller('dashboardController', ['$scope', '$location', '$modal', '$ht
 	$scope.init();
 }]);
 
-examApp.controller('newExamController', ['$scope', '$http',function($scope,$http) {
+examApp.controller('newExamController', ['$scope', '$http', '$routeParams', 
+	function($scope, $http, $routeParams) {
 
-	$http.get('/api/get-qn-types')
-		.success(function(data, status, header, config) {
-			$scope.questionTypes = data.types;
-			console.log(data);
-		})
-		.error(function(data, status, header, config) {
+	$scope.examId = $routeParams.examId;
 
-		});	
+	$scope.getQuestionTypes = function() {
+		$http.get('/api/get-qn-types')
+			.success(function(data, status, header, config) {
+				$scope.questionTypes = data.types;
+			})
+			.error(function(data, status, header, config) {
+
+			});	
+	};
 
 	$scope.saveExam=function(){
 		$scope.isExamInfoCollapsed = true;
-		$http.put('/api/exam/1/editexam',$scope.exam)
+		$http.put('/api/exam/' + $scope.exam.id + '/editexam',$scope.exam)
 			.success(function(data){
-				if(data['code']==200)
-					$scope.exam = data;
+				if (data.code === 200) {
+					console.log(data.data);
+					// $scope.exam = data.data;
+				}
 			})
+	};
+
+	$scope.getExamInfo = function() {
+		// TODO: replace this part with GET request to 
+		// fetch exam information based on $scope.examId
+		$scope.exam = {
+			id: 2,
+			title: "Mid Term Test",
+			course: "CS1010J",
+			fullmarks: 100,
+			duration: 90,
+			starttime: 1423150709
+		};
 	};
 
 	$scope.isExamInfoCollapsed = true;
 	$scope.ExamName="CS1010 Mid-Term Exam";
-
-	$scope.exam={
-		title:"Mid Term Test",
-		course:"CS1010J",
-		fullmarks:100,
-		duration:90
-	};
 
 	$scope.defaultDate = "2015-02-05T08:00:01.534Z"; // (formatted: 2/5/15 4:00 PM)
 	$scope.isMarkingSchemeCollapsed = true;
@@ -209,10 +223,10 @@ examApp.controller('newExamController', ['$scope', '$http',function($scope,$http
 	  $element.attr('ui-codemirror', '');
 	};
 
-
 	$scope.questions = [{
 		type: 1,
-		content: ''
+		content: '',
+		options: []
 	}];
 
 	$scope.moreOptionsCollapsed = true;
@@ -254,4 +268,8 @@ examApp.controller('newExamController', ['$scope', '$http',function($scope,$http
 			question.options = [];
 		}
 	};
+
+	// initialization
+	$scope.getExamInfo();
+	$scope.getQuestionTypes();
 }]);
