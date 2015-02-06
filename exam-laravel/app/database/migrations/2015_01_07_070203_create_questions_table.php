@@ -18,10 +18,12 @@ class CreateQuestionsTable extends Migration {
 			$table->integer('index');
 			$table->integer('subindex')->nullable()->unsigned();
 			$table->integer('questiontype_id')->unsigned();
+			$table->integer('exam_id')->unsigned();
 			$table->string('title')->nullable();
 			$table->text('content')->nullable();
 			$table->boolean('coding_qn')->default(0);
 			$table->boolean('compiler_enable')->default(0);
+			$table->boolean('randomizeOptions')->default(0);
 			$table->string('marking_scheme')->nullable();
 			$table->integer('full_marks')->default(0);
 			$table->timestamps();
@@ -29,7 +31,7 @@ class CreateQuestionsTable extends Migration {
 
 		Schema::table('questions', function(Blueprint $table)
 		{
-			$table->integer('exam')->references('id')->on('exams');
+			$table->foreign('exam_id')->references('id')->on('exams');
 			$table->foreign('questiontype_id')->references('id')->on('questiontypes');
 		});
 	}

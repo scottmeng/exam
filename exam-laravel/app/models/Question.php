@@ -6,7 +6,17 @@ class Question extends Eloquent {
 
 	public function type()
     {
-        return $this->belongTo('Questiontype');
+        return $this->belongsTo('Questiontype');
+    }
+
+    public function exam()
+    {
+    	return $this->belongsTo('Exam');
+    }
+
+    public function options()
+    {
+    	return $this->hasMany('Option');
     }
 
 }

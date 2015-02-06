@@ -18,6 +18,7 @@ class CreateOptionsTable extends Migration {
 			$table->integer('index')->nullable();
 			$table->text('content')->nullable();
 			$table->integer('question_id')->unsigned();
+			$table->boolean('correctOption')->default(0);
 			$table->timestamps();
 		});
 

@@ -4,32 +4,23 @@ class ExamController extends BaseController {
 
 	public function newExam()
 	{
-	 // protected $fillable = array('name', 'course_id', 'examstate_id','description','duration_in_min','full_marks','total_qn', 'start_time');
-
-		$course_id = Input::get('course');
-		$name = Input::get('title');
-
-		// $exams = Exam::whereRaw('course_id = ? and name = ?',array($course_id,$name))->get();
-		// $valid = $exams->isEmpty();
-
-
-		// return $valid?'True':'False';
+		$course_id = Input::get('course_id');
+		$title = Input::get('title');
 
 		$course = Course::find($course_id);
-		$valid_exam = Exam::whereRaw('course_id = ? and name = ?',array($course_id,$name))->get()->isEmpty();
+		$valid_exam = Exam::whereRaw('course_id = ? and title = ?',array($course_id,$title))->get()->isEmpty();
 
 		if($valid_exam == True){
 
-		 	$exam = new Exam(array('name'=>$name));
-			$exam = $course->exams()->save($exam);
+		 	$exam = new Exam();
+			$exam->title=$title;	
+			$course->exams()->save($exam);
 
 			return Response::success($exam);
 		}
 		else{
 		    return Response::error(406,'Exam already exists!');
 		}
-
-
 	}
 
 	public function putEditexam($exam_id)
@@ -39,36 +30,44 @@ class ExamController extends BaseController {
 		$exam = Exam::find($exam_id);
 		Log::info($exam);
 
-		$exam->name = Input::get('title');
+		$exam->title = Input::get('title');
 		$exam->description = Input::get('description');
-		$exam->duration_in_min = Input::get('duration');
-		$exam->full_marks = Input::get('fullmarks');
-		$exam->total_qn = Input::get('totalqn');
-		$exam->start_time = Input::get('starttime');
+		$exam->duration = Input::get('duration');
+		$exam->fullmarks = Input::get('fullmarks');
+		$exam->totalqn = Input::get('totalqn');
+		$exam->starttime = Input::get('starttime');
 
 		$exam->save();
 		return Response::success($exam);
 	}
 
 
+	public function getExaminfo($exam_id)
+	{
+		$exam = Exam::find($exam_id);	
+		return Response::success($exam);
+	}
+
+
 	public function postQuestion($exam_id)
 	{
-		$question = Input::all();
+		$type = Questiontype::find(Input::get('questiontype'));
 
 		$question = new Question(array(
-			'index'=>Input::get('index'),
-			'subindex' => Input::get('subindex'),
-			'questiontype' => Input::get('question_type'),
-			'title' => Input::get('title'),
-			'content' => Input::get('content'),
-			'coding_qn' => Input::get('coding_qn'),
-			'compiler_enable' => Input::get('compiler_enable'),
-			'marking_scheme' => Input::get('marking_scheme'),
-			'full_marks' => Input::get('full_marks'),
-			'exam' => Input::get('exam_id')
+			'index'=>Input::get('index',-1),
+			'subindex' => Input::get('subindex',-1),
+			'questiontype_id' => Input::get('questiontype',-1),
+			'title' => Input::get('title',NULL),
+			'content' => Input::get('content',NULL),
+			'coding_qn' => Input::get('coding_qn',False),
+			'compiler_enable' => Input::get('compiler_enable',False),
+			'marking_scheme' => Input::get('marking_scheme',NULL),
+			'full_marks' => Input::get('full_marks',0),
+			'exam_id' => $exam_id
 		));
-
+		
 		$question->save();
+		// populateOptions(Input::get('options'));
 		return Response::success($question);
 	}
 
@@ -77,18 +76,24 @@ class ExamController extends BaseController {
 		$id = Input::get('id');
 		$question = Question::findOrFail($id);
 
-		$question->index = Input::get('index');
-		$question->subindex = Input::get('subindex');
-		$question->questiontype = Input::get('question_type');
-		$question->title = Input::get('title');
-		$question->content = Input::get('content');
-		$question->coding_qn = Input::get('coding_qn');
-		$question->compiler_enable = Input::get('compiler_enable');
-		$question->marking_scheme = Input::get('marking_scheme');
-		$question->full_marks = Input::get('full_marks');
+		$question->index = Input::get('index',-1);
+		$question->subindex = Input::get('subindex',-1);
+		$question->questiontype = Input::get('question_type',-1);
+		$question->title = Input::get('title',NULL);
+		$question->content = Input::get('content',NULL);
+		$question->coding_qn = Input::get('coding_qn',False);
+		$question->compiler_enable = Input::get('compiler_enable',False);
+		$question->marking_scheme = Input::get('marking_scheme',NULL);
+		$question->full_marks = Input::get('full_marks',0);
 
 		$question->save();
 		return Response::success($question);
+	}
+
+	public function getQuestion($exam_id)
+	{
+
+
 	}
 
 
@@ -100,6 +105,10 @@ class ExamController extends BaseController {
 		$question->delete(); 
 
 		return Response::success($question);
+	}
+
+	private function populateOptions($options){
+
 	}
 
  

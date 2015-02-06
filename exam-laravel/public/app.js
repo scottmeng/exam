@@ -1,6 +1,7 @@
 // app.js
 
-var examApp = angular.module('examApp', ['ngRoute', 'ui.bootstrap','ui.ace','textAngular',
+var examApp = angular.module('examApp', ['ngRoute', 'ui.bootstrap.modal','ui.bootstrap.tabs',
+	'ui.ace','textAngular','ui.bootstrap.buttons','ui.bootstrap.collapse',
 	'mgcrea.ngStrap.datepicker','mgcrea.ngStrap.timepicker']);
 
 examApp.config(['$routeProvider', '$locationProvider', 
@@ -76,11 +77,12 @@ examApp.controller('ModalInstanceCtrl', function ($scope, $modalInstance, $http,
 
 	$scope.ok = function () {
 
-		var newExamVar = $scope.exam;
-
 		$scope.createError = null;
-		$http.post('/api/create-exam', newExamVar)
+		$http.post('/api/create-exam', $scope.exam)
 			.success(function(data, status, header, config) {
+				console.log("captured exam data:");
+				console.log($scope.exam);
+				console.log('data received:');
 				console.log(data);
 				if (data.code === 200) {
 					var exam = data.data;
@@ -116,7 +118,6 @@ examApp.controller('dashboardController', ['$scope', '$location', '$modal', '$ht
 		$http.get('/api/get-courses')
 			.success(function(data, status, header, config) {
 				$scope.courses = data.courses;
-				console.log(data);
 			})
 			.error(function(data, status, header, config) {
 
@@ -135,7 +136,6 @@ examApp.controller('dashboardController', ['$scope', '$location', '$modal', '$ht
 		});
 
 		modalInstance.result.then(function (exam) {
-			console.log('test');
 			$location.path('/exam/' + exam.id + '/edit');
 		}, function () {
 		});
@@ -161,26 +161,24 @@ examApp.controller('newExamController', ['$scope', '$http', '$routeParams',
 
 	$scope.saveExam=function(){
 		$scope.isExamInfoCollapsed = true;
-		$http.put('/api/exam/' + $scope.exam.id + '/editexam',$scope.exam)
+		$http.put('/api/exam/' + $scope.examId + '/editexam',$scope.exam)
 			.success(function(data){
 				if (data.code === 200) {
-					console.log(data.data);
-					// $scope.exam = data.data;
+					console.log(data);
+					$scope.exam = data.data;
 				}
 			})
 	};
 
 	$scope.getExamInfo = function() {
-		// TODO: replace this part with GET request to 
-		// fetch exam information based on $scope.examId
-		$scope.exam = {
-			id: 2,
-			title: "Mid Term Test",
-			course: "CS1010J",
-			fullmarks: 100,
-			duration: 90,
-			starttime: 1423150709
-		};
+
+		$http.get('/api/exam/' + $scope.examId + '/examinfo')
+		.success(function(data){
+			if (data.code === 200) {
+				console.log(data);
+				$scope.exam = data.data;
+			}
+		})
 	};
 
 	$scope.isExamInfoCollapsed = true;
@@ -189,11 +187,6 @@ examApp.controller('newExamController', ['$scope', '$http', '$routeParams',
 	$scope.defaultDate = "2015-02-05T08:00:01.534Z"; // (formatted: 2/5/15 4:00 PM)
 	$scope.isMarkingSchemeCollapsed = true;
 	$scope.hasMarkingScheme = false;
-
-	$scope.toggleMarkingScheme=function(){
-		// $scope.hasMarkingScheme = !($scope.hasMarkingScheme);
-		$scope.isMarkingSchemeCollapsed = !($scope.isMarkingSchemeCollapsed);
-	};
 
 	// The ui-ace option
     $scope.aceOptions = {
@@ -206,52 +199,71 @@ examApp.controller('newExamController', ['$scope', '$http', '$routeParams',
 	  	enableSnippets: true,
 	  	enableLiveAutocompletion: true
 	  }
-	  // onLoad: aceLoaded,
-	  // onChange: aceChanged
-	
-      // onLoad: function (_ace) {
- 
-      // // HACK to have the ace instance in the scope...
-      //   $scope.modeChanged = function () {
-      //     _ace.getSession().setMode("ace/mode/" + $scope.mode.toLowerCase());
-      //   };
- 
-      //  } 
+
     };
 
     $scope.textAreaSetup = function($element){
 	  $element.attr('ui-codemirror', '');
 	};
 
+	$scope.initQuestions = function(){
+		$http.get('/api/exam/' + $scope.examId + '/questions')
+		.success(function(data){
+			if (data.code === 200) {
+				console.log('questions list:');
+				console.log(data);
+				$scope.questions = data.data;
+			}
+		})	
+	}
+
 	$scope.questions = [{
-		type: 1,
+		questiontype: 1,
 		content: '',
 		options: []
 	}];
 
-	$scope.moreOptionsCollapsed = true;
+	$scope.submitQuestion = function(index){
+		
+		console.log('question sent:');
+		console.log($scope.questions[index]);
 
-	$scope.isMCQ = function(type) {
-		return type == 1;
+		$scope.questions[index].index = index+1;
+		
+		$http.post('/api/exam/' + $scope.examId + '/question', $scope.questions[index])
+		.success(function(data){
+			if (data.code === 200) {
+				console.log('question received:');
+				console.log(data);
+				//$scope.exam = data.data;
+			}
+		})	
+	};
+
+	$scope.isMCQ = function(questiontype) {
+		return questiontype == 1;
 	};
 
 	$scope.addNewQuestion = function() {
-		$scope.questions.push({type: 1, content: ''});
+		var index=$scope.questions.length;
+		$scope.submitQuestion(index-1);//submit the current question and add new question
+		$scope.questions.push({questiontype: 1, content: ''});
 	};
 
 	$scope.removeQuestion = function(index) {
+		console.log('remove question:'+index);
 		$scope.questions.splice(index, 1);
 	};
 
 	$scope.addOption = function(question) {
-		if (question.type === 2) {
+		if (question.questiontype === 2) {
 			return;
 		}
 		question.options.push({correct: false, content: ''});
 	};
 
 	$scope.onQuestionTypeChanged = function(question) {
-		if (question.type === 1) {
+		if (question.questiontype === 1) {
 			if (!question.options) {
 				question.options = [];
 			}

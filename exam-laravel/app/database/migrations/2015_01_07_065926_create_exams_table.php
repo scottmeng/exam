@@ -15,16 +15,17 @@ class CreateExamsTable extends Migration {
 		Schema::create('exams', function(Blueprint $table)
 		{
 			$table->increments('id');
-			$table->string('name');
+			$table->string('title');
 			$table->integer('course_id')->unsigned();
 			$table->text('description')->nullable();
 			$table->integer('examstate_id')->unsigned()->default(1);
-			$table->integer('duration_in_min')->default(60);
-			$table->integer('full_marks')->default(100);
-			$table->integer('total_qn')->default(0);
-			$table->dateTime('start_time')->nullable();
+			$table->integer('duration')->default(60);
+			$table->integer('fullmarks')->default(100);
+			$table->integer('totalqn')->default(0);
+			$table->dateTime('starttime')->nullable();
 			$table->foreign('course_id')->references('id')->on('courses');
 			$table->foreign('examstate_id')->references('id')->on('examstates');
+			$table->boolean('randomizeQuestions')->default(0);
 			$table->timestamps();
 		});
 	}

@@ -12,4 +12,8 @@ class Exam extends Eloquent{
     	return $this->belongsTo('ExamState');
     }
 
+    public function questions(){
+    	return $this->hasMany('Question');
+    }
+
 }
