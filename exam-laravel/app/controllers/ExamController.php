@@ -65,7 +65,7 @@ class ExamController extends BaseController {
 			'full_marks' => Input::get('full_marks',0),
 			'exam_id' => $exam_id
 		));
-		
+
 		$question->save();
 		// populateOptions(Input::get('options'));
 		return Response::success($question);
@@ -92,8 +92,10 @@ class ExamController extends BaseController {
 
 	public function getQuestion($exam_id)
 	{
+		$exam = Exam::find($exam_id);
+		$questions = $exam->questions()->get();
 
-
+		return Response::success($questions);
 	}
 
 

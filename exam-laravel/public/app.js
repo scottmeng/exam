@@ -124,6 +124,10 @@ examApp.controller('dashboardController', ['$scope', '$location', '$modal', '$ht
 			});	
 	};
 
+	$scope.viewExam = function(examid){
+		$location.path('/exam/' + examid + '/edit');
+	}
+
 	$scope.addExam = function() {
 		var modalInstance = $modal.open({
 			templateUrl: 'myModalContent.html',

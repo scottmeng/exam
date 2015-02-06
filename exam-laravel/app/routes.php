@@ -5,19 +5,9 @@ require_once (dirname(__FILE__) . "/../vendor/adldap/adLDAP/lib/adLDAP/adLDAP.ph
 
 
 Route::get('/', 'LoginValidateController@init');
-
 Route::post('/login', 'LoginValidateController@validateLogin');
-// {
-// 	// return Redirect::to('https://ivle.nus.edu.sg/api/login/?apikey=6TfFzkSWBlHOT4ExcqFpY&url=http://localhost:8000/test');
 
-// 	return Redirect::to('https://ivle.nus.edu.sg/api/login/?apikey=6TfFzkSWBlHOT4ExcqFpY&url=http://localhost:8000/validate');
-// });
 
-Route::get('/api/get-courses','HomeController@getCourses');
-Route::get('/api/get-qn-types','HomeController@getQnTypes');
-
-// Route::get('/home', 'HomeController@getHome'); 
-// Route::get('create-exam','HomeController@getHome');
 
 
 // send default page back when 404
@@ -25,8 +15,9 @@ App::missing(function($exception) {
     return View::make('home');
 });
 
+Route::get('/api/get-courses','HomeController@getCourses');
+Route::get('/api/get-qn-types','HomeController@getQnTypes');
 Route::post('/api/create-exam','ExamController@newExam');
-
 Route::controller('/api/exam/{exam_id}','ExamController');
 
 
@@ -42,7 +33,10 @@ Route::controller('/api/exam/{exam_id}','ExamController');
 
 
 
-Route::get('/test', function() {
+Route::post('/test', 'HomeController@getCourses');
+
+
+	// function() {
 
 	// if (Auth::attempt(array('username' => $username, 'password' => $password)))
 	// {
@@ -114,8 +108,8 @@ Route::get('/test', function() {
 	// 		var_dump($result);
 	// 	}       
 	// }
-	return	Question::destroy(10);
+// 	return	Question::destroy(10);
 
 
 
-});
+// });

@@ -48,12 +48,12 @@
 	</div>
 	<div class="tab-pane" data-ng-class="{active:isTabSelected(2)}">
 		<div class="panel panel-primary" data-ng-repeat="course in courses">
-			<div class="panel-heading">{{ course.nus_id }}
+			<div class="panel-heading">{{ course.nus_id + " " + course.name }}
 			</div>
-			<div class="panel-body bg-info">{{ course.name }}</div>
+			<div class="panel-body bg-info">{{ course.description }}</div>
 			<div class="list-group">
-				<a class="list-group-item" data-ng-repeat="exam in course.exams">
-					<span class="badge">{{ exam.date | date:'medium' }}</span> {{ exam.title }}
+				<a class="list-group-item" data-ng-repeat="exam in course.exams" data-ng-click="viewExam(exam.id)">
+					<span class="badge">{{ exam.starttime | date:'medium' }}</span> {{ exam.title }}
 				</a>
 			</div>
 		</div>
