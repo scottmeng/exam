@@ -26,6 +26,8 @@ examApp.config(['$routeProvider', '$locationProvider',
 		$locationProvider.html5Mode(true);
 
 
+
+
 	 //*********test adding tools**********
 
 	  // $provide.decorator('taOptions', ['taRegisterTool', '$delegate', function(taRegisterTool, taOptions){
@@ -183,7 +185,6 @@ examApp.controller('newExamController', ['$scope', '$location','$http', '$routeP
 		$http.get('/api/exam/' + $scope.examId + '/examinfo')
 		.success(function(data){
 			if (data.code === 200) {
-				console.log(data);
 				$scope.exam = data.data;
 			}
 		})
@@ -248,9 +249,7 @@ examApp.controller('newExamController', ['$scope', '$location','$http', '$routeP
 		$http.post('/api/exam/' + $scope.examId + '/question', $scope.questions[index])
 		.success(function(data){
 			if (data.code === 200) {
-				console.log('question received:');
-				console.log(data);
-				//$scope.exam = data.data;
+				$scope.exam = data.data;
 			}
 		})	
 	};
@@ -260,13 +259,20 @@ examApp.controller('newExamController', ['$scope', '$location','$http', '$routeP
 	};
 
 	$scope.addNewQuestion = function() {
-		var index=$scope.questions.length;
-		$scope.submitQuestion(index-1);//submit the current question and add new question
 		$scope.questions.push({questiontype: 1, content: ''});
 	};
 
 	$scope.removeQuestion = function(index) {
-		console.log('remove question:'+index);
+		if($scope.exam.hasOwnProperty('id')){
+			console.log('deleting qn:');
+			console.log($scope.questions[index]);
+			$http.post('/api/exam/' + $scope.examId + '/deletequestion', $scope.questions[index])
+				.success(function(data){
+					if (data.code === 200) {
+						$scope.exam = data.data;
+					}
+				})
+		}			
 		$scope.questions.splice(index, 1);
 	};
 

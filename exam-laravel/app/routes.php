@@ -11,7 +11,7 @@ Route::post('/login', 'LoginValidateController@validateLogin');
 
 
 
-// send default page back when 404
+//send default page back when 404
 App::missing(function($exception) {
     return View::make('home');
 });
@@ -34,10 +34,10 @@ Route::controller('/api/exam/{exam_id}','ExamController');
 
 
 
-Route::post('/test', 'HomeController@getCourses');
+Route::post('/test',
 
 
-	// function() {
+	function() {
 
 	// if (Auth::attempt(array('username' => $username, 'password' => $password)))
 	// {
@@ -55,62 +55,62 @@ Route::post('/test', 'HomeController@getCourses');
 	// // //$student = Student::where('name','=', 'Livia')->get();
 	// // echo $courses->students()->first()->name;
 
- // 	 if(Input::has('username'))
- //    		$username = Input::get('username');
+ 	 if(Input::has('username'))
+    		$username = Input::get('username');
 
- // 	 if(Input::has('password'))
- //    		$password = Input::get('password');
+ 	 if(Input::has('password'))
+    		$password = Input::get('password');
     	
 
-	// if ($username != NULL && $password != NULL){
-	// 	//include the class and create a connection
- //        try {
-	// 	    $adldap = new adLDAP(array(
-	// 	    	'account_suffix'=>'nus.edu.sg',
-	// 	    	'domain_controllers'=>array('ldapstf.nus.edu.sg'),
-	// 	    	'use_ssl'=>false
-	// 	    ));
-	// 	   // $adldap->connect();
-	// 	    echo "Username '{$username}' login failed: ".$adldap->getLastError();
+	if ($username != NULL && $password != NULL){
+		//include the class and create a connection
+        try {
+		    $adldap = new adLDAP(array(
+		    	'account_suffix'=>'nus.edu.sg',
+		    	'domain_controllers'=>array('ldapstf.nus.edu.sg'),
+		    	'use_ssl'=>false
+		    ));
+		   // // $adldap->connect();
+		   //  echo "Username '{$username}' login failed: ".$adldap->getLastError();
 
- //        }
- //        catch (adLDAPException $e) {
- //            echo $e; 
- //            exit();   
- //        }
+        }
+        catch (adLDAPException $e) {
+            echo $e; 
+            exit();   
+        }
 		
-	// 	//authenticate the user
- //        echo("\r\nserver: nus.edu.sg:");
-	// 	var_dump($username,$password);
+		//authenticate the user
+        echo("\r\nserver: nus.edu.sg:");
+		var_dump($username,$password);
 
-	// 	$result = $adldap->authenticate($username, $password);
-	// 	var_dump($result);
-	// 	echo("\r\n");
+		$result = $adldap->authenticate($username, $password);
+		var_dump($result);
+		echo("\r\n");
 
-	// 	if ($result == False){
-	//         try {
-	// 		    $adldap = new adLDAP(array(
-	// 		    	'account_suffix'=>'u.nus.edu',
-	// 		    	'domain_controllers'=>array('ldapstf.nus.edu.sg'),
-	// 		    	'use_ssl'=>false
-	// 		    ));
-	// 		    $adldap->connect();
-	// 		    echo "Username '{$username}' login failed: ".$adldap->getLastError();
+		if ($result == False){
+	        try {
+			    $adldap = new adLDAP(array(
+			    	'account_suffix'=>'u.nus.edu',
+			    	'domain_controllers'=>array('ldapstf.nus.edu.sg'),
+			    	'use_ssl'=>false
+			    ));
+			    // $adldap->connect();
+			    // echo "Username '{$username}' login failed: ".$adldap->getLastError();
 
-	//         }
-	//         catch (adLDAPException $e) {
-	//             echo $e; 
-	//             exit();   
-	//         }
-	//         echo('server:u.nus.edu:');
-	// 		var_dump($username,$password);
+	        }
+	        catch (adLDAPException $e) {
+	            echo $e; 
+	            exit();   
+	        }
+	        echo('server:u.nus.edu:');
+			var_dump($username,$password);
 
-	// 		$result = $adldap->authenticate($username, $password);
-	// 		var_dump($result);
-	// 	}       
-	// }
+			$result = $adldap->authenticate($username, $password);
+			var_dump($result);
+		}
+	}
 // 	return	Question::destroy(10);
 
 
 
-// });
+});
