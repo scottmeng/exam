@@ -34,13 +34,13 @@
 	</div>
 </div>
 
-<div class="panel panel-info" data-ng-repeat="question in questions">
+<div class="panel panel-info" data-ng-repeat="question in exam.questions">
 	<div class="panel-heading">
 		<div class="row">
 			<button type="button" style="margin-right: 10px" class="close" data-ng-click="removeQuestion($index);"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
 			<div class="col-md-8">Question {{ $index + 1 }}</div>
 			<div class="col-md-3">
-				<select class="pull-right" data-ng-model="question.questiontype" data-ng-change="onQuestionTypeChanged(question);" data-ng-options="type.id as type.name for type in questionTypes" required></select>
+				<select class="pull-right" data-ng-model="question.questiontype_id" data-ng-change="onQuestionTypeChanged(question);" data-ng-options="type.id as type.name for type in questionTypes" required></select>
 			</div>
 
 		</div>
@@ -65,7 +65,7 @@
 						</div>
 								
 						<div class="row" style="margin:10px">
-							<div class="form-group" data-ng-show="isMCQ(question.questiontype);">
+							<div class="form-group" data-ng-show="isMCQ(question.questiontype_id);">
 								<label class="col-md-2 control-label text-right">Question Options</label>
 								<div class="col-md-8">
 									<div class="row" style="margin-bottom: 10px" data-ng-repeat="option in question.options">

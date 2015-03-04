@@ -41,13 +41,12 @@ class ExamController extends BaseController {
 		return Response::success($exam);
 	}
 
-
 	public function getExaminfo($exam_id)
 	{
-		$exam = Exam::find($exam_id);	
+		$exam = Exam::find($exam_id);
+		$exam['questions'] = $this->retrieveQuestions($exam);	
 		return Response::success($exam);
 	}
-
 
 	public function postQuestion($exam_id)
 	{
@@ -56,7 +55,7 @@ class ExamController extends BaseController {
 		$question = new Question(array(
 			'index'=>Input::get('index',-1),
 			'subindex' => Input::get('subindex',-1),
-			'questiontype_id' => Input::get('questiontype',-1),
+			'questiontype_id' => Input::get('questiontype_id',-1),
 			'title' => Input::get('title',NULL),
 			'content' => Input::get('content',NULL),
 			'coding_qn' => Input::get('coding_qn',False),
@@ -66,9 +65,6 @@ class ExamController extends BaseController {
 		));
 
 		$exam->questions()->save($question);
-
-		Log::info($question->id);
-
 		$question['options'] = $this->populateOptions($question->id,Input::get('options'));
 		return Response::success($question);
 	}
@@ -78,9 +74,11 @@ class ExamController extends BaseController {
 		$id = Input::get('id');
 		$question = Question::findOrFail($id);
 
+		Log::info(Input::get('options'));
+
 		$question->index = Input::get('index',-1);
 		$question->subindex = Input::get('subindex',-1);
-		$question->questiontype_id = Input::get('questiontype',-1);
+		$question->questiontype_id = Input::get('questiontype_id',-1);
 		$question->title = Input::get('title',NULL);
 		$question->content = Input::get('content',NULL);
 		$question->coding_qn = Input::get('coding_qn',False);
@@ -94,18 +92,6 @@ class ExamController extends BaseController {
 		return Response::success($question);
 	}
 
-	public function getQuestions($exam_id)
-	{
-		$exam = Exam::find($exam_id);
-		$questions = $exam->questions()->get();
-
-		Log::info('test');
-		Log::info($questions);
-
-		return Response::success($questions);
-	}
-
-
 	public function postDeletequestion($exam_id)
 	{
 		$qn_id = Input::get('id');
@@ -117,15 +103,32 @@ class ExamController extends BaseController {
 		return Response::success($question);
 	}
 
-	//TODO:populate inserted options to Options table
-	private function populateOptions($question_id,$inputOptions)
+	private function retrieveQuestions($exam)
+	{
+		// $exam = Exam::find($exam_id);
+		$questions = $exam->questions()->get();
+
+		foreach($questions as $question){
+			$question['options']=$question->options()->get();
+		}
+
+		Log::info('test');
+		Log::info($questions);
+
+		return $questions;
+	}
+
+	private function populateOptions($question_id, $inputOptions)
 	{
 		$question = Question::find($question_id);
 
         foreach ($inputOptions as $option) {
+
+        	Log::info($option);
+
 			$newOption = new Option(array(
 				'content' => $option['content'],
-				'correctOption' => $option['correct']
+				'correctOption' => $option['correctOption']
 			));
 
 			$question->options()->save($newOption);
@@ -133,28 +136,5 @@ class ExamController extends BaseController {
 		$options = $question->options()->get();
 		return $options;
 	}
-
-	// //TODO:populate inserted options to Options table
-	// public function postOptions()
-	// {
-	// 	$inputOptions = Input::all();
-	// 	$question = Exam::find(14);
-	// 	Log::info($question);
- //        foreach ($inputOptions as $option) {
- //        	Log::info('in loop');
- //        	Log::info($option['content']);
-
-	// 		$newOption = new Option(array(
-	// 			'content' => $option['content'],
-	// 			'correctOption' => $option['correct']
-	// 		));
-
-	// 		$question->options()->save($newOption);
-	// 	}
-	// 	$options = $question->options()->get();
-	// 	return $options;
-	// }
-
- 
 
 }

@@ -185,6 +185,7 @@ examApp.controller('newExamController', ['$scope', '$location','$http', '$routeP
 		$http.get('/api/exam/' + $scope.examId + '/examinfo')
 		.success(function(data){
 			if (data.code === 200) {
+				console.log(data.data);
 				$scope.exam = data.data;
 			}
 		})
@@ -219,10 +220,11 @@ examApp.controller('newExamController', ['$scope', '$location','$http', '$routeP
 		$http.get('/api/exam/' + $scope.examId + '/questions')
 		.success(function(data){
 			if (data.code === 200) {
-				if(data.data.length>0)
-					$scope.questions = data.data;
-				else{	
-					$scope.questions = [{
+				console.log(data.data);
+				if (data.data.length>0) {
+					$scope.exam.questions = data.data;
+				} else {	
+					$scope.exam.questions = [{
 						questiontype: 1,
 						content: '',
 						options: []
@@ -236,26 +238,26 @@ examApp.controller('newExamController', ['$scope', '$location','$http', '$routeP
 	$scope.submitQuestion = function(index){
 		
 		console.log('options sent:');
-		console.log($scope.questions[index].options);
+		console.log($scope.exam.questions[index]);
 
-		$scope.questions[index].index = index+1;
+		$scope.exam.questions[index].index = index+1;
 		
-		if ($scope.questions[index].id) {
+		if ($scope.exam.questions[index].id) {
 			// id does exist, update question
-			$http.put('/api/exam/' + $scope.examId + '/question', $scope.questions[index])
+			$http.put('/api/exam/' + $scope.examId + '/question', $scope.exam.questions[index])
 			.success(function(data){
 				if (data.code === 200) {
 					console.log(data.data);
-					$scope.questions[index] = data.data;
+					$scope.exam.questions[index] = data.data;
 				}
 			});
 		} else {
 			// id does not exist, create question
-			$http.post('/api/exam/' + $scope.examId + '/question', $scope.questions[index])
+			$http.post('/api/exam/' + $scope.examId + '/question', $scope.exam.questions[index])
 			.success(function(data){
 				if (data.code === 200) {
 					console.log(data.data);
-					$scope.questions[index] = data.data;
+					$scope.exam.questions[index] = data.data;
 				}
 			});
 		}
@@ -276,28 +278,28 @@ examApp.controller('newExamController', ['$scope', '$location','$http', '$routeP
 	};
 
 	$scope.addNewQuestion = function() {
-		$scope.questions.push({questiontype: 1, content: ''});
+		$scope.exam.questions.push({questiontype: 1, content: ''});
 	};
 
 	$scope.removeQuestion = function(index) {
 		if($scope.exam.hasOwnProperty('id')){
 			console.log('deleting qn:');
-			console.log($scope.questions[index]);
-			$http.post('/api/exam/' + $scope.examId + '/deletequestion', $scope.questions[index])
+			console.log($scope.exam.questions[index]);
+			$http.post('/api/exam/' + $scope.examId + '/deletequestion', $scope.exam.questions[index])
 				.success(function(data){
 					if (data.code === 200) {
 						$scope.exam = data.data;
 					}
 				})
 		}			
-		$scope.questions.splice(index, 1);
+		$scope.exam.questions.splice(index, 1);
 	};
 
 	$scope.addOption = function(question) {
 		if (question.questiontype === 2) {
 			return;
 		}
-		question.options.push({correct: false, content: ''});
+		question.options.push({correctOption: false, content: ''});
 	};
 
 	$scope.onQuestionTypeChanged = function(question) {
@@ -307,11 +309,11 @@ examApp.controller('newExamController', ['$scope', '$location','$http', '$routeP
 			}
 			// add two options
 			question.options.push({
-				correct: true,
+				correct: 1,
 				content: ''
 			});
 			question.options.push({
-				correct: false,
+				correct: 0,
 				content: ''
 			});
 		} else {
@@ -322,5 +324,4 @@ examApp.controller('newExamController', ['$scope', '$location','$http', '$routeP
 	// initialization
 	$scope.getExamInfo();
 	$scope.getQuestionTypes();
-	$scope.initQuestions();
 }]);
