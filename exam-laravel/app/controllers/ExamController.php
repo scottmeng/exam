@@ -66,7 +66,10 @@ class ExamController extends BaseController {
 		));
 
 		$exam->questions()->save($question);
-		//this->populateOptions(Input::get('options'));
+
+		Log::info($question->id);
+
+		$question['options'] = $this->populateOptions($question->id,Input::get('options'));
 		return Response::success($question);
 	}
 
@@ -77,7 +80,7 @@ class ExamController extends BaseController {
 
 		$question->index = Input::get('index',-1);
 		$question->subindex = Input::get('subindex',-1);
-		$question->questiontype = Input::get('question_type',-1);
+		$question->questiontype_id = Input::get('questiontype',-1);
 		$question->title = Input::get('title',NULL);
 		$question->content = Input::get('content',NULL);
 		$question->coding_qn = Input::get('coding_qn',False);
@@ -86,6 +89,8 @@ class ExamController extends BaseController {
 		$question->full_marks = Input::get('full_marks',0);
 
 		$question->save();
+		$question->options()->delete();
+		$question['options'] = $this->populateOptions($question->id,Input::get('options'));
 		return Response::success($question);
 	}
 
@@ -93,6 +98,9 @@ class ExamController extends BaseController {
 	{
 		$exam = Exam::find($exam_id);
 		$questions = $exam->questions()->get();
+
+		Log::info('test');
+		Log::info($questions);
 
 		return Response::success($questions);
 	}
@@ -103,15 +111,49 @@ class ExamController extends BaseController {
 		$qn_id = Input::get('id');
 
 		$question = Question::find($qn_id);
+		$question->options()->delete();
 		$question->delete(); 
 
 		return Response::success($question);
 	}
 
-	//TODO:populated inserted options to Options table
-	private function populateOptions($options){
+	//TODO:populate inserted options to Options table
+	private function populateOptions($question_id,$inputOptions)
+	{
+		$question = Question::find($question_id);
 
+        foreach ($inputOptions as $option) {
+			$newOption = new Option(array(
+				'content' => $option['content'],
+				'correctOption' => $option['correct']
+			));
+
+			$question->options()->save($newOption);
+		}
+		$options = $question->options()->get();
+		return $options;
 	}
+
+	// //TODO:populate inserted options to Options table
+	// public function postOptions()
+	// {
+	// 	$inputOptions = Input::all();
+	// 	$question = Exam::find(14);
+	// 	Log::info($question);
+ //        foreach ($inputOptions as $option) {
+ //        	Log::info('in loop');
+ //        	Log::info($option['content']);
+
+	// 		$newOption = new Option(array(
+	// 			'content' => $option['content'],
+	// 			'correctOption' => $option['correct']
+	// 		));
+
+	// 		$question->options()->save($newOption);
+	// 	}
+	// 	$options = $question->options()->get();
+	// 	return $options;
+	// }
 
  
 

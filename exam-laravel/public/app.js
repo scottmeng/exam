@@ -230,28 +230,45 @@ examApp.controller('newExamController', ['$scope', '$location','$http', '$routeP
 				}
 
 			}
-		})	
+		});	
 	}
-
-	// $scope.questions = [{
-	// 	questiontype: 1,
-	// 	content: '',
-	// 	options: []
-	// }];
 
 	$scope.submitQuestion = function(index){
 		
-		console.log('question sent:');
-		console.log($scope.questions[index]);
+		console.log('options sent:');
+		console.log($scope.questions[index].options);
 
 		$scope.questions[index].index = index+1;
 		
-		$http.post('/api/exam/' + $scope.examId + '/question', $scope.questions[index])
-		.success(function(data){
-			if (data.code === 200) {
-				$scope.exam = data.data;
-			}
-		})	
+		if ($scope.questions[index].id) {
+			// id does exist, update question
+			$http.put('/api/exam/' + $scope.examId + '/question', $scope.questions[index])
+			.success(function(data){
+				if (data.code === 200) {
+					console.log(data.data);
+					$scope.questions[index] = data.data;
+				}
+			});
+		} else {
+			// id does not exist, create question
+			$http.post('/api/exam/' + $scope.examId + '/question', $scope.questions[index])
+			.success(function(data){
+				if (data.code === 200) {
+					console.log(data.data);
+					$scope.questions[index] = data.data;
+				}
+			});
+		}
+
+		
+
+		// $http.post('/api/exam/' + $scope.examId + '/options', $scope.questions[index].options)
+		// .success(function(data){
+		// 	if (data.code === 200) {
+		// 		console.log('options received:');
+		// 		console.log(data.data);
+		// 	}
+		// })	
 	};
 
 	$scope.isMCQ = function(questiontype) {
