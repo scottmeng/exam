@@ -309,11 +309,11 @@ examApp.controller('newExamController', ['$scope', '$location','$http', '$routeP
 			}
 			// add two options
 			question.options.push({
-				correct: 1,
+				correctOption: 1,
 				content: ''
 			});
 			question.options.push({
-				correct: 0,
+				correctOption: 0,
 				content: ''
 			});
 		} else {

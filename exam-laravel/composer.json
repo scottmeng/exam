@@ -5,7 +5,9 @@
 	"license": "MIT",
 	"type": "project",
 	"require": {
-		"laravel/framework": "4.2.*"
+		"laravel/framework": "4.2.*",
+		"thujohn/pdf": "~1.0",
+		"adldap/adldap": "4.0.*"
 	},
 	"autoload": {
 		"classmap": [

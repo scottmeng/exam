@@ -19,4 +19,8 @@ class Question extends Eloquent {
     	return $this->hasMany('Option');
     }
 
+    public function submissions(){
+        return $this->hasMany('QuestionSubmission');
+    }
+
 }

@@ -30,7 +30,10 @@ class CodeCrunchSeeder extends Seeder {
                 DB::table('courses')->truncate();
                 DB::table('roles')->truncate();
                 DB::table('users')->truncate();
-                DB::statement('SET FOREIGN_KEY_CHECKS = 0'); 
+                DB::table('examsubmissions')->truncate();
+                DB::table('questionsubmissions')->truncate();
+                DB::table('submissionstates')->truncate();
+                DB::statement('SET FOREIGN_KEY_CHECKS = 1'); 
 
 
                 //seed users table

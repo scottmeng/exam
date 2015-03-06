@@ -9,4 +9,8 @@ class Option extends Eloquent {
         return $this->belongsTo('Question');
     }
 
+    public function selections(){
+    	return $this->hasMany('QuestionSubmission','choice');
+    }
+
 }

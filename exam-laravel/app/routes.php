@@ -1,8 +1,8 @@
 <?php
 use GuzzleHttp\Client;
-use adldap\adLDAP;
+use \adLDAP;
 require_once(realpath(__DIR__ . "/../vendor/adldap/adldap/lib/adLDAP/adLDAP.php"));
-//require_once (dirname(__FILE__) . "/../vendor/adldap/adLDAP/lib/adLDAP/adLDAP.php");
+// require_once (dirname(dirname(__FILE__)) . "/vendor/adLDAP/adLDAP.php");
 
 
 Route::get('/', 'LoginValidateController@init');
