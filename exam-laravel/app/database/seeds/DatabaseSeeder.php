@@ -71,14 +71,30 @@ class CodeCrunchSeeder extends Seeder {
                         'description' => 'short answer questions, can be coding or non-coding'
                 ));
 
-                $initState1 = ExamState::create(array(
+                $initExamState1 = ExamState::create(array(
                         'name' => 'draft',
                         'description' => 'draft state' 
                 ));
 
-                $initState1 = ExamState::create(array(
+                $initExamState2 = ExamState::create(array(
                         'name' => 'active',
                         'description' => 'active state' 
+                ));
+
+                $initSubmissionState1 = SubmissionState::create(array(
+                        'name' => 'submitted',
+                        'description' => 'grading not started'
+                ));
+
+                $initSubmissionState2 = SubmissionState::create(array(
+                        'name' => 'grading',
+                        'description' => 'grading in progress'
+                ));
+
+
+                $initSubmissionState3 = SubmissionState::create(array(
+                        'name' => 'graded',
+                        'description' => 'grading finished'
                 ));
 
                 $initRole1 = Role::create(array(
