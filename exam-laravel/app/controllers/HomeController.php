@@ -27,4 +27,38 @@ class HomeController extends BaseController {
 		return Response::make(array('types'=>(QuestionType::all())));
 	}
 
+	public function newExam()
+	{
+		$course_id = Input::get('course_id');
+		$title = Input::get('title');
+
+		$course = Course::find($course_id);
+		//check if exam with the same title under the same course already exists
+		$valid_exam = Exam::whereRaw('course_id = ? and title = ?',array($course_id,$title))->get()->isEmpty();
+
+		if($valid_exam == True){
+
+		 	$exam = new Exam();
+			$exam->title=$title;	
+			$course->exams()->save($exam);
+
+			return Response::success($exam);
+		}
+		else{
+		    return Response::error(406,'Exam already exists!');
+		}
+	}
+
+	public function newExamSubmission(){
+		$exam_id = Input::get('exam_id');
+		$exam = Exam::findOrFail($exam_id);
+
+		$exam_submisson = new ExamSubmission(array(
+			'user_id' => Input::get('user_id');
+		));
+
+		$exam->submissions()->save($exam_submisson);
+		return Response::success($exam_submission);
+	}
+
 }

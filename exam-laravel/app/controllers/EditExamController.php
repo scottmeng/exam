@@ -1,32 +1,9 @@
 <?php
 
-class ExamController extends BaseController {
-
-	public function newExam()
-	{
-		$course_id = Input::get('course_id');
-		$title = Input::get('title');
-
-		$course = Course::find($course_id);
-		$valid_exam = Exam::whereRaw('course_id = ? and title = ?',array($course_id,$title))->get()->isEmpty();
-
-		if($valid_exam == True){
-
-		 	$exam = new Exam();
-			$exam->title=$title;	
-			$course->exams()->save($exam);
-
-			return Response::success($exam);
-		}
-		else{
-		    return Response::error(406,'Exam already exists!');
-		}
-	}
+class EditExamController extends BaseController {
 
 	public function putEditexam($exam_id)
 	{
-	 // protected $fillable = array('name', 'course_id', 'examstate_id','description','duration_in_min','full_marks','total_qn', 'start_time');
-
 		$exam = Exam::find($exam_id);
 		Log::info($exam);
 
@@ -71,8 +48,8 @@ class ExamController extends BaseController {
 
 	public function putQuestion($exam_id)
 	{
-		$id = Input::get('id');
-		$question = Question::findOrFail($id);
+		$question_id = Input::get('id');
+		$question = Question::findOrFail($question_id);
 
 		Log::info(Input::get('options'));
 
@@ -120,7 +97,7 @@ class ExamController extends BaseController {
 
 	private function populateOptions($question_id, $inputOptions)
 	{
-		$question = Question::find($question_id);
+		$question = Question::findOrFail($question_id);
 
         foreach ($inputOptions as $option) {
 

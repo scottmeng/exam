@@ -16,4 +16,8 @@ class Exam extends Eloquent{
     	return $this->hasMany('Question');
     }
 
+    public function submissions(){
+        return $this->hasMany('ExamSubmission');
+    }
+
 }

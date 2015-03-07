@@ -16,4 +16,7 @@ class ExamSubmission extends Eloquent{
     	return $this->belongsTo('User','grader_id');
     }
 
+    public function exam(){
+        return $this->belongsTo('Exam');
+
 }
