@@ -28,7 +28,11 @@
     <script src="{{ URL::to('js/textAngular/textAngular-rangy.min.js') }}"></script>
     <script src="{{ URL::to('js/textAngular/textAngular-sanitize.min.js') }}"></script>
     <script src="{{ URL::to('js/textAngular/textAngular.min.js') }}"></script>
-
+    <script src="{{ URL::to('js/timer.js') }}"></script>
+    <script src="{{ URL::to('js/i18nService.js') }}"></script>
+    <script src="{{ URL::to('js/locales.min.js') }}"></script>
+    <script src="{{ URL::to('js/moment.min.js') }}"></script>
+    <script src="{{ URL::to('js/humanize-duration.js') }}"></script>
 </head>
 <body>
 

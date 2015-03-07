@@ -1,8 +1,15 @@
 // app.js
 
-var examApp = angular.module('examApp', ['ngRoute', 'ui.bootstrap.modal','ui.bootstrap.tabs',
-	'ui.ace','textAngular','ui.bootstrap.buttons','ui.bootstrap.collapse',
-	'mgcrea.ngStrap.datepicker','mgcrea.ngStrap.timepicker']);
+var examApp = angular
+	.module('examApp', ['ngRoute', 'ui.bootstrap.modal','ui.bootstrap.tabs',
+		'ui.ace','textAngular','ui.bootstrap.buttons','ui.bootstrap.collapse',
+		'mgcrea.ngStrap.datepicker','mgcrea.ngStrap.timepicker', 'timer'])
+	.constant('QN_TYPES', {
+		'QN_MCQ_SINGLE'	: 1,
+		'QN_CODING'		: 2,
+		'QN_SHORT'		: 3,
+		'QN_MCQ_MULTI'	: 4
+	});
 
 examApp.config(['$routeProvider', '$locationProvider', 
 	function($routeProvider, $locationProvider) {
@@ -18,6 +25,10 @@ examApp.config(['$routeProvider', '$locationProvider',
 			.when('/exam/:examId/edit', {
 				templateUrl: 'views/create_exam.html',
 				controller: 'newExamController'
+			})
+			.when('/exam/:examId', {
+				templateUrl: 'views/view_exam.html',
+				controller: 'viewExamController'
 			})
 			.otherwise({
 				templateUrl: 'views/not_found.html'
@@ -46,7 +57,6 @@ examApp.config(['$routeProvider', '$locationProvider',
 
 	}
 ]);
-
 
 examApp.controller('loginController', ['$scope', '$location', '$window', '$http',
 	function($scope, $location, $window, $http) {
@@ -150,6 +160,191 @@ examApp.controller('dashboardController', ['$scope', '$location', '$modal', '$ht
 	};
 
 	$scope.init();
+}]);
+
+examApp.controller('viewExamController', ['$scope', '$http', '$routeParams', 'QN_TYPES', 
+	function($scope, $http, $routeParams, QN_TYPES) {
+
+	$scope.curQnIndex = 0;
+	$scope.exam = {
+		course_id: 1,
+		created_at: "2015-03-04 23:29:27",
+		description: null,
+		duration: 60,
+		examstate_id: 1,
+		fullmarks: 100,
+		id: 1,
+		questions: [{
+			coding_qn: 0,
+			compiler_enable: 0,
+			content: "this is the content of question",
+			created_at: "2015-03-04 23:32:35",
+			exam_id: 1,
+			full_marks: 0,
+			id: 1,
+			index: 1,
+			marking_scheme: null,
+			options: [{
+				content: "option 1",
+				correctOption: 1,
+				created_at: "2015-03-05 00:12:18",
+				id: 17,
+				index: null,
+				question_id: 1,
+				updated_at: "2015-03-05 00:12:18"
+			}, {
+				content: "option 2",
+				correctOption: 0,
+				created_at: "2015-03-05 00:12:18",
+				id: 18,
+				index: null,
+				question_id: 1,
+				updated_at: "2015-03-05 00:12:18"
+			}],
+			questiontype_id: 1,
+			randomizeOptions: 0,
+			subindex: 0,
+			title: "test",
+			updated_at: "2015-03-04 23:32:35"
+		}, {
+			coding_qn: 0,
+			compiler_enable: 0,
+			content: "this is the content of question",
+			created_at: "2015-03-04 23:32:35",
+			exam_id: 1,
+			full_marks: 0,
+			id: 1,
+			index: 1,
+			marking_scheme: null,
+			options: [{
+				content: "option 1",
+				correctOption: 1,
+				created_at: "2015-03-05 00:12:18",
+				id: 17,
+				index: null,
+				question_id: 1,
+				updated_at: "2015-03-05 00:12:18"
+			}, {
+				content: "option 2",
+				correctOption: 0,
+				created_at: "2015-03-05 00:12:18",
+				id: 18,
+				index: null,
+				question_id: 1,
+				updated_at: "2015-03-05 00:12:18"
+			}],
+			questiontype_id: 2,
+			randomizeOptions: 0,
+			subindex: 0,
+			title: "test",
+			updated_at: "2015-03-04 23:32:35"
+		}, {
+			coding_qn: 0,
+			compiler_enable: 0,
+			content: "this is the content of question",
+			created_at: "2015-03-04 23:32:35",
+			exam_id: 1,
+			full_marks: 0,
+			id: 1,
+			index: 1,
+			marking_scheme: null,
+			options: [{
+				content: "option 1",
+				correctOption: 1,
+				created_at: "2015-03-05 00:12:18",
+				id: 17,
+				index: null,
+				question_id: 1,
+				updated_at: "2015-03-05 00:12:18"
+			}, {
+				content: "option 2",
+				correctOption: 0,
+				created_at: "2015-03-05 00:12:18",
+				id: 18,
+				index: null,
+				question_id: 1,
+				updated_at: "2015-03-05 00:12:18"
+			}],
+			questiontype_id: 3,
+			randomizeOptions: 0,
+			subindex: 0,
+			title: "test",
+			updated_at: "2015-03-04 23:32:35"
+		}, {
+			coding_qn: 0,
+			compiler_enable: 0,
+			content: "this is the content of question",
+			created_at: "2015-03-04 23:32:35",
+			exam_id: 1,
+			full_marks: 0,
+			id: 1,
+			index: 1,
+			marking_scheme: null,
+			options: [{
+				content: "option 1",
+				correctOption: 1,
+				created_at: "2015-03-05 00:12:18",
+				id: 17,
+				index: null,
+				question_id: 1,
+				updated_at: "2015-03-05 00:12:18"
+			}, {
+				content: "option 2",
+				correctOption: 0,
+				created_at: "2015-03-05 00:12:18",
+				id: 18,
+				index: null,
+				question_id: 1,
+				updated_at: "2015-03-05 00:12:18"
+			}],
+			questiontype_id: 4,
+			randomizeOptions: 0,
+			subindex: 0,
+			title: "test",
+			updated_at: "2015-03-04 23:32:35"
+		}],
+		randomizeQuestions: 0,
+		starttime: null,
+		title: "CS1234 Mid-term Test",
+		totalqn: 0,
+		updated_at: "2015-03-04 23:29:27"
+	};
+
+	$scope.isMCQ = function(question) {
+		console.log(question.questiontype_id);
+		return question.questiontype_id === QN_TYPES.QN_MCQ_SINGLE ||
+			   question.questiontype_id === QN_TYPES.QN_MCQ_MULTI;
+	};
+
+	$scope.isCodingQuestion = function(question) {
+		console.log(question.questiontype_id);
+		return question.questiontype_id === QN_TYPES.QN_CODING;
+	};
+
+	$scope.isShortQuestion = function(question) {
+		console.log(question.questiontype_id);
+		return question.questiontype_id === QN_TYPES.QN_SHORT;
+	};
+
+	$scope.goToQuestion = function(newIndex) {
+		// todo
+		// save question submission of curQnIndex
+		// update curQnIndex with the new index
+		$scope.curQnIndex = newIndex;
+	};
+
+	$scope.timer = {};
+	$scope.timer.status = 1;
+	$scope.timer.onTimeUp = function() {
+		console.log('test');
+	};
+	$scope.onTimeUp = function() {
+		// todo
+		// prompt user
+		// submit question
+		// disable input and etc.
+		console.log('time is up');
+	};
 }]);
 
 examApp.controller('newExamController', ['$scope', '$location','$http', '$routeParams',
