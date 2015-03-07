@@ -1,6 +1,6 @@
 <?php
 
-class EditExamController extends BaseController {
+class ExamController extends BaseController {
 
 	public function putEditexam($exam_id)
 	{
@@ -19,9 +19,31 @@ class EditExamController extends BaseController {
 
 	public function getExaminfo($exam_id)
 	{
+		//1.user role + exam status
+		//error when not accessable
+		$user = User::find(Session::get('userid'));
 		$exam = Exam::find($exam_id);
-		$exam['questions'] = $this->retrieveQuestions($exam);	
+		$course_id = $exam->course->id;
+		$course = $user->courses()->whereRaw('courses.id = ?', array($course_id))->first();
+		$status = $user->getExamStatus($exam,$course);
+		if($status != 'unavailable'){
+			$exam->questions = $this->retrieveQuestions($exam);
+		}
+		$exam->status = $status;
 		return Response::success($exam);
+	}
+
+
+	public function getSubmission(){
+		$exam_id = Input::get('exam_id');
+		$exam = Exam::findOrFail($exam_id);
+
+		$exam_submisson = new ExamSubmission(array(
+			'user_id' => Input::get('user_id')
+		));
+
+		$exam->submissions()->save($exam_submisson);
+		return Response::success($exam_submission);
 	}
 
 	public function postQuestion($exam_id)

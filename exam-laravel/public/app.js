@@ -119,7 +119,9 @@ examApp.controller('dashboardController', ['$scope', '$location', '$modal', '$ht
 	$scope.init = function() {
 		$http.get('/api/get-courses')
 			.success(function(data, status, header, config) {
-				$scope.courses = data.courses;
+				if (data.code === 200) {
+					$scope.courses = data.data;
+				}
 			})
 			.error(function(data, status, header, config) {
 
@@ -158,7 +160,9 @@ examApp.controller('newExamController', ['$scope', '$location','$http', '$routeP
 	$scope.getQuestionTypes = function() {
 		$http.get('/api/get-qn-types')
 			.success(function(data, status, header, config) {
-				$scope.questionTypes = data.types;
+				if (data.code === 200) {
+					$scope.questionTypes = data.data;
+				}
 			})
 			.error(function(data, status, header, config) {
 
@@ -170,7 +174,6 @@ examApp.controller('newExamController', ['$scope', '$location','$http', '$routeP
 		$http.put('/api/exam/' + $scope.examId + '/editexam',$scope.exam)
 			.success(function(data){
 				if (data.code === 200) {
-					console.log(data);
 					$scope.exam = data.data;
 				}
 			})

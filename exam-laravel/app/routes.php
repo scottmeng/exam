@@ -19,9 +19,8 @@ App::missing(function($exception) {
 Route::get('/api/get-courses','HomeController@getCourses');
 Route::get('/api/get-qn-types','HomeController@getQnTypes');
 Route::post('/api/create-exam','HomeController@newExam');
-Route::post('api/start-exam','HomeController@newExamSubmission');
-Route::controller('/api/exam/{exam_id}','EditExamController');
-Route::controller('/api/question/{question_id}','AnswerExamController');
+Route::controller('/api/exam/{exam_id}','ExamController');
+Route::controller('/api/submission/{submission_id}','SubmissionController');
 
 
 

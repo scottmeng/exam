@@ -12,7 +12,7 @@ class CreatSubmissionstatesTable extends Migration {
 	 */
 	public function up()
 	{
-		Schema::table('submissionstates', function(Blueprint $table)
+		Schema::create('submissionstates', function(Blueprint $table)
 		{
 			$table->increments('id');
 			$table->string('name');

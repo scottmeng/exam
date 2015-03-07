@@ -12,19 +12,14 @@ class HomeController extends BaseController {
 	{
 		$id = Session::get('userid');
 		$user = User::find($id);
+		$courses = $user->getCourses();
 
-		$courses = $user->courses()->get();
-
-		foreach($courses as $course){
-			$course->exams = $course->exams()->get();
-		}
-
-		return Response::make(array('courses'=>($courses)));
+		return Response::success($courses);
 	}
 
 	public function getQnTypes()
 	{
-		return Response::make(array('types'=>(QuestionType::all())));
+		return Response::success(QuestionType::all());
 	}
 
 	public function newExam()
@@ -47,18 +42,6 @@ class HomeController extends BaseController {
 		else{
 		    return Response::error(406,'Exam already exists!');
 		}
-	}
-
-	public function newExamSubmission(){
-		$exam_id = Input::get('exam_id');
-		$exam = Exam::findOrFail($exam_id);
-
-		$exam_submisson = new ExamSubmission(array(
-			'user_id' => Input::get('user_id');
-		));
-
-		$exam->submissions()->save($exam_submisson);
-		return Response::success($exam_submission);
 	}
 
 }

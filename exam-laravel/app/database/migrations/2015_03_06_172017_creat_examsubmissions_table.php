@@ -12,7 +12,7 @@ class CreatExamsubmissionsTable extends Migration {
 	 */
 	public function up()
 	{
-		Schema::table('examsubmissions', function(Blueprint $table)
+		Schema::create('examsubmissions', function(Blueprint $table)
 		{
 			$table->increments('id');
 			$table->integer('user_id')->unsigned();

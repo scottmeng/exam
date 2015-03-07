@@ -81,6 +81,11 @@ class CodeCrunchSeeder extends Seeder {
                         'description' => 'active state' 
                 ));
 
+                $initExamState3 = ExamState::create(array(
+                        'name' => 'published',
+                        'description' => 'grading finished, published to students'
+                ));
+
                 $initSubmissionState1 = SubmissionState::create(array(
                         'name' => 'submitted',
                         'description' => 'grading not started'

@@ -12,7 +12,7 @@ class CreatQuestionsubmissionsTable extends Migration {
 	 */
 	public function up()
 	{
-		Schema::table('questionsubmissions', function(Blueprint $table)
+		Schema::create('questionsubmissions', function(Blueprint $table)
 		{
 			$table->increments('id');
 			$table->text('answer')->nullable();
@@ -21,7 +21,7 @@ class CreatQuestionsubmissionsTable extends Migration {
 			$table->integer('examsubmission_id')->unsigned();
 			$table->foreign('examsubmission_id')->references('id')->on('examsubmissions');
 			$table->integer('choice')->unsigned()->nullable();
-			$table->integer('choice')->references('id')->on('options');
+			$table->foreign('choice')->references('id')->on('options');
 			$table->integer('marks_obtained')->default(0);
 			$table->string('comment')->nullable();
 			$table->timestamps();		

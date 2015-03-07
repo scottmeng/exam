@@ -15,4 +15,22 @@ class Course extends Eloquent {
         return $this->belongsToMany('User')->withPivot('role_id');
     }
 
+    public function checkAccess(){
+		
+		$admin = Role::where('name','like','admin')->first();
+		$facilitator = Role::where('name','like','facilitator')->first();
+
+		if ($this->pivot->role_id == $admin->id){
+			return 'admin';
+		}
+		else if($this->pivot->role_id == $facilitator->id){
+			return 'facilitator';
+		}
+		else{
+			return 'student';
+		}
+
+		return 'undefined';
+	}
+
 }
