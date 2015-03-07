@@ -16,7 +16,7 @@ class CreateQuestionsTable extends Migration {
 		{
 			$table->increments('id');
 			$table->integer('index');
-			$table->integer('subindex')->nullable()->unsigned();
+			$table->integer('subindex')->nullable()->default(0);
 			$table->integer('questiontype_id')->unsigned();
 			$table->integer('exam_id')->unsigned();
 			$table->string('title')->nullable();

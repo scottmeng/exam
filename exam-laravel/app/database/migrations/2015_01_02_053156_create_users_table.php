@@ -17,7 +17,7 @@ class CreateUsersTable extends Migration {
 			$table->increments('id');
 			$table->string('name');
 			$table->string('nus_id');
-			$table->string('comment');
+			$table->string('comment')->nullable();
 			$table->timestamps();
 
 		});

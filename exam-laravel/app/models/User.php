@@ -41,7 +41,7 @@ class User extends Eloquent{
 
 		if($exam->checkState() == 'draft')
 		{
-			if(($access == 'admin')){
+			if(($access != 'admin')){
 				$status = 'not_available';
 			}
 		}

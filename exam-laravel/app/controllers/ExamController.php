@@ -25,7 +25,7 @@ class ExamController extends BaseController {
 		$exam = Exam::find($exam_id);
 		$course_id = $exam->course->id;
 		$course = $user->courses()->whereRaw('courses.id = ?', array($course_id))->first();
-		
+
 		$access = $course->checkAccess();
 		$status = $user->getExamStatus($exam,$course);
 
@@ -34,6 +34,9 @@ class ExamController extends BaseController {
 		}
 		else if($status != 'unavailable'){
 			$exam->questions = $this->retrieveQuestions($exam,True);
+		}
+		else{
+			$exam->questions = null;
 		}
 		$exam->status = $status;
 		return Response::success($exam);
@@ -58,8 +61,8 @@ class ExamController extends BaseController {
 
 		$question = new Question(array(
 			'index'=>Input::get('index',-1),
-			'subindex' => Input::get('subindex',-1),
-			'questiontype_id' => Input::get('questiontype_id',-1),
+			'subindex' => Input::get('subindex',0),
+			'questiontype_id' => Input::get('questiontype_id',0),
 			'title' => Input::get('title',NULL),
 			'content' => Input::get('content',NULL),
 			'coding_qn' => Input::get('coding_qn',False),

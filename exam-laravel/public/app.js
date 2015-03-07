@@ -489,7 +489,20 @@ examApp.controller('newExamController', ['$scope', '$location','$http', '$routeP
 	};
 
 	$scope.addNewQuestion = function() {
-		$scope.exam.questions.push({questiontype: 1, content: ''});
+		$scope.exam.questions.push({
+			questiontype_id: 1, 
+			content: '',
+			options:[
+				{
+					correctOption: false,
+					content: ''
+				},
+				{
+					correctOption: false,
+					content: ''
+				}
+			]				
+		});
 	};
 
 	$scope.removeQuestion = function(index) {
@@ -509,6 +522,9 @@ examApp.controller('newExamController', ['$scope', '$location','$http', '$routeP
 	$scope.addOption = function(question) {
 		if (question.questiontype === 2) {
 			return;
+		}
+		if (!question.options) {
+				question.options = [];
 		}
 		question.options.push({correctOption: false, content: ''});
 	};
