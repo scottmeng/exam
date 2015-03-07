@@ -166,163 +166,174 @@ examApp.controller('viewExamController', ['$scope', '$http', '$routeParams', 'QN
 	function($scope, $http, $routeParams, QN_TYPES) {
 
 	$scope.curQnIndex = 0;
-	$scope.exam = {
-		course_id: 1,
-		created_at: "2015-03-04 23:29:27",
-		description: null,
-		duration: 60,
-		examstate_id: 1,
-		fullmarks: 100,
-		id: 1,
-		questions: [{
-			coding_qn: 0,
-			compiler_enable: 0,
-			content: "this is the content of question",
-			created_at: "2015-03-04 23:32:35",
-			exam_id: 1,
-			full_marks: 0,
-			id: 1,
-			index: 1,
-			marking_scheme: null,
-			options: [{
-				content: "option 1",
-				correctOption: 1,
-				created_at: "2015-03-05 00:12:18",
-				id: 17,
-				index: null,
-				question_id: 1,
-				updated_at: "2015-03-05 00:12:18"
-			}, {
-				content: "option 2",
-				correctOption: 0,
-				created_at: "2015-03-05 00:12:18",
-				id: 18,
-				index: null,
-				question_id: 1,
-				updated_at: "2015-03-05 00:12:18"
-			}],
-			questiontype_id: 1,
-			randomizeOptions: 0,
-			subindex: 0,
-			title: "test",
-			updated_at: "2015-03-04 23:32:35"
-		}, {
-			coding_qn: 0,
-			compiler_enable: 0,
-			content: "this is the content of question",
-			created_at: "2015-03-04 23:32:35",
-			exam_id: 1,
-			full_marks: 0,
-			id: 1,
-			index: 1,
-			marking_scheme: null,
-			options: [{
-				content: "option 1",
-				correctOption: 1,
-				created_at: "2015-03-05 00:12:18",
-				id: 17,
-				index: null,
-				question_id: 1,
-				updated_at: "2015-03-05 00:12:18"
-			}, {
-				content: "option 2",
-				correctOption: 0,
-				created_at: "2015-03-05 00:12:18",
-				id: 18,
-				index: null,
-				question_id: 1,
-				updated_at: "2015-03-05 00:12:18"
-			}],
-			questiontype_id: 2,
-			randomizeOptions: 0,
-			subindex: 0,
-			title: "test",
-			updated_at: "2015-03-04 23:32:35"
-		}, {
-			coding_qn: 0,
-			compiler_enable: 0,
-			content: "this is the content of question",
-			created_at: "2015-03-04 23:32:35",
-			exam_id: 1,
-			full_marks: 0,
-			id: 1,
-			index: 1,
-			marking_scheme: null,
-			options: [{
-				content: "option 1",
-				correctOption: 1,
-				created_at: "2015-03-05 00:12:18",
-				id: 17,
-				index: null,
-				question_id: 1,
-				updated_at: "2015-03-05 00:12:18"
-			}, {
-				content: "option 2",
-				correctOption: 0,
-				created_at: "2015-03-05 00:12:18",
-				id: 18,
-				index: null,
-				question_id: 1,
-				updated_at: "2015-03-05 00:12:18"
-			}],
-			questiontype_id: 3,
-			randomizeOptions: 0,
-			subindex: 0,
-			title: "test",
-			updated_at: "2015-03-04 23:32:35"
-		}, {
-			coding_qn: 0,
-			compiler_enable: 0,
-			content: "this is the content of question",
-			created_at: "2015-03-04 23:32:35",
-			exam_id: 1,
-			full_marks: 0,
-			id: 1,
-			index: 1,
-			marking_scheme: null,
-			options: [{
-				content: "option 1",
-				correctOption: 1,
-				created_at: "2015-03-05 00:12:18",
-				id: 17,
-				index: null,
-				question_id: 1,
-				updated_at: "2015-03-05 00:12:18"
-			}, {
-				content: "option 2",
-				correctOption: 0,
-				created_at: "2015-03-05 00:12:18",
-				id: 18,
-				index: null,
-				question_id: 1,
-				updated_at: "2015-03-05 00:12:18"
-			}],
-			questiontype_id: 4,
-			randomizeOptions: 0,
-			subindex: 0,
-			title: "test",
-			updated_at: "2015-03-04 23:32:35"
-		}],
-		randomizeQuestions: 0,
-		starttime: null,
-		title: "CS1234 Mid-term Test",
-		totalqn: 0,
-		updated_at: "2015-03-04 23:29:27"
+	$scope.examId = $routeParams.examId;
+
+	$scope.getExamInfo = function() {
+
+		$http.get('/api/exam/' + $scope.examId + '/examinfo')
+			.success(function(data){
+				if (data.code === 200) {
+					console.log(data.data);
+					$scope.exam = data.data;
+				}
+		})
 	};
 
+	// $scope.exam = {
+	// 	course_id: 1,
+	// 	created_at: "2015-03-04 23:29:27",
+	// 	description: null,
+	// 	duration: 60,
+	// 	examstate_id: 1,
+	// 	fullmarks: 100,
+	// 	id: 1,
+	// 	questions: [{
+	// 		coding_qn: 0,
+	// 		compiler_enable: 0,
+	// 		content: "this is the content of question",
+	// 		created_at: "2015-03-04 23:32:35",
+	// 		exam_id: 1,
+	// 		full_marks: 0,
+	// 		id: 1,
+	// 		index: 1,
+	// 		marking_scheme: null,
+	// 		options: [{
+	// 			content: "option 1",
+	// 			correctOption: 1,
+	// 			created_at: "2015-03-05 00:12:18",
+	// 			id: 17,
+	// 			index: null,
+	// 			question_id: 1,
+	// 			updated_at: "2015-03-05 00:12:18"
+	// 		}, {
+	// 			content: "option 2",
+	// 			correctOption: 0,
+	// 			created_at: "2015-03-05 00:12:18",
+	// 			id: 18,
+	// 			index: null,
+	// 			question_id: 1,
+	// 			updated_at: "2015-03-05 00:12:18"
+	// 		}],
+	// 		questiontype_id: 1,
+	// 		randomizeOptions: 0,
+	// 		subindex: 0,
+	// 		title: "test",
+	// 		updated_at: "2015-03-04 23:32:35"
+	// 	}, {
+	// 		coding_qn: 0,
+	// 		compiler_enable: 0,
+	// 		content: "this is the content of question",
+	// 		created_at: "2015-03-04 23:32:35",
+	// 		exam_id: 1,
+	// 		full_marks: 0,
+	// 		id: 1,
+	// 		index: 1,
+	// 		marking_scheme: null,
+	// 		options: [{
+	// 			content: "option 1",
+	// 			correctOption: 1,
+	// 			created_at: "2015-03-05 00:12:18",
+	// 			id: 17,
+	// 			index: null,
+	// 			question_id: 1,
+	// 			updated_at: "2015-03-05 00:12:18"
+	// 		}, {
+	// 			content: "option 2",
+	// 			correctOption: 0,
+	// 			created_at: "2015-03-05 00:12:18",
+	// 			id: 18,
+	// 			index: null,
+	// 			question_id: 1,
+	// 			updated_at: "2015-03-05 00:12:18"
+	// 		}],
+	// 		questiontype_id: 2,
+	// 		randomizeOptions: 0,
+	// 		subindex: 0,
+	// 		title: "test",
+	// 		updated_at: "2015-03-04 23:32:35"
+	// 	}, {
+	// 		coding_qn: 0,
+	// 		compiler_enable: 0,
+	// 		content: "this is the content of question",
+	// 		created_at: "2015-03-04 23:32:35",
+	// 		exam_id: 1,
+	// 		full_marks: 0,
+	// 		id: 1,
+	// 		index: 1,
+	// 		marking_scheme: null,
+	// 		options: [{
+	// 			content: "option 1",
+	// 			correctOption: 1,
+	// 			created_at: "2015-03-05 00:12:18",
+	// 			id: 17,
+	// 			index: null,
+	// 			question_id: 1,
+	// 			updated_at: "2015-03-05 00:12:18"
+	// 		}, {
+	// 			content: "option 2",
+	// 			correctOption: 0,
+	// 			created_at: "2015-03-05 00:12:18",
+	// 			id: 18,
+	// 			index: null,
+	// 			question_id: 1,
+	// 			updated_at: "2015-03-05 00:12:18"
+	// 		}],
+	// 		questiontype_id: 3,
+	// 		randomizeOptions: 0,
+	// 		subindex: 0,
+	// 		title: "test",
+	// 		updated_at: "2015-03-04 23:32:35"
+	// 	}, {
+	// 		coding_qn: 0,
+	// 		compiler_enable: 0,
+	// 		content: "this is the content of question",
+	// 		created_at: "2015-03-04 23:32:35",
+	// 		exam_id: 1,
+	// 		full_marks: 0,
+	// 		id: 1,
+	// 		index: 1,
+	// 		marking_scheme: null,
+	// 		options: [{
+	// 			content: "option 1",
+	// 			correctOption: 1,
+	// 			created_at: "2015-03-05 00:12:18",
+	// 			id: 17,
+	// 			index: null,
+	// 			question_id: 1,
+	// 			updated_at: "2015-03-05 00:12:18"
+	// 		}, {
+	// 			content: "option 2",
+	// 			correctOption: 0,
+	// 			created_at: "2015-03-05 00:12:18",
+	// 			id: 18,
+	// 			index: null,
+	// 			question_id: 1,
+	// 			updated_at: "2015-03-05 00:12:18"
+	// 		}],
+	// 		questiontype_id: 4,
+	// 		randomizeOptions: 0,
+	// 		subindex: 0,
+	// 		title: "test",
+	// 		updated_at: "2015-03-04 23:32:35"
+	// 	}],
+	// 	randomizeQuestions: 0,
+	// 	starttime: null,
+	// 	title: "CS1234 Mid-term Test",
+	// 	totalqn: 0,
+	// 	updated_at: "2015-03-04 23:29:27"
+	// };
+
 	$scope.isMCQ = function(question) {
-		console.log(question.questiontype_id);
+		console.log(question);
 		return question.questiontype_id === QN_TYPES.QN_MCQ_SINGLE ||
 			   question.questiontype_id === QN_TYPES.QN_MCQ_MULTI;
 	};
 
 	$scope.isCodingQuestion = function(question) {
-		console.log(question.questiontype_id);
 		return question.questiontype_id === QN_TYPES.QN_CODING;
 	};
 
 	$scope.isShortQuestion = function(question) {
-		console.log(question.questiontype_id);
 		return question.questiontype_id === QN_TYPES.QN_SHORT;
 	};
 
@@ -345,6 +356,8 @@ examApp.controller('viewExamController', ['$scope', '$http', '$routeParams', 'QN
 		// disable input and etc.
 		console.log('time is up');
 	};
+
+	$scope.getExamInfo();
 }]);
 
 examApp.controller('newExamController', ['$scope', '$location','$http', '$routeParams',

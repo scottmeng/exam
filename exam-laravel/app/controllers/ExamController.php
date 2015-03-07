@@ -25,9 +25,15 @@ class ExamController extends BaseController {
 		$exam = Exam::find($exam_id);
 		$course_id = $exam->course->id;
 		$course = $user->courses()->whereRaw('courses.id = ?', array($course_id))->first();
+		
+		$access = $course->checkAccess();
 		$status = $user->getExamStatus($exam,$course);
-		if($status != 'unavailable'){
-			$exam->questions = $this->retrieveQuestions($exam);
+
+		if($access!= 'admin' && $access!='facilitator' && $status == 'in_exam'){
+			$exam->questions = $this->retrieveQuestions($exam,False);
+		}
+		else if($status != 'unavailable'){
+			$exam->questions = $this->retrieveQuestions($exam,True);
 		}
 		$exam->status = $status;
 		return Response::success($exam);
@@ -119,16 +125,21 @@ class ExamController extends BaseController {
 		return Response::success($exam);
 	}
 
-	private function retrieveQuestions($exam)
+	private function retrieveQuestions($exam,$isEditing)
 	{
-		$questions = $exam->questions()->get();
-
-		foreach($questions as $question){
-			$question['options']=$question->options()->get();
+		if($isEditing == False){
+			$questions = $exam->questions()->get();
+			foreach($questions as $question){
+				$question['options']=$question->options()->select('id', 'content')->get();
+				unset($question->marking_scheme);
+			}
 		}
-
-		Log::info('test');
-		Log::info($questions);
+		else{
+			$questions = $exam->questions()->get();
+			foreach($questions as $question){
+				$question['options']=$question->options()->get();
+			}
+		}
 
 		return $questions;
 	}

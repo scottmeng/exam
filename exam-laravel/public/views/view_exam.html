@@ -23,7 +23,7 @@
 	</label>
 </div>
 
-<div class="panel panel-info">
+<div class="panel panel-info" data-ng-if="exam.questions.length > 0">
 	<div class="panel-heading">
 		<div class="row">
 			<button class="btn btn-primary btn-xs" style="margin-right: 10px" data-ng-disabled="curQnIndex<=0;" data-ng-click="goToQuestion(curQnIndex - 1);">Previous Question</button>
