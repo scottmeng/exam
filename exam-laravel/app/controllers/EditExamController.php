@@ -4,8 +4,7 @@ class EditExamController extends BaseController {
 
 	public function putEditexam($exam_id)
 	{
-		$exam = Exam::find($exam_id);
-		Log::info($exam);
+		$exam = Exam::findOrFail($exam_id);
 
 		$exam->title = Input::get('title');
 		$exam->description = Input::get('description');
@@ -27,7 +26,7 @@ class EditExamController extends BaseController {
 
 	public function postQuestion($exam_id)
 	{
-		$exam = Exam::find($exam_id);
+		$exam = Exam::findOrFail($exam_id);
 
 		$question = new Question(array(
 			'index'=>Input::get('index',-1),
@@ -42,7 +41,7 @@ class EditExamController extends BaseController {
 		));
 
 		$exam->questions()->save($question);
-		$question['options'] = $this->populateOptions($question->id,Input::get('options'));
+		$question['options'] = $this->populateOptions($question,Input::get('options'));
 		return Response::success($question);
 	}
 
@@ -65,7 +64,7 @@ class EditExamController extends BaseController {
 
 		$question->save();
 		$question->options()->delete();
-		$question['options'] = $this->populateOptions($question->id,Input::get('options'));
+		$question['options'] = $this->populateOptions($question,Input::get('options'));
 		return Response::success($question);
 	}
 
@@ -80,9 +79,26 @@ class EditExamController extends BaseController {
 		return Response::success($question);
 	}
 
+	public function putPublish($exam_id)
+	{
+		$exam = Exam::findOrFail($exam_id);
+		$publish_state = ExamState::whereRaw('name = ?',array('active'))->first();
+		$publish_state->exams()->save($exam);
+
+		return Response::success($exam);
+	}
+
+	public function putUnpublish($exam_id)
+	{
+		$exam = Exam::findOrFail($exam_id);
+		$draft_state = ExamState::whereRaw('name = ?',array('draft'))->first();
+		$draft_state->exams()->save($exam);
+
+		return Response::success($exam);
+	}
+
 	private function retrieveQuestions($exam)
 	{
-		// $exam = Exam::find($exam_id);
 		$questions = $exam->questions()->get();
 
 		foreach($questions as $question){
@@ -95,10 +111,8 @@ class EditExamController extends BaseController {
 		return $questions;
 	}
 
-	private function populateOptions($question_id, $inputOptions)
+	private function populateOptions($question, $inputOptions)
 	{
-		$question = Question::findOrFail($question_id);
-
         foreach ($inputOptions as $option) {
 
         	Log::info($option);
