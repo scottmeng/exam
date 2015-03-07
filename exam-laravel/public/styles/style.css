@@ -13,11 +13,16 @@
     font-family: inherit;
 	min-height: 100px;
 	width: auto;
-	visibility: 
+	visibility: visible;
 }
 
-.question-body{
-	padding: 10px;
+.question-body {
+	padding: 10px 0;
+  font-size: 1.2em;
+}
+
+.question-id {
+  margin-left: 16px;
 }
 
 .hideElement{

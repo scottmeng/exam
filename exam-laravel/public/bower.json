@@ -1,0 +1,25 @@
+{
+  "name": "exam",
+  "version": "0.0.1",
+  "homepage": "https://github.com/scottmeng/exam",
+  "authors": [
+    "du lingyi"
+  ],
+  "description": "exam app",
+  "main": "style/styles.css",
+  "keywords": [
+    "exam"
+  ],
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "angular-timer": "~1.3.0"
+  }
+}
