@@ -10,8 +10,10 @@ class HomeController extends BaseController {
 
 	public function getCourses()
 	{
-		$id = Session::get('userid');
-		$user = User::find($id);
+		$user = User::find(Session::get('userid'));
+		if(!$user){
+			return Response::error(401,'unauthorized');
+		}
 		$courses = $user->getCourses();
 
 		return Response::success($courses);

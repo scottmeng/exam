@@ -22,7 +22,11 @@ class ExamController extends BaseController {
 		//1.user role + exam status
 		//error when not accessable
 		$user = User::find(Session::get('userid'));
+		if(!$user){
+			return Response::error(401,'unauthorized');
+		}
 		$exam = Exam::find($exam_id);
+
 		$course_id = $exam->course->id;
 		$course = $user->courses()->whereRaw('courses.id = ?', array($course_id))->first();
 

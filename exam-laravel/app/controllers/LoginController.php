@@ -1,7 +1,7 @@
 <?php
 use GuzzleHttp\Client;
 
-class LoginValidateController extends BaseController {
+class LoginController extends BaseController {
 
 	public function init()
 	{
@@ -10,7 +10,6 @@ class LoginValidateController extends BaseController {
 
  	public function validateLogin()
     {
-
 	
  	 if(Input::has('username'))
     		$username = Input::get('username');
@@ -87,5 +86,13 @@ class LoginValidateController extends BaseController {
 
 
     }
+
+	public function logout()
+	{
+		Session::flush();
+
+		return Response::success('logout sucessful');
+	}
+
 
 }

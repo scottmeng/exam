@@ -16,12 +16,11 @@ class User extends Eloquent{
 	public function getCourses(){
 		
 		$courses = $this->courses()->get();
-		
 		foreach($courses as $course){
 			$exams = $course->exams()->get();
-
 			foreach($exams as $key => $exam){
 				$status = $this->getExamStatus($exam, $course);
+				Log::info($status);
 				if($status == 'unavailable'){
 					unset($exams[$key]);
 				}
@@ -41,8 +40,8 @@ class User extends Eloquent{
 
 		if($exam->checkState() == 'draft')
 		{
-			if(($access != 'admin')){
-				$status = 'not_available';
+			if(($access == 'admin')){
+				$status = 'draft';
 			}
 		}
 		else if($exam->checkState() == 'active')

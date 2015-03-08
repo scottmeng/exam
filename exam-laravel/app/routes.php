@@ -5,11 +5,8 @@ require_once(realpath(__DIR__ . "/../vendor/adldap/adldap/lib/adLDAP/adLDAP.php"
 // require_once (dirname(dirname(__FILE__)) . "/vendor/adLDAP/adLDAP.php");
 
 
-Route::get('/', 'LoginValidateController@init');
-Route::post('/login', 'LoginValidateController@validateLogin');
-
-
-
+Route::get('/', 'LoginController@init');
+Route::post('/login', 'LoginController@validateLogin');
 
 //send default page back when 404
 App::missing(function($exception) {
@@ -18,6 +15,8 @@ App::missing(function($exception) {
 
 Route::get('/api/get-courses','HomeController@getCourses');
 Route::get('/api/get-qn-types','HomeController@getQnTypes');
+Route::get('/api/logout', 'LoginController@logout');
+
 Route::post('/api/create-exam','HomeController@newExam');
 Route::controller('/api/exam/{exam_id}','ExamController');
 Route::controller('/api/submission/{submission_id}','SubmissionController');

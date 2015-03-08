@@ -129,8 +129,13 @@ examApp.controller('dashboardController', ['$scope', '$location', '$modal', '$ht
 	$scope.init = function() {
 		$http.get('/api/get-courses')
 			.success(function(data, status, header, config) {
+				console.log('courses received:');
+				console.log(data);
 				if (data.code === 200) {
 					$scope.courses = data.data;
+				}
+				else if (data.code === 401){
+					$location.path('/');
 				}
 			})
 			.error(function(data, status, header, config) {
