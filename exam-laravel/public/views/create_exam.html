@@ -11,7 +11,7 @@
 		    <div class="col-md-4">
 	      		<input type="text" class="form-control" value="exam.title" data-ng-model="exam.title">
 		    </div>
-		    <label class="col-md-1 text-right">Full Marks:</label>
+		    <label class="col-md-1 col-md-offset-1 text-right">Full Marks:</label>
 		    <div class="col-md-4">
 	      		<input type="text" class="form-control" value="exam.fullmarks" data-ng-model="exam.fullmarks">
 		    </div>
@@ -20,19 +20,26 @@
 		<div class="row form-group">
 			<label class="col-md-1 text-right">Exam Time:</label>
 		    <div class="form-group col-md-2">
-		      <input type="text" size="6" class="form-control" data-ng-model="exam.starttime" data-autoclose="1" placeholder="Date" bs-datepicker data-timeType="unix" data-date-format="dd/MM/yyyy" >
+		      <input type="text" size="6" class="form-control" data-ng-model="exam.starttime" data-autoclose="1" placeholder="Date" bs-datepicker data-date-format="dd/MM/yyyy" >
 		    </div>
 		    <div class="form-group col-md-2">
-		      <input type="text" size="6" class="form-control" data-ng-model="exam.starttime" data-autoclose="1" placeholder="Time" bs-timepicker data-timeType="unix">
+		      <input type="text" size="6" class="form-control" data-ng-model="exam.starttime" data-autoclose="1" placeholder="Time" bs-timepicker>
 		    </div>
-			<label class="col-md-1 text-right">Duration in Minute:</label>
+			<label class="col-md-1 col-md-offset-1 text-right">Duration in Minute:</label>
 		    <div class="col-md-4">
 	      		<input type="text" class="form-control" value="exam.duration" data-ng-model="exam.duration">
 		    </div>
 		</div>
+		<label class=" control-label text-left">Exam Instructions:</label>
+		<div class="row form-group">
+			<div class="col-md-11" style="margin-right: 10px">
+				<div text-angular ta-toolbar="[['h1','h2','h3','quote'],['bold','italics','underline'],['ul','ol','html'],['justifyLeft','justifyCenter','justifyRight']]" ng-model="question.content">
+				</div>
+			</div>
+		</div>
 	</form>
 	<div class="row">
-		<button class="btn btn-success col-md-offset-9 col-md-1 text-right" ng-click="saveExam()">OK</button>
+		<button class="btn btn-success col-md-offset-10 col-md-1 text-right" ng-click="saveExam()">OK</button>
 	</div>
 </div>
 
@@ -40,7 +47,10 @@
 	<div class="panel-heading">
 		<div class="row">
 			<button type="button" style="margin-right: 10px" class="close" data-ng-click="removeQuestion($index);"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-			<div class="col-md-8">Question {{ $index + 1 }}</div>
+			<div class="col-md-1">Q{{ $index + 1 }}:</div>
+			<div class="col-md-7">
+				<input class="col-md-5" type="text" data-ng-model="exam.questions[$index].title">	
+			</div>
 			<div class="col-md-3">
 				<select class="pull-right" data-ng-model="question.questiontype_id" data-ng-change="onQuestionTypeChanged(question);" data-ng-options="type.id as type.name for type in questionTypes" required></select>
 			</div>

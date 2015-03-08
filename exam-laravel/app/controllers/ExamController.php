@@ -14,6 +14,7 @@ class ExamController extends BaseController {
 		$exam->starttime = Input::get('starttime');
 
 		$exam->save();
+		$exam->questions = $exam->questions()->get();
 		return Response::success($exam);
 	}
 
@@ -28,12 +29,11 @@ class ExamController extends BaseController {
 		$exam = Exam::find($exam_id);
 
 		$course_id = $exam->course->id;
-		$course = $user->courses()->whereRaw('courses.id = ?', array($course_id))->first();
+		$course = $user->courses()->where('courses.id', '=', $course_id)->first();
 
-		$access = $course->checkAccess();
-		$status = $user->getExamStatus($exam,$course);
+		$status = $course->getExamStatus($exam);
 
-		if($access!= 'admin' && $access!='facilitator' && $status == 'in_exam'){
+		if($course->pivot->role_id != ADMIN && $course->pivot->role_id != FACILITATOR && $status == 'in_exam'){
 			$exam->questions = $this->retrieveQuestions($exam,False);
 		}
 		else if($status != 'unavailable'){

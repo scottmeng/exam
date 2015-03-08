@@ -34,8 +34,9 @@
 		</div>
 	</div>
 	<div class="panel-body">
-		<p class="question-body">{{ exam.questions[curQnIndex].content }}</p>
-
+		<div class="row">
+			<div class="question-body well well-lg col-md-10 col-md-offset-1" style="padding:10px" data-ng-bind-html="exam.questions[curQnIndex].content"></div>
+		</div>
 		<div data-ng-if="isMCQ(exam.questions[curQnIndex]);" class="row">
 			<div class="col-md-6" style="margin-bottom: 10px" data-ng-repeat="option in exam.questions[curQnIndex].options">
 				<label class="checkbox-inline">
@@ -44,11 +45,13 @@
 				</label>
 			</div>
 		</div>
-		<div data-ng-if="isShortQuestion(exam.questions[curQnIndex]);">
+		<div data-ng-if="isShortQuestion(exam.questions[curQnIndex]);" class="row">
 			<textarea class="form-control" rows="4"></textarea>
 		</div>
-		<div data-ng-if="isCodingQuestion(exam.questions[curQnIndex]);">
-			<textarea class="form-control" rows="4"></textarea>
+		<div data-ng-if="isCodingQuestion(exam.questions[curQnIndex]);" class="row">
+			<div id="coding-area" class="col-md-10 col-md-offset-1">
+				<textarea ui-ace=aceOptions class="form-control" rows="4"></textarea>
+			</div>
 		</div>
 	</div>
 </div>

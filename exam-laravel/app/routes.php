@@ -14,14 +14,14 @@ App::missing(function($exception) {
 });
 
 Route::get('/api/get-courses','HomeController@getCourses');
+Route::get('/api/get-admin-courses','HomeController@getAdminCourses');
 Route::get('/api/get-qn-types','HomeController@getQnTypes');
 Route::get('/api/logout', 'LoginController@logout');
 
 Route::post('/api/create-exam','HomeController@newExam');
 Route::controller('/api/exam/{exam_id}','ExamController');
 Route::controller('/api/submission/{submission_id}','SubmissionController');
-
-
+Route::controller('api/course/{course_id}','CourseController');
 
 
 

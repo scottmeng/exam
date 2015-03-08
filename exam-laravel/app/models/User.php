@@ -17,58 +17,22 @@ class User extends Eloquent{
 		
 		$courses = $this->courses()->get();
 		foreach($courses as $course){
-			$exams = $course->exams()->get();
-			foreach($exams as $key => $exam){
-				$status = $this->getExamStatus($exam, $course);
-				Log::info($status);
-				if($status == 'unavailable'){
-					unset($exams[$key]);
-				}
-				$exam->status = $status;
-			}
-
-			$course->user_role = $course->checkAccess();
-			$course->exams = $exams;
+			$course = $course->getExams();
 		}
 		return $courses;
 	}
 
-	public function getExamStatus($exam, $course){
-
-		$access = $course->checkAccess();
-		$status = 'unavailable';
-
-		if($exam->checkState() == 'draft')
-		{
-			if(($access == 'admin')){
-				$status = 'draft';
+	public function getAdminCourses(){
+		$courses = $this->courses()->get();
+		foreach($courses as $key => $course){
+			if($course->isAdmin() == false){
+				unset($courses[$key]);
 			}
-		}
-		else if($exam->checkState() == 'active')
-		{
-			$now = Carbon::now();
-			$starttime = new Carbon($exam->starttime);
-
-			if($now->lt($starttime->subMinutes(15))){
-				if($access != 'student'){
-					$status = 'not_started';
-				}
-			}
-			else if($now->gt($starttime->addMinutes($exam->duration))){	
-				if($access != 'student'){
-					$status = 'finished';
-				}
-			}	
 			else{
-				$status = 'in_exam';
+				$course = $course->getExams();
 			}
 		}
-		else if($exam->checkState() == 'published')
-		{
-			$status = 'published';
-		}
-
-		return $status;
+		return $courses;
 	}
 
 }	
