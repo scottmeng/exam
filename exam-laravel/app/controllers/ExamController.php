@@ -42,6 +42,11 @@ class ExamController extends BaseController {
 
 		$status = $course->getExamStatus($exam);
 
+		// stop user from receiving any information about this exam
+		if ($status == 'unavailable') {
+			return Response::error(401, 'unauthorized');
+		}
+
 		if($course->pivot->role_id != ADMIN && $course->pivot->role_id != FACILITATOR && $status == 'in_exam'){
 			$exam->questions = $this->retrieveQuestions($exam,False);
 		}

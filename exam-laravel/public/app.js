@@ -178,8 +178,9 @@ examApp.controller('viewCourseController', ['$scope', '$http', '$routeParams', '
 	};
 }]);
 
-examApp.controller('viewExamController', ['$scope', '$http', '$routeParams', 'QN_TYPES', 'EXAM_STATUS', 
-	function($scope, $http, $routeParams, QN_TYPES, EXAM_STATUS) {
+examApp.controller('viewExamController', ['$scope', '$http', '$routeParams', 
+	'QN_TYPES', 'EXAM_STATUS', '$timeout',
+	function($scope, $http, $routeParams, QN_TYPES, EXAM_STATUS, $timeout) {
 
 	$scope.curQnIndex = 0;
 	$scope.examId = $routeParams.examId;
@@ -192,12 +193,40 @@ examApp.controller('viewExamController', ['$scope', '$http', '$routeParams', 'QN
 				if (data.code === 200) {
 					console.log(data.data);
 					$scope.exam = data.data;
-
-					if ($scope.exam.status === EXAM_STATUS.UNAVAILABLE) {
-						$scope.error = 'You are not allowed to view this page';
-					}
+				} else {
+					$scope.error = data.data;
 				}
-		})
+		});
+	};
+
+	$scope.startExamSubmission = function() {
+		// retrieve last exam submission
+		// or get a new one
+		$http.get('/api/exam/' + $scope.examId + '/submission')
+			.success(function(data) {
+				if (data.code === 200) {
+					console.log(data.data);
+					$scope.submission = data.data;
+					$scope.$broadcast('timer-add-cd-seconds', 60 * $scope.exam.duration - 1);
+			     	$timeout(function(){
+				     	$scope.$broadcast('timer-start');
+				  	},0);
+				}
+			});
+	};
+
+	$scope.canAnswerQuestion = function() {
+		// todo 
+		// depends on user relation with course
+		// only 'student' accessing an 'active' exam can answer question
+		return true;
+	};
+
+	$scope.getCountDown = function() {
+		if ($scope.exam) {
+			return $scope.exam * 60;
+		}
+		return 10;
 	};
 
 	// $scope.exam = {
@@ -392,6 +421,7 @@ examApp.controller('viewExamController', ['$scope', '$http', '$routeParams', 'QN
 	};
 
 	$scope.getExamInfo();
+	$scope.startExamSubmission();
 }]);
 
 examApp.controller('newExamController', ['$scope', '$location','$http', '$routeParams', 'QN_TYPES', 'EXAM_STATUS',

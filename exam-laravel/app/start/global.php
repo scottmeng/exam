@@ -92,7 +92,7 @@ Response::macro('success', function($data)
 });
 
 
-Response::macro('error', function($code,$message)
+Response::macro('error', function($code, $message)
 {
     return Response::json(array(
     	'code'=>$code,

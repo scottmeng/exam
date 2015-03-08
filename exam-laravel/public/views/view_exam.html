@@ -6,57 +6,57 @@
 			<button class="btn btn-warning" data-ng-click="isExamInfoCollapsed=!isExamInfoCollapsed">{{ (isExamInfoCollapsed) ? 'View details' : 'Hide details'}}</button>
 		</h3>
 	</div>
-	<h3 class="col-md-6 text-right"><timer language="en" countdown="10" max-time-unit="'hour'" interval="1000" finish-callback="onTimeUp();">{{hhours}} hour{{hhoursS}} {{mminutes}} minute{{minutesS}}, {{sseconds}} second{{secondsS}}</timer></h3>
+	<h3 class="col-md-6 text-right" data-ng-if="canAnswerQuestion();"><timer language="en" countdown="0" max-time-unit="'hour'" interval="1000" finish-callback="onTimeUp();" autostart="false">{{hhours}} hour{{hhoursS}} {{mminutes}} minute{{minutesS}}, {{sseconds}} second{{secondsS}}</timer></h3>
 </div>
 <div class="panel-body" collapse="isExamInfoCollapsed">
 	<div class="row">
 		<label class="col-md-2">Full marks:</label>
-		<p class="col-md-2">{{ exam.fullmarks }}</p>
+		<p class="col-md-1">{{ exam.fullmarks }}</p>
 		<label class="col-md-2">Exam Time:</label>
-		<p class="col-md-2">{{ exam.starttime }} - {{ exam.starttime }}</p>
-		<label class="col-md-2">Duration:</label>
-		<p class="col-md-2">{{ exam.duration }}</p>
+		<p class="col-md-4">{{ exam.starttime }} - {{ exam.starttime }}</p>
+		<label class="col-md-1">Duration:</label>
+		<p class="col-md-1">{{ exam.duration }}</p>
 	</div>
 </div>
 
-<div class="well">
-	<label>Progress: 
-		<a data-ng-repeat="question in exam.questions" data-ng-click="goToQuestion($index)" class="question-id label" data-ng-class="{'label-primary': $index === curQnIndex, 'label-info': $index !== curQnIndex}">Qn {{ $index + 1}}</a>
-	</label>
-</div>
-
-<div class="panel panel-info" data-ng-if="exam.questions.length > 0">
-	<div class="panel-heading">
-		<div class="row">
-			<button class="btn btn-primary btn-xs" style="margin-right: 10px" data-ng-disabled="curQnIndex<=0;" data-ng-click="goToQuestion(curQnIndex - 1);">Previous Question</button>
-			<button class="btn btn-primary btn-xs" style="margin-right: 10px" data-ng-disabled="curQnIndex>=exam.questions.length - 1;" data-ng-click="goToQuestion(curQnIndex + 1);">Next Question</button>
-			<div class="col-md-8">Question {{ curQnIndex + 1 }} ({{ exam.questions[curQnIndex].full_marks}} marks)</div>
-		</div>
+<div data-ng-if="canAnswerQuestion();">
+	<div class="well">
+		<label>Progress: 
+			<a data-ng-repeat="question in exam.questions" data-ng-click="goToQuestion($index)" class="question-id label" data-ng-class="{'label-primary': $index === curQnIndex, 'label-info': $index !== curQnIndex}">Qn {{ $index + 1}}</a>
+		</label>
 	</div>
-	<div class="panel-body">
-		<div class="row">
-			<div class="question-body well well-lg col-md-10 col-md-offset-1" style="padding:10px" data-ng-bind-html="exam.questions[curQnIndex].content"></div>
-		</div>
-		<div data-ng-if="isMCQ(exam.questions[curQnIndex]);" class="row">
-			<div class="col-md-6" style="margin-bottom: 10px" data-ng-repeat="option in exam.questions[curQnIndex].options">
-				<label class="checkbox-inline">
-					<input type="checkbox" id="inlineCheckbox1" value="option1" data-ng-model="option.correctOption">
-					{{ option.content }}
-				</label>
+
+	<div class="panel panel-info" data-ng-if="exam.questions.length > 0">
+		<div class="panel-heading">
+			<div class="row">
+				<button class="btn btn-primary btn-xs" style="margin-right: 10px" data-ng-disabled="curQnIndex<=0;" data-ng-click="goToQuestion(curQnIndex - 1);">Previous Question</button>
+				<button class="btn btn-primary btn-xs" style="margin-right: 10px" data-ng-disabled="curQnIndex>=exam.questions.length - 1;" data-ng-click="goToQuestion(curQnIndex + 1);">Next Question</button>
+				<div class="col-md-8">Question {{ curQnIndex + 1 }} ({{ exam.questions[curQnIndex].full_marks}} marks)</div>
 			</div>
 		</div>
-		<div data-ng-if="isShortQuestion(exam.questions[curQnIndex]);" class="row">
-			<textarea class="form-control" rows="4"></textarea>
-		</div>
-		<div data-ng-if="isCodingQuestion(exam.questions[curQnIndex]);" class="row">
-			<div id="coding-area" class="col-md-10 col-md-offset-1">
-				<textarea ui-ace=aceOptions class="form-control" rows="4"></textarea>
+		<div class="panel-body">
+			<div data-ng-bind-html="exam.questions[curQnIndex].content" class="question-body"></div>
+			<div data-ng-if="isMCQ(exam.questions[curQnIndex]);" class="row">
+				<div class="col-md-6" style="margin-bottom: 10px" data-ng-repeat="option in exam.questions[curQnIndex].options">
+					<label class="checkbox-inline">
+						<input type="checkbox" id="inlineCheckbox1" value="option1" data-ng-model="option.correctOption">
+						{{ option.content }}
+					</label>
+				</div>
+			</div>
+			<div data-ng-if="isShortQuestion(exam.questions[curQnIndex]);" class="row">
+				<textarea class="form-control" rows="4"></textarea>
+			</div>
+			<div data-ng-if="isCodingQuestion(exam.questions[curQnIndex]);" class="row">
+				<div id="coding-area" class="col-md-10 col-md-offset-1">
+					<textarea ui-ace=aceOptions class="form-control" rows="4"></textarea>
+				</div>
 			</div>
 		</div>
 	</div>
-</div>
 
-<div class="pull-right">
-	<button class="btn btn-success" data-ng-click="finishEditExam()">Finish</button>
-</div>
+	<div class="pull-right">
+		<button class="btn btn-success" data-ng-click="finishEditExam()">Finish</button>
+	</div>
+</div>	
 </div>
