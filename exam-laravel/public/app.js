@@ -421,6 +421,7 @@ examApp.controller('viewExamController', ['$scope', '$http', '$routeParams',
 	};
 
 	$scope.getExamInfo();
+	$scope.startExamSubmission();
 }]);
 
 examApp.controller('newExamController', ['$scope', '$location','$http', '$routeParams', 'QN_TYPES', 'EXAM_STATUS',

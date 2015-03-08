@@ -18,6 +18,7 @@ class ExamSubmission extends Eloquent{
 
     public function exam(){
         return $this->belongsTo('Exam');
+    }
 
     public function status(){
         return $this->belongsTo('SubmissionState');
