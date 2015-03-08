@@ -350,6 +350,20 @@ examApp.controller('viewExamController', ['$scope', '$http', '$routeParams', 'QN
 	// 	updated_at: "2015-03-04 23:29:27"
 	// };
 
+	// The ui-ace option
+    $scope.aceOptions = {
+	  useWrapMode : true,
+	  theme:'clouds',
+	  mode: 'javascript',
+	  firstLineNumber: 1,
+	  require:['ace/ext/language_tools'],
+	  advanced:{
+	  	enableSnippets: true,
+	  	enableLiveAutocompletion: true
+	  }
+
+    };
+
 	$scope.isMCQ = function(question) {
 		return question.questiontype_id === QN_TYPES.QN_MCQ ||
 			   question.questiontype_id === QN_TYPES.QN_MRQ;
@@ -456,20 +470,6 @@ examApp.controller('newExamController', ['$scope', '$location','$http', '$routeP
 	$scope.defaultDate = "2015-02-05T08:00:01.534Z"; // (formatted: 2/5/15 4:00 PM)
 	$scope.isMarkingSchemeCollapsed = true;
 	$scope.hasMarkingScheme = false;
-
-	// The ui-ace option
-    $scope.aceOptions = {
-	  useWrapMode : true,
-	  theme:'monokai',
-	  mode: 'javascript',
-	  firstLineNumber: 5,
-	  require:['ace/ext/language_tools'],
-	  advanced:{
-	  	enableSnippets: true,
-	  	enableLiveAutocompletion: true
-	  }
-
-    };
 
     $scope.textAreaSetup = function($element){
 	  $element.attr('ui-codemirror', '');
