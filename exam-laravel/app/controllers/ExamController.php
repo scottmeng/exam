@@ -18,6 +18,15 @@ class ExamController extends BaseController {
 		return Response::success($exam);
 	}
 
+	public function getQncount($exam_id)
+	{	
+		$exam = Exam::findOrFail($exam_id);
+		$count = $exam->questions()->get()->count();
+		$exam->totalqn = $count;
+		$exam->save();
+		return Response::success($count);
+	}
+
 	public function getExaminfo($exam_id)
 	{
 		//1.user role + exam status
@@ -47,12 +56,14 @@ class ExamController extends BaseController {
 	}
 
 
-	public function getSubmission(){
-		$exam_id = Input::get('exam_id');
+	public function getSubmission($exam_id){
 		$exam = Exam::findOrFail($exam_id);
-
+		$user = User::find(Session::get('userid'));
+		if(!$user){
+			return Response::error(401,'unauthorized');
+		}
 		$exam_submisson = new ExamSubmission(array(
-			'user_id' => Input::get('user_id')
+			'user_id' => $user->id
 		));
 
 		$exam->submissions()->save($exam_submisson);

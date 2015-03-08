@@ -41,8 +41,7 @@
 		<div class="panel panel-primary" data-ng-repeat="course in courses">
 			<div class="panel-heading">{{ course.nus_id + " " + course.name }}
 			</div>
-			<div class="panel-body bg-info">
-				{{ course.description }}
+			<div class="panel-body bg-info" data-ng-bind-html="course.description">
 			</div>
 			<div class="list-group">
 				<a class="list-group-item" data-ng-repeat="exam in course.exams" data-ng-click="viewExam(exam.id)">

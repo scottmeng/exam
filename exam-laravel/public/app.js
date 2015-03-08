@@ -429,6 +429,12 @@ examApp.controller('newExamController', ['$scope', '$location','$http', '$routeP
 	};
 
 	$scope.finishEditExam = function(){
+		$http.get('/api/exam/' + $scope.examId + '/qncount')
+					.success(function(data){
+						if (data.code === 200) {
+							$scope.exam.totalqn = data.data;
+						}
+		})
 		$location.path('/home');
 	};
 
@@ -443,7 +449,7 @@ examApp.controller('newExamController', ['$scope', '$location','$http', '$routeP
 				if($scope.exam.questions==null || $scope.exam.questions.length==0){
 					$scope.exam.questions = [];
 					$scope.exam.questions.push({
-						questiontype_id: 1, 
+						questiontype_id: QN_TYPES.QN_SHORT, 
 						content: '',
 						options:[
 							{
@@ -484,9 +490,18 @@ examApp.controller('newExamController', ['$scope', '$location','$http', '$routeP
 					$scope.exam.questions = data.data;
 				} else {	
 					$scope.exam.questions = [{
-						questiontype: 1,
+						questiontype_id: QN_TYPES.QN_SHORT,
 						content: '',
-						options: []
+						options: [
+							{
+								correctOption: false,
+								content: ''
+							},
+							{
+								correctOption: false,
+								content: ''
+							}
+						]
 					}];
 				}
 
@@ -496,8 +511,6 @@ examApp.controller('newExamController', ['$scope', '$location','$http', '$routeP
 
 	$scope.submitQuestion = function(index){
 		
-		console.log('options sent:');
-		console.log($scope.exam.questions[index]);
 
 		$scope.exam.questions[index].index = index+1;
 		
@@ -533,26 +546,21 @@ examApp.controller('newExamController', ['$scope', '$location','$http', '$routeP
 	};
 
 	$scope.isMCQ = function(questiontype) {
-		return questiontype == 1;
+		return questiontype === QN_TYPES.QN_MCQ || 
+			   questiontype === QN_TYPES.QN_MRQ;
 	};
+	$scope.isCodingQn = function(questiontype){
+		return questiontype == QN_TYPES.QN_CODING;
+	}
 
 	$scope.addNewQuestion = function() {
 		if ($scope.exam.questions==null) {
 			$scope.exam.questions = [];
 		}
 		$scope.exam.questions.push({
-			questiontype_id: 1, 
+			questiontype_id: QN_TYPES.QN_SHORT, 
 			content: '',
-			options:[
-				{
-					correctOption: false,
-					content: ''
-				},
-				{
-					correctOption: false,
-					content: ''
-				}
-			]				
+			options:[]				
 		});
 	};
 
@@ -571,7 +579,7 @@ examApp.controller('newExamController', ['$scope', '$location','$http', '$routeP
 	};
 
 	$scope.addOption = function(question) {
-		if (question.questiontype === 2) {
+		if (question.questiontype_id != QN_TYPES.QN_MCQ || question.questiontype_id != QN_TYPES.QN_MRQ) {
 			return;
 		}
 		if (!question.options) {
@@ -581,7 +589,7 @@ examApp.controller('newExamController', ['$scope', '$location','$http', '$routeP
 	};
 
 	$scope.onQuestionTypeChanged = function(question) {
-		if (question.questiontype === 1) {
+		if (question.questiontype_id === QN_TYPES.QN_MCQ) {
 			if (!question.options) {
 				question.options = [];
 			}

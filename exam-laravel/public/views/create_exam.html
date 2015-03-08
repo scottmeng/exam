@@ -9,11 +9,11 @@
 		<div class="row form-group">
 			<label class="col-md-1 text-right">Title:</label>
 		    <div class="col-md-4">
-	      		<input type="text" class="form-control" value="exam.title" data-ng-model="exam.title">
+	      		<input type="text" class="form-control" data-ng-model="exam.title">
 		    </div>
 		    <label class="col-md-1 col-md-offset-1 text-right">Full Marks:</label>
 		    <div class="col-md-4">
-	      		<input type="text" class="form-control" value="exam.fullmarks" data-ng-model="exam.fullmarks">
+	      		<input type="text" class="form-control" data-ng-model="exam.fullmarks">
 		    </div>
 		</div>
 
@@ -27,7 +27,7 @@
 		    </div>
 			<label class="col-md-1 col-md-offset-1 text-right">Duration in Minute:</label>
 		    <div class="col-md-4">
-	      		<input type="text" class="form-control" value="exam.duration" data-ng-model="exam.duration">
+	      		<input type="text" class="form-control" data-ng-model="exam.duration">
 		    </div>
 		</div>
 		<label class=" control-label text-left">Exam Instructions:</label>
@@ -90,6 +90,10 @@
 									</div>
 									<button class="btn btn-primary" data-ng-click="addOption(question);">Add new option</button>
 								</div>
+							</div>
+						</div>
+						<div class="row" style="margin:10px">
+							<div class="form-group" data-ng-show="isCodingQn(question.questiontype_id);">
 							</div>
 						</div>
 					</form>
