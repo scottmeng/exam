@@ -18,13 +18,9 @@ class CreateOptionsTable extends Migration {
 			$table->integer('index')->nullable();
 			$table->text('content')->nullable();
 			$table->integer('question_id')->unsigned();
+			$table->foreign('question_id')->references('id')->on('questions');
 			$table->boolean('correctOption')->default(0);
 			$table->timestamps();
-		});
-
-		Schema::table('options', function(Blueprint $table)
-		{
-			$table->foreign('question_id')->references('id')->on('questions')->nullable();
 		});
 	}
 

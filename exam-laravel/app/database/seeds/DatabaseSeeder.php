@@ -66,9 +66,19 @@ class CodeCrunchSeeder extends Seeder {
                         'description' => 'Multiple Choice Questions'
                 ));
 
+                $initType3 = QuestionType::create(array(
+                        'name' => 'MRQ',
+                        'description' => 'Multiple Response Questions'
+                ));
+
                 $initType2 = Questiontype::create(array(
                         'name' => 'Short Answer Question',
                         'description' => 'short answer questions, can be coding or non-coding'
+                ));
+
+                $initType4 = QuestionType::create(array(
+                        'name' => 'Coding Question',
+                        'description' => 'Requires coding in student responses'
                 ));
 
                 $initExamState1 = ExamState::create(array(
@@ -84,6 +94,11 @@ class CodeCrunchSeeder extends Seeder {
                 $initExamState3 = ExamState::create(array(
                         'name' => 'published',
                         'description' => 'grading finished, published to students'
+                ));
+
+                $initExamState4 = ExamState::create(array(
+                        'name' => 'expired',
+                        'description' => 'archived, no longer accessible'
                 ));
 
                 $initSubmissionState1 = SubmissionState::create(array(
