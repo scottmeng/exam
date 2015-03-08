@@ -62,7 +62,11 @@ class CodeCrunchSeeder extends Seeder {
                 $initCourse1 = Course::create(array(
                         'nus_id' => 'CS1010J',
                         'name' => 'Programming Methodology',
-                        'description' => 'This is your first programming course. You will learn algorithms, languages and other essential programming skills. Plese note the following important dates: \nAssignment 1 due: March 3rd;\nFinal Exam: May 2nd(pm)'
+                        'description' => 'Welcome to your first programming course!
+                        Here you will learn algorithms, languages and other essential programming skills.
+                        Plese take note of the following important dates: 
+                        Assignment 1 due: March 3rd;
+                        Final Exam: May 2nd(pm)'
                 ));
 
                 //seed question type table

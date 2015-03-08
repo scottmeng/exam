@@ -22,4 +22,17 @@ class User extends Eloquent{
 		return $courses;
 	}
 
+	public function getAdminCourses(){
+		$courses = $this->courses()->get();
+		foreach($courses as $key => $course){
+			if($course->isAdmin() == false){
+				unset($courses[$key]);
+			}
+			else{
+				$course = $course->getExams();
+			}
+		}
+		return $courses;
+	}
+
 }	

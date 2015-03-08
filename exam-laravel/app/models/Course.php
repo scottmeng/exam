@@ -67,4 +67,11 @@ class Course extends Eloquent {
 		return $this;
 	}
 
+	public function isAdmin(){
+		if ($this->pivot->role_id === ADMIN){
+			return true;
+		}
+		return false;
+	}
+
 }

@@ -19,6 +19,17 @@ class HomeController extends BaseController {
 		return Response::success($courses);
 	}
 
+	public function getAdminCourses()
+	{
+		$user = User::find(Session::get('userid'));
+		if(!$user){
+			return Response::error(401,'unauthorized');
+		}
+		$courses = $user->getAdminCourses();
+
+		return Response::success($courses);
+	}
+
 	public function getQnTypes()
 	{
 		return Response::success(QuestionType::all());

@@ -24,7 +24,7 @@ class CreateQuestionsTable extends Migration {
 			$table->boolean('coding_qn')->default(0);
 			$table->boolean('compiler_enable')->default(0);
 			$table->boolean('randomizeOptions')->default(0);
-			$table->string('marking_scheme')->nullable();
+			$table->text('marking_scheme')->nullable();
 			$table->integer('full_marks')->default(0);
 			$table->timestamps();
 		});

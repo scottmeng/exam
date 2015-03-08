@@ -40,7 +40,10 @@
 	<div class="panel-heading">
 		<div class="row">
 			<button type="button" style="margin-right: 10px" class="close" data-ng-click="removeQuestion($index);"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-			<div class="col-md-8">Question {{ $index + 1 }}</div>
+			<div class="col-md-1">Q{{ $index + 1 }}:</div>
+			<div class="col-md-7">
+				<input class="col-md-5" type="text" data-ng-model="exam.questions[$index].title">	
+			</div>
 			<div class="col-md-3">
 				<select class="pull-right" data-ng-model="question.questiontype_id" data-ng-change="onQuestionTypeChanged(question);" data-ng-options="type.id as type.name for type in questionTypes" required></select>
 			</div>

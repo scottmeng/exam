@@ -7,7 +7,7 @@
     		<div class="form-group">
     			<label for="title" class="col-md-2 col-md-offset-1 control-label">Course</label>
     			<div class="col-md-8">
-					<select class="form-control" data-ng-model="exam.course_id" data-ng-options="course.id as course.nus_id for course in courses">
+					<select class="form-control" data-ng-model="exam.course_id" data-ng-options="course.id as course.nus_id for course in adminCourses">
 					</select>
 				</div>
     		</div>
@@ -31,7 +31,7 @@
 </script>
 
 
-<button data-ng-click="addExam();" class="btn btn-primary pull-right">Create new exam</button>
+<button data-ng-click="addExam();" class="btn btn-primary pull-right" ng-show="isAdmin">Create new exam</button>
 <ul class="nav nav-tabs">
 	<li role="presentation" data-ng-class="{active:isTabSelected(1)}"><a href data-ng-click="selectTab(1);">Courses</a></li>
 	<li role="presentation" data-ng-class="{active:isTabSelected(2)}"><a href data-ng-click="selectTab(2);">Recent</a></li>
@@ -41,7 +41,9 @@
 		<div class="panel panel-primary" data-ng-repeat="course in courses">
 			<div class="panel-heading">{{ course.nus_id + " " + course.name }}
 			</div>
-			<div class="panel-body bg-info">{{ course.description }}</div>
+			<div class="panel-body bg-info">
+				{{ course.description }}
+			</div>
 			<div class="list-group">
 				<a class="list-group-item" data-ng-repeat="exam in course.exams" data-ng-click="viewExam(exam.id)">
 					<span class="badge">{{ exam.starttime | date:'medium' }}</span> {{ exam.title }}

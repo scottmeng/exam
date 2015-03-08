@@ -24,7 +24,7 @@ class CreatExamsubmissionsTable extends Migration {
 			$table->integer('total_marks')->default(0);
 			$table->integer('submissionstate_id')->unsigned();
 			$table->foreign('submissionstate_id')->references('id')->on('submissionstates');
-			$table->string('comment')->nullable();
+			$table->text('comment')->nullable();
 			$table->timestamps();
 		});
 	}

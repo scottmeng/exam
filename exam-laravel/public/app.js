@@ -100,10 +100,6 @@ examApp.controller('ModalInstanceCtrl', function ($scope, $modalInstance, $http,
 		$scope.createError = null;
 		$http.post('/api/create-exam', $scope.exam)
 			.success(function(data, status, header, config) {
-				console.log("captured exam data:");
-				console.log($scope.exam);
-				console.log('data received:');
-				console.log(data);
 				if (data.code === 200) {
 					var exam = data.data;
 					$modalInstance.close(exam);
@@ -135,10 +131,23 @@ examApp.controller('dashboardController', ['$scope', '$location', '$modal', '$ht
 	};
 
 	$scope.init = function() {
+
+		$http.get('/api/get-admin-courses')
+		.success(function(data,status,header,config){
+			if(data.code === 200){
+				if(data.data.length>0){
+					$scope.adminCourses = data.data;
+					$scope.isAdmin = true;
+				}
+				else{
+					$scope.adminCourse = [];
+					$scope.isAdmin = false;
+				}
+			}
+		});
+
 		$http.get('/api/get-courses')
 			.success(function(data, status, header, config) {
-				console.log('courses received:');
-				console.log(data);
 				if (data.code === 200) {
 					$scope.courses = data.data;
 				}
@@ -148,7 +157,7 @@ examApp.controller('dashboardController', ['$scope', '$location', '$modal', '$ht
 			})
 			.error(function(data, status, header, config) {
 
-			});	
+			});
 	};
 
 	$scope.viewExam = function(examid){
@@ -399,8 +408,6 @@ examApp.controller('newExamController', ['$scope', '$location','$http', '$routeP
 		$scope.isExamInfoCollapsed = true;
 		$http.put('/api/exam/' + $scope.examId + '/editexam',$scope.exam)
 			.success(function(data){
-				console.log('sent:');
-				console.log($scope.exam);
 				if (data.code === 200) {
 					$scope.exam = data.data;
 				}
@@ -419,6 +426,23 @@ examApp.controller('newExamController', ['$scope', '$location','$http', '$routeP
 				console.log(data.data);
 				$scope.exam = data.data;
 
+				if($scope.exam.questions==null || $scope.exam.questions.length==0){
+					$scope.exam.questions = [];
+					$scope.exam.questions.push({
+						questiontype_id: 1, 
+						content: '',
+						options:[
+							{
+								correctOption: false,
+								content: ''
+							},
+							{
+								correctOption: false,
+								content: ''
+							}
+						]				
+					});
+				}
 				if ($scope.exam.status === EXAM_STATUS.UNAVAILABLE) {
 					$scope.error = 'You are not allowed to view this page';
 				}
@@ -426,7 +450,7 @@ examApp.controller('newExamController', ['$scope', '$location','$http', '$routeP
 		})
 	};
 
-	$scope.isExamInfoCollapsed = true;
+	$scope.isExamInfoCollapsed = false;
 	$scope.ExamName="CS1010 Mid-Term Exam";
 
 	$scope.defaultDate = "2015-02-05T08:00:01.534Z"; // (formatted: 2/5/15 4:00 PM)
@@ -513,7 +537,7 @@ examApp.controller('newExamController', ['$scope', '$location','$http', '$routeP
 	};
 
 	$scope.addNewQuestion = function() {
-		if (!$scope.exam.questions) {
+		if ($scope.exam.questions==null) {
 			$scope.exam.questions = [];
 		}
 		$scope.exam.questions.push({

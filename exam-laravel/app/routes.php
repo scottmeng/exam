@@ -14,6 +14,7 @@ App::missing(function($exception) {
 });
 
 Route::get('/api/get-courses','HomeController@getCourses');
+Route::get('/api/get-admin-courses','HomeController@getAdminCourses');
 Route::get('/api/get-qn-types','HomeController@getQnTypes');
 Route::get('/api/logout', 'LoginController@logout');
 
