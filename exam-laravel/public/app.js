@@ -5,10 +5,18 @@ var examApp = angular
 		'ui.ace','textAngular','ui.bootstrap.buttons','ui.bootstrap.collapse',
 		'mgcrea.ngStrap.datepicker','mgcrea.ngStrap.timepicker', 'timer'])
 	.constant('QN_TYPES', {
-		'QN_MCQ_SINGLE'	: 1,
-		'QN_CODING'		: 2,
-		'QN_SHORT'		: 3,
-		'QN_MCQ_MULTI'	: 4
+		'QN_MCQ'	: 1,
+		'QN_MRQ'	: 2,
+		'QN_SHORT'	: 3,
+		'QN_CODING'	: 4
+	})
+	.constant('EXAM_STATUS', {
+		'UNAVAILABLE'	: 'unavailable',
+		'DRAFT'			: 'draft',
+		'NOT_STARTED'	: 'not_started',
+		'FINISHED'		: 'finished',
+		'IN_EXAM'		: 'in_exam',
+		'PUBLISHED'		: 'published' 
 	});
 
 examApp.config(['$routeProvider', '$locationProvider', 
@@ -167,11 +175,12 @@ examApp.controller('dashboardController', ['$scope', '$location', '$modal', '$ht
 	$scope.init();
 }]);
 
-examApp.controller('viewExamController', ['$scope', '$http', '$routeParams', 'QN_TYPES', 
-	function($scope, $http, $routeParams, QN_TYPES) {
+examApp.controller('viewExamController', ['$scope', '$http', '$routeParams', 'QN_TYPES', 'EXAM_STATUS', 
+	function($scope, $http, $routeParams, QN_TYPES, EXAM_STATUS) {
 
 	$scope.curQnIndex = 0;
 	$scope.examId = $routeParams.examId;
+	$scope.error = null;
 
 	$scope.getExamInfo = function() {
 
@@ -180,6 +189,10 @@ examApp.controller('viewExamController', ['$scope', '$http', '$routeParams', 'QN
 				if (data.code === 200) {
 					console.log(data.data);
 					$scope.exam = data.data;
+
+					if ($scope.exam.status === EXAM_STATUS.UNAVAILABLE) {
+						$scope.error = 'You are not allowed to view this page';
+					}
 				}
 		})
 	};
@@ -329,9 +342,8 @@ examApp.controller('viewExamController', ['$scope', '$http', '$routeParams', 'QN
 	// };
 
 	$scope.isMCQ = function(question) {
-		console.log(question);
-		return question.questiontype_id === QN_TYPES.QN_MCQ_SINGLE ||
-			   question.questiontype_id === QN_TYPES.QN_MCQ_MULTI;
+		return question.questiontype_id === QN_TYPES.QN_MCQ ||
+			   question.questiontype_id === QN_TYPES.QN_MRQ;
 	};
 
 	$scope.isCodingQuestion = function(question) {
@@ -365,10 +377,11 @@ examApp.controller('viewExamController', ['$scope', '$http', '$routeParams', 'QN
 	$scope.getExamInfo();
 }]);
 
-examApp.controller('newExamController', ['$scope', '$location','$http', '$routeParams',
-	function($scope, $location, $http, $routeParams) {
+examApp.controller('newExamController', ['$scope', '$location','$http', '$routeParams', 'QN_TYPES', 'EXAM_STATUS',
+	function($scope, $location, $http, $routeParams, QN_TYPES, EXAM_STATUS) {
 
 	$scope.examId = $routeParams.examId;
+	$scope.error = null;
 
 	$scope.getQuestionTypes = function() {
 		$http.get('/api/get-qn-types')
@@ -403,6 +416,10 @@ examApp.controller('newExamController', ['$scope', '$location','$http', '$routeP
 			if (data.code === 200) {
 				console.log(data.data);
 				$scope.exam = data.data;
+
+				if ($scope.exam.status === EXAM_STATUS.UNAVAILABLE) {
+					$scope.error = 'You are not allowed to view this page';
+				}
 			}
 		})
 	};
@@ -494,6 +511,9 @@ examApp.controller('newExamController', ['$scope', '$location','$http', '$routeP
 	};
 
 	$scope.addNewQuestion = function() {
+		if (!$scope.exam.questions) {
+			$scope.exam.questions = [];
+		}
 		$scope.exam.questions.push({
 			questiontype_id: 1, 
 			content: '',

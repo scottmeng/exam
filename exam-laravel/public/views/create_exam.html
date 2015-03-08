@@ -1,3 +1,5 @@
+<h3 data-ng-if="error">{{ error }}</h3>
+<div data-ng-if="!error">
 <div class="row" style="margin:5px" >
 	<h2 data-ng-click="isExamInfoCollapsed=!isExamInfoCollapsed"><small>Editing {{exam.title}}
 	<i class="fa fa-pencil-square-o fa-lg" style="color:green"></i></small></h2>
@@ -126,4 +128,5 @@
 <div class="pull-right">
 	<button class="btn btn-primary" data-ng-click="addNewQuestion();">Add new question</button>
 	<button class="btn btn-success" data-ng-click="finishEditExam()">Finish</button>
+</div>
 </div>
