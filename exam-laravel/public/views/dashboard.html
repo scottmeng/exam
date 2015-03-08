@@ -33,20 +33,11 @@
 
 <button data-ng-click="addExam();" class="btn btn-primary pull-right">Create new exam</button>
 <ul class="nav nav-tabs">
-	<li role="presentation" data-ng-class="{active:isTabSelected(1)}"><a href data-ng-click="selectTab(1);">Recent</a></li>
-	<li role="presentation" data-ng-class="{active:isTabSelected(2)}"><a href data-ng-click="selectTab(2);">Courses</a></li>
-</ul>
+	<li role="presentation" data-ng-class="{active:isTabSelected(1)}"><a href data-ng-click="selectTab(1);">Courses</a></li>
+	<li role="presentation" data-ng-class="{active:isTabSelected(2)}"><a href data-ng-click="selectTab(2);">Recent</a></li>
+</ul>	
 <div class="tab-content" style="padding-top: 20px">
 	<div class="tab-pane" data-ng-class="{active:isTabSelected(1)}">
-		<div class="list-group">
-			<a class="list-group-item list-group-item-success"><span class="badge">14/11/2014</span>CS1010S Mid-term test has completed</a>
-			<a class="list-group-item list-group-item-info"><span class="badge">13/11/2014</span>Tutor A has finished marking CS2010 test 2 for Group A</a>
-			<a class="list-group-item list-group-item-info"><span class="badge">13/11/2014</span>Tutor C has finished marking CS2010 test 2 for Group C</a>
-			<a class="list-group-item list-group-item-info"><span class="badge">12/11/2014</span>Tutor B has finished marking CS2010 test 2 for Group B</a>
-			<a class="list-group-item list-group-item-warning"><span class="badge">12/11/2014</span>Your added CS2010 test 3</a>
-		</div>
-	</div>
-	<div class="tab-pane" data-ng-class="{active:isTabSelected(2)}">
 		<div class="panel panel-primary" data-ng-repeat="course in courses">
 			<div class="panel-heading">{{ course.nus_id + " " + course.name }}
 			</div>
@@ -56,6 +47,15 @@
 					<span class="badge">{{ exam.starttime | date:'medium' }}</span> {{ exam.title }}
 				</a>
 			</div>
+		</div>
+	</div>
+	<div class="tab-pane" data-ng-class="{active:isTabSelected(2)}">
+		<div class="list-group">
+			<a class="list-group-item list-group-item-success"><span class="badge">14/11/2014</span>CS1010S Mid-term test has completed</a>
+			<a class="list-group-item list-group-item-info"><span class="badge">13/11/2014</span>Tutor A has finished marking CS2010 test 2 for Group A</a>
+			<a class="list-group-item list-group-item-info"><span class="badge">13/11/2014</span>Tutor C has finished marking CS2010 test 2 for Group C</a>
+			<a class="list-group-item list-group-item-info"><span class="badge">12/11/2014</span>Tutor B has finished marking CS2010 test 2 for Group B</a>
+			<a class="list-group-item list-group-item-warning"><span class="badge">12/11/2014</span>Your added CS2010 test 3</a>
 		</div>
 	</div>
 </div>
