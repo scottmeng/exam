@@ -20,23 +20,4 @@ class Exam extends Eloquent{
         return $this->hasMany('ExamSubmission');
     }
 
-    public function checkState(){
-
-        $draft_state = ExamState::where('name','like','draft')->first()->id;
-        $active_state = ExamState::where('name','like','active')->first()->id;
-        $published_state = ExamState::where('name','like','published')->first()->id;
-
-        if($this->examstate_id == $draft_state){
-            return 'draft';
-        }
-        else if($this->examstate_id == $active_state){
-            return 'active';
-        }
-        else if($this->examstate_id == $published_state){
-            return 'published';
-        }
-
-        return 'undefined';
-    }
-
 }

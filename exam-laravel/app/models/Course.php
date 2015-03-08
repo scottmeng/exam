@@ -15,22 +15,56 @@ class Course extends Eloquent {
         return $this->belongsToMany('User')->withPivot('role_id');
     }
 
-    public function checkAccess(){
-		
-		$admin = Role::where('name','like','admin')->first();
-		$facilitator = Role::where('name','like','facilitator')->first();
+    public function getExamStatus($exam){
 
-		if ($this->pivot->role_id == $admin->id){
-			return 'admin';
+		$status = STATUS_UNAVAILABLE;
+
+		if($exam->examstate_id == DRAFT)
+		{
+			if(($this->pivot->role_id == ADMIN)){
+				$status = STATUS_DRAFT;
+			}
 		}
-		else if($this->pivot->role_id == $facilitator->id){
-			return 'facilitator';
+		else if($exam->examstate_id == ACTIVE)
+		{
+			$now = Carbon::now();
+			$starttime = new Carbon($exam->starttime);
+
+			if($now->lt($starttime->subMinutes(15))){
+				if($this->pivot->role_id != STUDENT){
+					$status = STATUS_NOT_STARTED;
+				}
+			}
+			else if($now->gt($starttime->addMinutes($exam->duration))){	
+				if($this->pivot->role_id != STUDENT){
+					$status = STATUS_FINISHED;
+				}
+			}	
+			else{
+				$status = STATUS_IN_EXAM;
+			}
 		}
-		else{
-			return 'student';
+		else if($exam->examstate_id == PUBLISHED)
+		{
+			$status = STATUS_PUBLISHED;
 		}
 
-		return 'undefined';
+		return $status;
+	}
+
+
+	public function getExams(){
+		$exams = $this->exams()->get();
+		foreach($exams as $key => $exam){
+			$status = $this->getExamStatus($exam);
+			if ($status == STATUS_UNAVAILABLE){
+				unset($exams[$key]);
+			}
+			$exam->status = $status; 
+		}
+		$this->user_role = ROLE::find($this->pivot->role_id)->name;
+		$this->exams = $exams;
+		return $this;
 	}
 
 }

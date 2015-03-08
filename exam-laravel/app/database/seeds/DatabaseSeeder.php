@@ -52,12 +52,17 @@ class CodeCrunchSeeder extends Seeder {
                         'nus_id' => 'A123',
                 ));
 
+                $initUser4 = User::create(array(
+                        'name' => 'Admin',
+                        'nus_id' => 'admin',
+                ));
+
                 //seed courses table
 
                 $initCourse1 = Course::create(array(
                         'nus_id' => 'CS1010J',
                         'name' => 'Programming Methodology',
-                        'description' => 'test course'
+                        'description' => 'This is your first programming course. You will learn algorithms, languages and other essential programming skills. Plese note the following important dates: \nAssignment 1 due: March 3rd;\nFinal Exam: May 2nd(pm)'
                 ));
 
                 //seed question type table
@@ -138,6 +143,7 @@ class CodeCrunchSeeder extends Seeder {
                 $initUser1->courses()->save($initCourse1,array('role_id'=>$initRole1->id));
                 $initUser2->courses()->save($initCourse1,array('role_id'=>$initRole2->id));
                 $initUser3->courses()->save($initCourse1,array('role_id'=>$initRole3->id));
+                $initUser4->courses()->save($initCourse1,array('role_id'=>$initRole1->id));
 
 	}
 

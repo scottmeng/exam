@@ -27,13 +27,14 @@ class LoginController extends BaseController {
 
 			//varify user role
 			$user = User::where('nus_id','like',$username)->first();
-
-			$admin = Role::where('name', 'like', 'admin')->firstOrFail();
-
+			if(!$user){
+				$loginVar['success']=False;
+				return $loginVar;
+			}
 			$isAdmin = False;
 
 			foreach($user->courses as $course){
-				if ($course->pivot->role_id == $admin->id){
+				if ($course->pivot->role_id == ADMIN){
 					$isAdmin = True;
 				}
 			}

@@ -399,6 +399,8 @@ examApp.controller('newExamController', ['$scope', '$location','$http', '$routeP
 		$scope.isExamInfoCollapsed = true;
 		$http.put('/api/exam/' + $scope.examId + '/editexam',$scope.exam)
 			.success(function(data){
+				console.log('sent:');
+				console.log($scope.exam);
 				if (data.code === 200) {
 					$scope.exam = data.data;
 				}
