@@ -38,31 +38,15 @@ examApp.config(['$routeProvider', '$locationProvider',
 				templateUrl: 'views/view_exam.html',
 				controller: 'viewExamController'
 			})
+			.when('/courses/:courseId', {
+				templateUrl: 'views/view_course.html',
+				controller: 'viewCourseController'
+			})
 			.otherwise({
 				templateUrl: 'views/not_found.html'
 			});
 
 		$locationProvider.html5Mode(true);
-
-
-
-
-	 //*********test adding tools**********
-
-	  // $provide.decorator('taOptions', ['taRegisterTool', '$delegate', function(taRegisterTool, taOptions){
-   //      // $delegate is the taOptions we are decorating
-   //      // register the tool with textAngular
-   //      taRegisterTool('colourRed', {
-   //          iconclass: "fa fa-square red",
-   //          action: function(){
-   //              this.$editor().wrapSelection('forecolor', 'red');
-   //          }
-   //      });
-   //      // add the button to the default toolbar definition
-   //      taOptions.toolbar[1].push('colourRed');
-   //      return taOptions;
-   //  }]);
-
 	}
 ]);
 
@@ -173,6 +157,16 @@ examApp.controller('dashboardController', ['$scope', '$location', '$modal', '$ht
 	};
 
 	$scope.init();
+}]);
+
+examApp.controller('viewCourseController', ['$scope', '$http', '$routeParams', 'EXAM_STATUS',
+	function($scope, $http, $routeParams, EXAM_STATUS) {
+
+	$scope.courseId = $routeParams.courseId;
+
+	$scope.getCourseInfo = function() {
+		// get course information
+	};
 }]);
 
 examApp.controller('viewExamController', ['$scope', '$http', '$routeParams', 'QN_TYPES', 'EXAM_STATUS', 
