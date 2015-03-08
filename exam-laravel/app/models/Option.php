@@ -10,7 +10,7 @@ class Option extends Eloquent {
     }
 
     public function selections(){
-    	return $this->hasMany('QuestionSubmission','choice');
+    	return $this->hasMany('SelectedOption');
     }
 
 }

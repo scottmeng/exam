@@ -2,7 +2,7 @@
 
 class QuestionSubmission extends Eloquent{
 
-    protected $fillable = array('answer', 'question_id', 'examsubmission_id', 'choice','marks_obtained','comment');
+    protected $fillable = array('answer', 'question_id', 'examsubmission_id','submissionstate_id','marks_obtained','comment');
 
     public function question(){
 		return $this->belongsTo('Question');
@@ -12,8 +12,12 @@ class QuestionSubmission extends Eloquent{
     	return $this->belongsTo('ExamSubmission','examsubmission_id');
     }
 
-    public function option(){
-    	return $this->belongsTo('Option','choice');
+    public function choices(){
+        return $this->hasMany('SelectedOption');
+    }
+
+    public function status(){
+        return $this->belongsTo('SubmissionState');
     }
 
 }

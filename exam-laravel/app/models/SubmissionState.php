@@ -8,4 +8,8 @@ class SubmissionState extends Eloquent{
     public function questionsubmissions(){
 		return $this->hasMany('QuestionSubmission');
     }
+
+    public function examsubmissions(){
+		return $this->hasMany('ExamSubmission');
+    }
 }

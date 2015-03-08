@@ -2,7 +2,7 @@
 
 class ExamSubmission extends Eloquent{
 
-    protected $fillable = array('name', 'user_id', 'exam_id', 'grader_id','total_marks','comment');
+    protected $fillable = array('name', 'user_id', 'exam_id', 'grader_id','submissionstate_id','total_marks','comment');
 
     public function user(){
 		return $this->belongsTo('User','user_id');
@@ -18,5 +18,9 @@ class ExamSubmission extends Eloquent{
 
     public function exam(){
         return $this->belongsTo('Exam');
+
+    public function status(){
+        return $this->belongsTo('SubmissionState');
+    }
 
 }

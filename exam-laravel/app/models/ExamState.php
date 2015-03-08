@@ -8,5 +8,4 @@ class ExamState extends Eloquent{
     public function exams(){
 		return $this->hasMany('Exam');
     }
-
 }
