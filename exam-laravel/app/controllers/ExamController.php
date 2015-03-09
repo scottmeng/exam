@@ -92,7 +92,9 @@ class ExamController extends BaseController {
 		));
 
 		$exam->questions()->save($question);
-		$question['options'] = $this->populateOptions($question,Input::get('options'));
+		if($question['options']){
+			$question['options'] = $this->populateOptions($question,Input::get('options'));
+		}
 		return Response::success($question);
 	}
 

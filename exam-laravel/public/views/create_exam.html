@@ -59,52 +59,55 @@
 		</div>
 		<div class="panel-body">
 			<div class="tab-content">
-				<label class="control-label">Question body</label>
+				<label class="control-label" style="margin-bottom:15px">Question body</label>
 				<div text-angular ta-toolbar="[['h1','h2','h3','quote'],['bold','italics','underline'],['ul','ol','html'],['justifyLeft','justifyCenter','justifyRight']]" ng-model="question.content"></div>
 						
-				<div class="row" style="margin:10px">
-					<div class="form-group" data-ng-show="isMCQ(question.questiontype_id);">
-						<div class="row">
-							<label class="control-label test-right">Question Options</label>
-						</div>								
-						<div class="col-md-8">
+				<form class="form-vertical">
+					<div class="form-group" data-ng-show="isMCQ(question.questiontype_id);" style="margin-top:15px">
+							<label class="control-label" style="margin-bottom:15px">Question Options</label>
 							<div class="row" style="margin-bottom: 10px" data-ng-repeat="option in question.options">
 								<div class="col-md-9">
 									<input class="form-control" type="text" placeholder="Option text" data-ng-model="option.content">
 								</div>
 								<label class="checkbox-inline">
-									<input type="checkbox" id="inlineCheckbox1" value="option1" data-ng-model="option.correctOption"> correct option
+									<input type="checkbox" id="inlineCheckbox1" ng-true-value="1" ng-false-value="0"  ng-checked="option.correctOption == 1" data-ng-model="option.correctOption"> correct option
 								</label>
 							</div>
 							<button class="btn btn-primary" data-ng-click="addOption(question);">Add new option</button>
-						</div>
 					</div>
-				</div>
-				<div class="row" style="margin:10px">
-					<div class="form-group" data-ng-show="isCodingQn(question.questiontype_id);">
-						<div class="col-md-3">
-		      				<input type="checkbox" data-ng-model="question.compiler_enable" data-ng-click="question.compiler_enable=!question.compiler_enable">
-		      				<label> Enable Compiler</label>
-						</div>
-					</div>
+				</form>
+				<div class="row" style="margin:10px" data-ng-show="isCodingQn(question.questiontype_id);">
+					<label class="checkbox-inline">
+						<input type="checkbox" id="inlineCheckbox1" data-ng-model="question.compiler_enable" data-ng-click="question.compiler_enable=!question.compiler_enable"> Enable Compiler In Exam
+					</label>
 				</div>
 			</div>
 		</div>	
 		<div class="panel-footer">
-			<form class="form-horizontal">
-				<div class="form-group">
-					<label class="col-md-2 control-label text-right">Full Marks</label>
-					<div class="col-md-4">
-						<input class="form-control" data-ng-model="question.full_marks">
-					</div>
-				</div>
-				<div class="form-group">
-					<label class="col-md-1 col-md-offset-1 control-label text-right">Marking Scheme</label>
-					<div class="col-md-4">
-						<textarea class="form-control" rows="4"></textarea>
-					</div>	
-				</div>
-			</form>
+			<!-- <div class="row"> -->
+				<!-- <div class="col-md-8"> -->
+					<form class="form-horizontal">
+						<div class="form-group row text-bottom">
+							<label class="col-md-2 control-label text-right" style="padding-right:0px">Marking Scheme</label>
+							<div class="col-md-4">
+								<textarea class="form-control" rows="4"></textarea>
+							</div>	
+						</div>
+						<div class="form-group row">
+							<label class="col-md-2 control-label text-right" style="padding-right:0px">Full Marks</label>
+							<div class="col-md-4">
+								<input class="form-control" data-ng-model="question.full_marks">
+							</div>
+
+							<div class="col-md-2 col-md-offset-3 text-right" style="vertical-align:text-bottom">
+								<button class="btn btn-success" ng-click="submitQuestion($index)">Save</button>
+							</div>
+
+						</div>
+					</form>
+				<!-- </div> -->
+				
+			<!-- </div> -->
 		</div>	
 	</div>		
 	<div class="pull-right">

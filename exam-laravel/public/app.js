@@ -449,6 +449,8 @@ examApp.controller('newExamController', ['$scope', '$location','$http', '$routeP
 		$scope.isExamInfoCollapsed = true;
 		$http.put('/api/exam/' + $scope.examId + '/editexam',$scope.exam)
 			.success(function(data){
+				console.log('exam received:');
+				console.log(data.data);
 				if (data.code === 200) {
 					$scope.exam = data.data;
 				}
@@ -538,6 +540,8 @@ examApp.controller('newExamController', ['$scope', '$location','$http', '$routeP
 
 	$scope.submitQuestion = function(index){
 		
+		console.log('received submit question click');
+		console.log(index);
 
 		$scope.exam.questions[index].index = index+1;
 		
@@ -606,12 +610,13 @@ examApp.controller('newExamController', ['$scope', '$location','$http', '$routeP
 	};
 
 	$scope.addOption = function(question) {
-		if (question.questiontype_id != QN_TYPES.QN_MCQ || question.questiontype_id != QN_TYPES.QN_MRQ) {
+		if (question.questiontype_id != QN_TYPES.QN_MCQ && question.questiontype_id != QN_TYPES.QN_MRQ) {
 			return;
 		}
 		if (!question.options) {
 				question.options = [];
 		}
+		console.log('type varified');
 		question.options.push({correctOption: false, content: ''});
 	};
 
