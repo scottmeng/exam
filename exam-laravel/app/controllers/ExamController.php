@@ -67,11 +67,28 @@ class ExamController extends BaseController {
 		if(!$user){
 			return Response::error(401,'unauthorized');
 		}
-		$exam_submisson = new ExamSubmission(array(
-			'user_id' => $user->id
-		));
-
-		$exam->submissions()->save($exam_submisson);
+		$exam_submission = ExamSubmission::whereRaw('user_id = ? and exam_id = ?', array($user->id,$exam_id))->first();	
+		if(!$exam_submission){
+			//create exam submission
+			$exam_submission = new ExamSubmission(array(
+				'user_id' => $user->id
+			));
+			$exam->submissions()->save($exam_submission);
+			//create corresponding question submissions
+			$questions = $exam->questions()->get();
+			Log::info('creating submissions for all questions');
+			Log::info($questions);
+			foreach($questions as $question ){
+				$questionsubmission = new QuestionSubmission();
+				$questionsubmission->examsubmission_id = $exam_submission->id;
+				$question->submissions()->save($questionsubmission);
+				// $exam_submission->questionsubmissions()->save($questionsubmission);
+			}
+			$exam_submission->questions = $exam_submission->questionsubmissions()->get();
+		}else{
+			$exam_submission->questions = $exam_submission->questionsubmissions()->get();
+		}
+			
 		return Response::success($exam_submission);
 	}
 

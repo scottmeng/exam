@@ -10,7 +10,7 @@ class ExamSubmission extends Eloquent{
     }
 
     public function questionsubmissions(){
-    	return $this->hasMany('QuestionSubmission');
+    	return $this->hasMany('QuestionSubmission','examsubmission_id');
     }
 
     public function grader(){

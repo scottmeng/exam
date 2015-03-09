@@ -185,6 +185,19 @@ examApp.controller('viewExamController', ['$scope', '$http', '$routeParams',
 	$scope.curQnIndex = 0;
 	$scope.examId = $routeParams.examId;
 	$scope.error = null;
+	// code editor setting
+    $scope.aceOptions = {
+	  useWrapMode : true,
+	  theme:'clouds',
+	  mode: 'javascript',
+	  firstLineNumber: 1,
+	  require:['ace/ext/language_tools'],
+	  advanced:{
+	  	enableSnippets: true,
+	  	enableLiveAutocompletion: true
+	  }
+
+    };
 
 	$scope.getExamInfo = function() {
 
@@ -193,6 +206,7 @@ examApp.controller('viewExamController', ['$scope', '$http', '$routeParams',
 				if (data.code === 200) {
 					console.log(data.data);
 					$scope.exam = data.data;
+					$scope.endTime = new Date(new Date($scope.exam.starttime).getTime() + $scope.exam.duration*60000);
 				} else {
 					$scope.error = data.data;
 				}
@@ -215,6 +229,29 @@ examApp.controller('viewExamController', ['$scope', '$http', '$routeParams',
 			});
 	};
 
+	$scope.submitCurrentQuestion = function(){
+		$index = $scope.curQnIndex;
+		$scope.submission.questions[$index].question_id = $scope.exam.questions[$index].id;
+
+		if ($scope.submission.questions[$index].id) {
+			// id does exist, update submission
+			$http.put('/api/submission/' + $scope.submission.id + '/questionsubmission', $scope.submission.questions[$index])
+			.success(function(data){
+				if (data.code === 200) {
+					$scope.submission.questions[$index] = data.data;
+				}
+			});
+		} else {
+			// id does not exist, create submission
+			$http.post('/api/submission/' + $scope.submission.id + '/questionsubmission', $scope.submission.questions[$index])
+			.success(function(data){
+				if (data.code === 200) {
+					$scope.submission.questions[$index] = data.data;
+				}
+			});
+		}
+	}
+
 	$scope.canAnswerQuestion = function() {
 		// todo 
 		// depends on user relation with course
@@ -229,163 +266,6 @@ examApp.controller('viewExamController', ['$scope', '$http', '$routeParams',
 		return 10;
 	};
 
-	// $scope.exam = {
-	// 	course_id: 1,
-	// 	created_at: "2015-03-04 23:29:27",
-	// 	description: null,
-	// 	duration: 60,
-	// 	examstate_id: 1,
-	// 	fullmarks: 100,
-	// 	id: 1,
-	// 	questions: [{
-	// 		coding_qn: 0,
-	// 		compiler_enable: 0,
-	// 		content: "this is the content of question",
-	// 		created_at: "2015-03-04 23:32:35",
-	// 		exam_id: 1,
-	// 		full_marks: 0,
-	// 		id: 1,
-	// 		index: 1,
-	// 		marking_scheme: null,
-	// 		options: [{
-	// 			content: "option 1",
-	// 			correctOption: 1,
-	// 			created_at: "2015-03-05 00:12:18",
-	// 			id: 17,
-	// 			index: null,
-	// 			question_id: 1,
-	// 			updated_at: "2015-03-05 00:12:18"
-	// 		}, {
-	// 			content: "option 2",
-	// 			correctOption: 0,
-	// 			created_at: "2015-03-05 00:12:18",
-	// 			id: 18,
-	// 			index: null,
-	// 			question_id: 1,
-	// 			updated_at: "2015-03-05 00:12:18"
-	// 		}],
-	// 		questiontype_id: 1,
-	// 		randomizeOptions: 0,
-	// 		subindex: 0,
-	// 		title: "test",
-	// 		updated_at: "2015-03-04 23:32:35"
-	// 	}, {
-	// 		coding_qn: 0,
-	// 		compiler_enable: 0,
-	// 		content: "this is the content of question",
-	// 		created_at: "2015-03-04 23:32:35",
-	// 		exam_id: 1,
-	// 		full_marks: 0,
-	// 		id: 1,
-	// 		index: 1,
-	// 		marking_scheme: null,
-	// 		options: [{
-	// 			content: "option 1",
-	// 			correctOption: 1,
-	// 			created_at: "2015-03-05 00:12:18",
-	// 			id: 17,
-	// 			index: null,
-	// 			question_id: 1,
-	// 			updated_at: "2015-03-05 00:12:18"
-	// 		}, {
-	// 			content: "option 2",
-	// 			correctOption: 0,
-	// 			created_at: "2015-03-05 00:12:18",
-	// 			id: 18,
-	// 			index: null,
-	// 			question_id: 1,
-	// 			updated_at: "2015-03-05 00:12:18"
-	// 		}],
-	// 		questiontype_id: 2,
-	// 		randomizeOptions: 0,
-	// 		subindex: 0,
-	// 		title: "test",
-	// 		updated_at: "2015-03-04 23:32:35"
-	// 	}, {
-	// 		coding_qn: 0,
-	// 		compiler_enable: 0,
-	// 		content: "this is the content of question",
-	// 		created_at: "2015-03-04 23:32:35",
-	// 		exam_id: 1,
-	// 		full_marks: 0,
-	// 		id: 1,
-	// 		index: 1,
-	// 		marking_scheme: null,
-	// 		options: [{
-	// 			content: "option 1",
-	// 			correctOption: 1,
-	// 			created_at: "2015-03-05 00:12:18",
-	// 			id: 17,
-	// 			index: null,
-	// 			question_id: 1,
-	// 			updated_at: "2015-03-05 00:12:18"
-	// 		}, {
-	// 			content: "option 2",
-	// 			correctOption: 0,
-	// 			created_at: "2015-03-05 00:12:18",
-	// 			id: 18,
-	// 			index: null,
-	// 			question_id: 1,
-	// 			updated_at: "2015-03-05 00:12:18"
-	// 		}],
-	// 		questiontype_id: 3,
-	// 		randomizeOptions: 0,
-	// 		subindex: 0,
-	// 		title: "test",
-	// 		updated_at: "2015-03-04 23:32:35"
-	// 	}, {
-	// 		coding_qn: 0,
-	// 		compiler_enable: 0,
-	// 		content: "this is the content of question",
-	// 		created_at: "2015-03-04 23:32:35",
-	// 		exam_id: 1,
-	// 		full_marks: 0,
-	// 		id: 1,
-	// 		index: 1,
-	// 		marking_scheme: null,
-	// 		options: [{
-	// 			content: "option 1",
-	// 			correctOption: 1,
-	// 			created_at: "2015-03-05 00:12:18",
-	// 			id: 17,
-	// 			index: null,
-	// 			question_id: 1,
-	// 			updated_at: "2015-03-05 00:12:18"
-	// 		}, {
-	// 			content: "option 2",
-	// 			correctOption: 0,
-	// 			created_at: "2015-03-05 00:12:18",
-	// 			id: 18,
-	// 			index: null,
-	// 			question_id: 1,
-	// 			updated_at: "2015-03-05 00:12:18"
-	// 		}],
-	// 		questiontype_id: 4,
-	// 		randomizeOptions: 0,
-	// 		subindex: 0,
-	// 		title: "test",
-	// 		updated_at: "2015-03-04 23:32:35"
-	// 	}],
-	// 	randomizeQuestions: 0,
-	// 	starttime: null,
-	// 	title: "CS1234 Mid-term Test",
-	// 	totalqn: 0,
-	// 	updated_at: "2015-03-04 23:29:27"
-	// };
-
-	// The ui-ace option
-    $scope.aceOptions = {
-	  useWrapMode : true,
-	  theme:'clouds',
-	  mode: 'javascript',
-	  firstLineNumber: 1,
-	  require:['ace/ext/language_tools'],
-	  advanced:{
-	  	enableSnippets: true,
-	  	enableLiveAutocompletion: true
-	  }
-
-    };
 
 	$scope.isMCQ = function(question) {
 		return question.questiontype_id === QN_TYPES.QN_MCQ ||
@@ -404,7 +284,8 @@ examApp.controller('viewExamController', ['$scope', '$http', '$routeParams',
 		// todo
 		// save question submission of curQnIndex
 		// update curQnIndex with the new index
-		$scope.curQnIndex = newIndex;
+		$scope.submitCurrentQuestion();
+		$scope.curQnIndex = newIndex;	
 	};
 
 	$scope.timer = {};

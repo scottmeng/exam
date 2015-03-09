@@ -6,14 +6,14 @@
 			<button class="btn btn-warning" data-ng-click="isExamInfoCollapsed=!isExamInfoCollapsed">{{ (isExamInfoCollapsed) ? 'View details' : 'Hide details'}}</button>
 		</h3>
 	</div>
-	<h3 class="col-md-6 text-right" data-ng-if="canAnswerQuestion();"><timer language="en" countdown="0" max-time-unit="'hour'" interval="1000" finish-callback="onTimeUp();" autostart="false">{{hhours}} hour{{hhoursS}} {{mminutes}} minute{{minutesS}}, {{sseconds}} second{{secondsS}}</timer></h3>
+	<h3 class="col-md-6 text-right" data-ng-if="canAnswerQuestion();"><timer language="en" countdown="1" max-time-unit="'hour'" interval="1000" finish-callback="onTimeUp();" autostart="false">{{hhours}} hour{{hhoursS}} {{mminutes}} minute{{minutesS}}, {{sseconds}} second{{secondsS}}</timer></h3>
 </div>
 <div class="panel-body" collapse="isExamInfoCollapsed">
 	<div class="row">
 		<label class="col-md-2">Full marks:</label>
 		<p class="col-md-1">{{ exam.fullmarks }}</p>
 		<label class="col-md-2">Exam Time:</label>
-		<p class="col-md-4">{{ exam.starttime }} - {{ exam.starttime }}</p>
+		<p class="col-md-4">{{ exam.starttime }} - {{ endTime }}</p>
 		<label class="col-md-1">Duration:</label>
 		<p class="col-md-1">{{ exam.duration }}</p>
 	</div>
@@ -39,17 +39,17 @@
 			<div data-ng-if="isMCQ(exam.questions[curQnIndex]);" class="row">
 				<div class="col-md-6" style="margin-bottom: 10px" data-ng-repeat="option in exam.questions[curQnIndex].options">
 					<label class="checkbox-inline">
-						<input type="checkbox" id="inlineCheckbox1" value="option1" data-ng-model="option.correctOption">
+						<input type="checkbox" id="inlineCheckbox1" ng-true-value="1" ng-false-value="0"  ng-checked="option.correctOption == 1" data-ng-model="option.correctOption">
 						{{ option.content }}
 					</label>
 				</div>
 			</div>
 			<div data-ng-if="isShortQuestion(exam.questions[curQnIndex]);" class="row">
-				<textarea class="form-control" rows="4"></textarea>
+				<textarea class="form-control" data-ng-model="submission.questions[curQnIndex].answer" rows="4"></textarea>
 			</div>
 			<div data-ng-if="isCodingQuestion(exam.questions[curQnIndex]);" class="row">
 				<div id="coding-area" class="col-md-10 col-md-offset-1">
-					<textarea ui-ace=aceOptions class="form-control" rows="4"></textarea>
+					<textarea ui-ace=aceOptions class="form-control" data-ng-model="submission.questions[curQnIndex].answer" rows="4"></textarea>
 				</div>
 			</div>
 		</div>
