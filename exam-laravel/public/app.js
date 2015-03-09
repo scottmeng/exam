@@ -226,6 +226,10 @@ examApp.controller('viewExamController', ['$scope', '$http', '$routeParams',
 				if (data.code === 200) {
 					console.log(data.data);
 					$scope.submission = data.data;
+					$scope.goToQuestion(0);
+
+					// start timer 
+					// todo calculate based on server returned current time
 					$scope.$broadcast('timer-add-cd-seconds', 60 * $scope.exam.duration - 1);
 			     	$timeout(function(){
 				     	$scope.$broadcast('timer-start');
@@ -235,23 +239,23 @@ examApp.controller('viewExamController', ['$scope', '$http', '$routeParams',
 	};
 
 	$scope.submitCurrentQuestion = function(){
-		$index = $scope.curQnIndex;
-		$scope.submission.questions[$index].question_id = $scope.exam.questions[$index].id;
-
-		if ($scope.submission.questions[$index].id) {
+		if (!$scope.curQnSubmission) {
+			return;
+		}
+		if ($scope.curQnSubmission.id) {
 			// id does exist, update submission
-			$http.put('/api/submission/' + $scope.submission.id + '/questionsubmission', $scope.submission.questions[$index])
+			$http.put('/api/submission/' + $scope.submission.id + '/questionsubmission', $scope.curQnSubmission)
 			.success(function(data){
 				if (data.code === 200) {
-					$scope.submission.questions[$index] = data.data;
+					$scope.updateQuestionSubmission(data.data);
 				}
 			});
 		} else {
 			// id does not exist, create submission
-			$http.post('/api/submission/' + $scope.submission.id + '/questionsubmission', $scope.submission.questions[$index])
+			$http.post('/api/submission/' + $scope.submission.id + '/questionsubmission', $scope.curQnSubmission)
 			.success(function(data){
 				if (data.code === 200) {
-					$scope.submission.questions[$index] = data.data;
+					$scope.updateQuestionSubmission(data.data);
 				}
 			});
 		}
@@ -290,8 +294,35 @@ examApp.controller('viewExamController', ['$scope', '$http', '$routeParams',
 		// save question submission of curQnIndex
 		// update curQnIndex with the new index
 		$scope.submitCurrentQuestion();
+
+		// get question submission by question id
+		$scope.curQnSubmission = $scope.getQuestionSubmission($scope.exam.questions[newIndex].id);
 		$scope.curQnIndex = newIndex;	
 	};
+
+	$scope.getQuestionSubmission = function(questionId) {
+		for (var i in $scope.submission.questions) {
+			if ($scope.submission.questions[i].question_id === questionId) {
+				return $scope.submission.questions[i];
+			}
+		}
+
+		var newQnSubmission = {
+			'question_id' : questionId,
+			'examsubmission_id' : $scope.submission.id,
+			'answer' : ''
+		};
+		$scope.submission.questions.push(newQnSubmission);
+		return newQnSubmission;
+	}
+
+	$scope.updateQuestionSubmission = function(qnSubmission) {
+		for (var i in $scope.submission.questions) {
+			if ($scope.submission.questions[i].question_id === qnSubmission.question_id) {
+				$scope.submission.questions[i] = qnSubmission;
+			}
+		}
+	}
 
 	$scope.timer = {};
 	$scope.timer.status = 1;
@@ -338,7 +369,9 @@ examApp.controller('newExamController', ['$scope', '$location','$http', '$routeP
 				console.log('exam received:');
 				console.log(data.data);
 				if (data.code === 200) {
-					$scope.exam = data.data;
+					for (var key in data.data) {
+						$scope.exam[key] = data.data[key];
+					}
 				}
 			})
 	};
@@ -360,6 +393,9 @@ examApp.controller('newExamController', ['$scope', '$location','$http', '$routeP
 			if (data.code === 200) {
 				console.log(data.data);
 				$scope.exam = data.data;
+				$scope.exam.test = '<p>test</p>';
+				console.log($scope.exam);
+				
 				if ($scope.exam.status === EXAM_STATUS.UNAVAILABLE) {
 					$scope.error = 'You are not allowed to view this page';
 				}
@@ -392,8 +428,6 @@ examApp.controller('newExamController', ['$scope', '$location','$http', '$routeP
 	}
 
 	$scope.submitQuestion = function(index){
-
-		$scope.exam.questions[index].index = index+1;
 		
 		if ($scope.exam.questions[index].id) {
 			// id does exist, update question
@@ -441,7 +475,8 @@ examApp.controller('newExamController', ['$scope', '$location','$http', '$routeP
 		$scope.exam.questions.push({
 			questiontype_id: QN_TYPES.QN_SHORT, 
 			content: '',
-			options:[]				
+			options:[],
+			index:$scope.exam.questions.length+1	
 		});
 	};
 

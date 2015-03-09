@@ -45,11 +45,11 @@
 				</div>
 			</div>
 			<div data-ng-if="isShortQuestion(exam.questions[curQnIndex]);" class="row">
-				<textarea class="form-control" data-ng-model="submission.questions[curQnIndex].answer" rows="4"></textarea>
+				<textarea class="form-control" data-ng-model="curQnSubmission.answer" rows="4"></textarea>
 			</div>
 			<div data-ng-if="isCodingQuestion(exam.questions[curQnIndex]);" class="row">
 				<div id="coding-area" class="col-md-10 col-md-offset-1">
-					<textarea ui-ace=aceOptions class="form-control" data-ng-model="submission.questions[curQnIndex].answer" rows="4"></textarea>
+					<textarea ui-ace=aceOptions class="form-control" data-ng-model="curQnSubmission.answer" rows="4"></textarea>
 				</div>
 			</div>
 		</div>

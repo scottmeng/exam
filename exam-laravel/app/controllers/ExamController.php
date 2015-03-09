@@ -15,19 +15,20 @@ class ExamController extends BaseController {
 
 		$exam->save();
 		$questions = Input::get('questions');
+		Log::info($questions);
 		if(count($questions)>0){
 			foreach($questions as $question){
 				if (array_key_exists('id', $question)) {
 					Log::info($question);
 					$old_qn = Question::findOrFail($question['id']);
-					$question = $old_qn->updateQuestion($question);
+					$question = $old_qn->updateQuestion($question,$exam);
 				}else{
 					$new_qn = New Question();
-					$question = $new_qn->updateQuestion($question);
+					$question = $new_qn->updateQuestion($question,$exam);
 				}	
 			}
 		}
-		// $exam->questions = $exam->questions()->get();
+		$exam->questions = $questions;
 		return Response::success($exam);
 	}
 
@@ -88,18 +89,16 @@ class ExamController extends BaseController {
 				'user_id' => $user->id
 			));
 			$exam->submissions()->save($exam_submission);
-			//create corresponding question submissions
-			$questions = $exam->questions()->get();
-			Log::info('creating submissions for all questions');
-			Log::info($questions);
-			foreach($questions as $question ){
-				$questionsubmission = new QuestionSubmission();
-				$questionsubmission->examsubmission_id = $exam_submission->id;
-				$question->submissions()->save($questionsubmission);
-				// $exam_submission->questionsubmissions()->save($questionsubmission);
-			}
-			$exam_submission->questions = $exam_submission->questionsubmissions()->get();
+			// //create corresponding question submissions
+			// $questions = $exam->questions()->get();
+			// foreach($questions as $question ){
+			// 	$questionsubmission = new QuestionSubmission();
+			// 	$questionsubmission->examsubmission_id = $exam_submission->id;
+			// 	$question->submissions()->save($questionsubmission);
+			// }
+			$exam_submission->questions = [];
 		}else{
+
 			$exam_submission->questions = $exam_submission->questionsubmissions()->get();
 		}
 			

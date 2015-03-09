@@ -23,21 +23,39 @@ class Question extends Eloquent {
         return $this->hasMany('QuestionSubmission');
     }
 
-    public function updateQuestion($updated)
+    public function updateQuestion($updated, Exam $exam)
     {
+        Log::info('updated quetsion:');
+        Log::info($updated);
         $this->index = $updated['index'];
-        $this->subindex = $updated['subindex'];
+        if (array_key_exists('subindex', $updated)){
+            $this->subindex = $updated['subindex'];
+        }
         $this->questiontype_id = $updated['questiontype_id'];
-        $this->title = $updated['title'];
-        $this->content = $updated['content'];
-        $this->coding_qn = $updated['coding_qn'];
-        $this->compiler_enable = $updated['compiler_enable'];
-        $this->marking_scheme = $updated['marking_scheme'];
-        $this->full_marks = $updated['full_marks'];
+        if (array_key_exists('title', $updated)){
+            $this->title = $updated['title'];
+        }
+        if (array_key_exists('content', $updated)){
+            $this->content = $updated['content'];
+        }
+        if (array_key_exists('coding_qn', $updated)){
+            $this->coding_qn = $updated['coding_qn'];
+        }
+        if (array_key_exists('compiler_enable', $updated)){
+            $this->compiler_enable = $updated['compiler_enable'];
+        }
+        if (array_key_exists('marking_scheme', $updated)){
+            $this->marking_scheme = $updated['marking_scheme'];
+        }
+        if (array_key_exists('full_marks', $updated)){
+            $this->full_marks = $updated['full_marks'];
+        }
 
-        $this->save();
+        $exam->questions()->save($this);
         $this->options()->delete();
-        $this->options = $this->populateOptions($updated['options']);
+        if (array_key_exists('options', $updated)){
+            $this->options = $this->populateOptions($updated['options']);
+        }
 
         return $this;
     }
