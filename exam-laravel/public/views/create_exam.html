@@ -49,7 +49,7 @@
 				<button type="button" style="margin-right: 10px" class="close" data-ng-click="removeQuestion($index);"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
 				<div class="col-md-1">Q{{ $index + 1 }}:</div>
 				<div class="col-md-7">
-					<input class="col-md-5" type="text" data-ng-model="exam.questions[$index].title">	
+					<input class="col-md-5" type="text" data-ng-model="question.title">	
 				</div>
 				<div class="col-md-3">
 					<select class="pull-right" data-ng-model="question.questiontype_id" data-ng-change="onQuestionTypeChanged(question);" data-ng-options="type.id as type.name for type in questionTypes" required></select>
@@ -84,30 +84,25 @@
 			</div>
 		</div>	
 		<div class="panel-footer">
-			<!-- <div class="row"> -->
-				<!-- <div class="col-md-8"> -->
-					<form class="form-horizontal">
-						<div class="form-group row text-bottom">
-							<label class="col-md-2 control-label text-right" style="padding-right:0px">Marking Scheme</label>
-							<div class="col-md-4">
-								<textarea class="form-control" rows="4"></textarea>
-							</div>	
-						</div>
-						<div class="form-group row">
-							<label class="col-md-2 control-label text-right" style="padding-right:0px">Full Marks</label>
-							<div class="col-md-4">
-								<input class="form-control" data-ng-model="question.full_marks">
-							</div>
+			<form class="form-horizontal">
+				<div class="form-group row text-bottom">
+					<label class="col-md-2 control-label text-right" style="padding-right:0px">Marking Scheme</label>
+					<div class="col-md-4">
+						<textarea class="form-control" data-ng-model="question.marking_scheme" rows="4"></textarea>
+					</div>	
+				</div>
+				<div class="form-group row">
+					<label class="col-md-2 control-label text-right" style="padding-right:0px">Full Marks</label>
+					<div class="col-md-4">
+						<input type='number' class="form-control" data-ng-model="question.full_marks">
+					</div>
 
-							<div class="col-md-2 col-md-offset-3 text-right" style="vertical-align:text-bottom">
-								<button class="btn btn-success" ng-click="submitQuestion($index)">Save</button>
-							</div>
+					<div class="col-md-2 col-md-offset-3 text-right" style="vertical-align:text-bottom">
+						<button class="btn btn-success" ng-click="submitQuestion($index)">Save</button>
+					</div>
 
-						</div>
-					</form>
-				<!-- </div> -->
-				
-			<!-- </div> -->
+				</div>
+			</form>
 		</div>	
 	</div>		
 	<div class="pull-right">

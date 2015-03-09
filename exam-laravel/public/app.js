@@ -119,13 +119,13 @@ examApp.controller('dashboardController', ['$scope', '$location', '$modal', '$ht
 		$http.get('/api/get-admin-courses')
 		.success(function(data,status,header,config){
 			if(data.code === 200){
-				if(data.data.length>0){
-					$scope.adminCourses = data.data;
-					$scope.isAdmin = true;
-				}
-				else{
+				if(data.data.length==0){
 					$scope.adminCourse = [];
 					$scope.isAdmin = false;
+				}
+				else{
+					$scope.adminCourses = data.data;
+					$scope.isAdmin = true;
 				}
 			}
 		});
@@ -154,7 +154,7 @@ examApp.controller('dashboardController', ['$scope', '$location', '$modal', '$ht
 			controller: 'ModalInstanceCtrl',
 			resolve: {
 				courses: function () {
-				  return $scope.courses;
+				  return $scope.adminCourses;
 				}
 			}
 		});
@@ -458,11 +458,13 @@ examApp.controller('newExamController', ['$scope', '$location','$http', '$routeP
 	};
 
 	$scope.finishEditExam = function(){
-		$http.get('/api/exam/' + $scope.examId + '/qncount')
-					.success(function(data){
-						if (data.code === 200) {
-							$scope.exam.totalqn = data.data;
-						}
+		$http.put('/api/exam/' + $scope.examId + '/editexam',$scope.exam)
+		.success(function(data){
+			console.log('exam received:');
+			console.log(data.data);
+			if (data.code === 200) {
+				$scope.exam = data.data;
+			}
 		})
 		$location.path('/home');
 	};
@@ -474,24 +476,6 @@ examApp.controller('newExamController', ['$scope', '$location','$http', '$routeP
 			if (data.code === 200) {
 				console.log(data.data);
 				$scope.exam = data.data;
-
-				if($scope.exam.questions==null || $scope.exam.questions.length==0){
-					$scope.exam.questions = [];
-					$scope.exam.questions.push({
-						questiontype_id: QN_TYPES.QN_SHORT, 
-						content: '',
-						options:[
-							{
-								correctOption: false,
-								content: ''
-							},
-							{
-								correctOption: false,
-								content: ''
-							}
-						]				
-					});
-				}
 				if ($scope.exam.status === EXAM_STATUS.UNAVAILABLE) {
 					$scope.error = 'You are not allowed to view this page';
 				}
@@ -514,34 +498,16 @@ examApp.controller('newExamController', ['$scope', '$location','$http', '$routeP
 		$http.get('/api/exam/' + $scope.examId + '/questions')
 		.success(function(data){
 			if (data.code === 200) {
-				console.log(data.data);
 				if (data.data.length>0) {
 					$scope.exam.questions = data.data;
 				} else {	
-					$scope.exam.questions = [{
-						questiontype_id: QN_TYPES.QN_SHORT,
-						content: '',
-						options: [
-							{
-								correctOption: false,
-								content: ''
-							},
-							{
-								correctOption: false,
-								content: ''
-							}
-						]
-					}];
+					$scope.exam.questions = [];
 				}
-
 			}
 		});	
 	}
 
 	$scope.submitQuestion = function(index){
-		
-		console.log('received submit question click');
-		console.log(index);
 
 		$scope.exam.questions[index].index = index+1;
 		
@@ -550,7 +516,6 @@ examApp.controller('newExamController', ['$scope', '$location','$http', '$routeP
 			$http.put('/api/exam/' + $scope.examId + '/question', $scope.exam.questions[index])
 			.success(function(data){
 				if (data.code === 200) {
-					console.log(data.data);
 					$scope.exam.questions[index] = data.data;
 				}
 			});
@@ -559,10 +524,11 @@ examApp.controller('newExamController', ['$scope', '$location','$http', '$routeP
 			$http.post('/api/exam/' + $scope.examId + '/question', $scope.exam.questions[index])
 			.success(function(data){
 				if (data.code === 200) {
-					console.log(data.data);
 					$scope.exam.questions[index] = data.data;
 				}
 			});
+			
+			$scope.exam.totalqn += 1;
 		}
 
 		
@@ -596,15 +562,15 @@ examApp.controller('newExamController', ['$scope', '$location','$http', '$routeP
 	};
 
 	$scope.removeQuestion = function(index) {
-		if($scope.exam.hasOwnProperty('id')){
-			console.log('deleting qn:');
-			console.log($scope.exam.questions[index]);
-			$http.post('/api/exam/' + $scope.examId + '/deletequestion', $scope.exam.questions[index])
-				.success(function(data){
-					if (data.code === 200) {
-						$scope.exam = data.data;
-					}
-				})
+		if(index<$scope.exam.totalqn){
+			if($scope.exam.hasOwnProperty('id')){
+				$http.post('/api/exam/' + $scope.examId + '/deletequestion', $scope.exam.questions[index])
+					.success(function(data){
+						if (data.code === 200) {
+							$scope.exam.totleqn-=1;
+						}
+					})
+			}
 		}			
 		$scope.exam.questions.splice(index, 1);
 	};

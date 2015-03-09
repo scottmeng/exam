@@ -92,7 +92,7 @@ class ExamController extends BaseController {
 		));
 
 		$exam->questions()->save($question);
-		if($question['options']){
+		if(Input::has('options')){
 			$question['options'] = $this->populateOptions($question,Input::get('options'));
 		}
 		return Response::success($question);
@@ -102,8 +102,6 @@ class ExamController extends BaseController {
 	{
 		$question_id = Input::get('id');
 		$question = Question::findOrFail($question_id);
-
-		Log::info(Input::get('options'));
 
 		$question->index = Input::get('index',-1);
 		$question->subindex = Input::get('subindex',-1);
@@ -123,7 +121,11 @@ class ExamController extends BaseController {
 
 	public function postDeletequestion($exam_id)
 	{
+		Log::info('deleting question');
+
 		$qn_id = Input::get('id');
+
+		Log::info($qn_id);
 
 		$question = Question::find($qn_id);
 		$question->options()->delete();

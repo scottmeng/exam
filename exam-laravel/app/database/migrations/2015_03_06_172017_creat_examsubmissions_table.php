@@ -19,10 +19,10 @@ class CreatExamsubmissionsTable extends Migration {
 			$table->foreign('user_id')->references('id')->on('users');
 			$table->integer('exam_id')->unsigned();
 			$table->foreign('exam_id')->references('id')->on('exams');
-			$table->integer('grader_id')->unsigned();
+			$table->integer('grader_id')->unsigned()->nullable();
 			$table->foreign('grader_id')->references('id')->on('users');
 			$table->integer('total_marks')->default(0);
-			$table->integer('submissionstate_id')->unsigned();
+			$table->integer('submissionstate_id')->unsigned()->default(1);
 			$table->foreign('submissionstate_id')->references('id')->on('submissionstates');
 			$table->text('comment')->nullable();
 			$table->timestamps();
