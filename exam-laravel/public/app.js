@@ -80,7 +80,7 @@ examApp.controller('loginController', ['$scope', '$location', '$window', '$http'
 examApp.controller('ModalInstanceCtrl', function ($scope, $modalInstance, $http, courses) {
 	$scope.courses = courses;
 	$scope.exam = {
-		'course_id':1,
+		'course_id':$scope.courses[0].id,
 		'title':""
 	};
 // console.log($scope.exam);
@@ -124,6 +124,7 @@ examApp.controller('dashboardController', ['$scope', '$location', '$modal', '$ht
 		$http.get('/api/get-admin-courses')
 		.success(function(data,status,header,config){
 			if(data.code === 200){
+				console.log(data.data);
 				if(data.data.length==0){
 					$scope.adminCourse = [];
 					$scope.isAdmin = false;

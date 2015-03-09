@@ -23,14 +23,9 @@ class User extends Eloquent{
 	}
 
 	public function getAdminCourses(){
-		$courses = $this->courses()->get();
+		$courses = $this->courses()->whereRaw('course_user.role_id = ?',array(ADMIN))->get();
 		foreach($courses as $key => $course){
-			if($course->isAdmin() == false){
-				unset($courses[$key]);
-			}
-			else{
-				$course = $course->getExams();
-			}
+			$course= $course->getExams();
 		}
 		return $courses;
 	}
