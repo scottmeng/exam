@@ -443,6 +443,9 @@ examApp.controller('newExamController', ['$scope', '$location','$http', '$routeP
 	};
 
 	$scope.saveExam = function(){
+		console.log('exam sent:');
+		console.log($scope.exam);
+		
 		$scope.isExamInfoCollapsed = true;
 		$http.put('/api/exam/' + $scope.examId + '/editexam',$scope.exam)
 			.success(function(data){

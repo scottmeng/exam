@@ -25,6 +25,10 @@
   margin-left: 16px;
 }
 
+.container {
+  width: 960px;
+}
+
 .hideElement{
 	visibility: hidden;
 }
