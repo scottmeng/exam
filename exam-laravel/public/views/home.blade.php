@@ -37,7 +37,7 @@
 <body>
 
     <!-- HEADER AND NAVBAR -->
-    <header>
+    <header data-ng-controller="headerController">
         <nav class="navbar navbar-default">
         <div class="container">
             <div class="navbar-header">
@@ -46,7 +46,8 @@
 
             <ul class="nav navbar-nav navbar-right">
                 <li><a href="#about"><i class="fa fa-shield"></i> About</a></li>
-                <li><a href="/logout">Logout</a></li>
+                <li data-ng-show="isLogin"><b style="padding: 15px; display: block">@{{ userName }}</b></li>
+                <li><a href="" data-ng-click="onAuthClicked();">@{{ option }}</a></li>
             </ul>
         </div>
         </nav>
