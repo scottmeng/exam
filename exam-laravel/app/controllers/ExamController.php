@@ -14,7 +14,20 @@ class ExamController extends BaseController {
 		$exam->starttime = Input::get('starttime');
 
 		$exam->save();
-		$exam->questions = $exam->questions()->get();
+		$questions = Input::get('questions');
+		if(count($questions)>0){
+			foreach($questions as $question){
+				if (array_key_exists('id', $question)) {
+					Log::info($question);
+					$old_qn = Question::findOrFail($question['id']);
+					$question = $old_qn->updateQuestion($question);
+				}else{
+					$new_qn = New Question();
+					$question = $new_qn->updateQuestion($question);
+				}	
+			}
+		}
+		// $exam->questions = $exam->questions()->get();
 		return Response::success($exam);
 	}
 
@@ -57,6 +70,7 @@ class ExamController extends BaseController {
 			$exam->questions = null;
 		}
 		$exam->status = $status;
+		$exam->totalqn = $exam->questions()->get()->count();
 		return Response::success($exam);
 	}
 
@@ -110,7 +124,7 @@ class ExamController extends BaseController {
 
 		$exam->questions()->save($question);
 		if(Input::has('options')){
-			$question['options'] = $this->populateOptions($question,Input::get('options'));
+			$question['options'] = $question->populateOptions(Input::get('options'));
 		}
 		return Response::success($question);
 	}
@@ -119,30 +133,27 @@ class ExamController extends BaseController {
 	{
 		$question_id = Input::get('id');
 		$question = Question::findOrFail($question_id);
+		$updated = new Question();
 
-		$question->index = Input::get('index',-1);
-		$question->subindex = Input::get('subindex',-1);
-		$question->questiontype_id = Input::get('questiontype_id',-1);
-		$question->title = Input::get('title',NULL);
-		$question->content = Input::get('content',NULL);
-		$question->coding_qn = Input::get('coding_qn',False);
-		$question->compiler_enable = Input::get('compiler_enable',False);
-		$question->marking_scheme = Input::get('marking_scheme',NULL);
-		$question->full_marks = Input::get('full_marks',0);
+		$updated->index = Input::get('index',-1);
+		$updated->subindex = Input::get('subindex',-1);
+		$updated->questiontype_id = Input::get('questiontype_id',-1);
+		$updated->title = Input::get('title',NULL);
+		$updated->content = Input::get('content',NULL);
+		$updated->coding_qn = Input::get('coding_qn',False);
+		$updated->compiler_enable = Input::get('compiler_enable',False);
+		$updated->marking_scheme = Input::get('marking_scheme',NULL);
+		$updated->full_marks = Input::get('full_marks',0);
 
-		$question->save();
-		$question->options()->delete();
-		$question['options'] = $this->populateOptions($question,Input::get('options'));
+		$question = $question->updateQuestion($updated);
+		// $question->options()->delete();
+		// $question['options'] = $this->populateOptions($question,Input::get('options'));
 		return Response::success($question);
 	}
 
 	public function postDeletequestion($exam_id)
 	{
-		Log::info('deleting question');
-
 		$qn_id = Input::get('id');
-
-		Log::info($qn_id);
 
 		$question = Question::find($qn_id);
 		$question->options()->delete();
@@ -188,21 +199,21 @@ class ExamController extends BaseController {
 		return $questions;
 	}
 
-	private function populateOptions($question, $inputOptions)
-	{
-        foreach ($inputOptions as $option) {
+	// private function populateOptions($question, $inputOptions)
+	// {
+ //        foreach ($inputOptions as $option) {
 
-        	Log::info($option);
+ //        	Log::info($option);
 
-			$newOption = new Option(array(
-				'content' => $option['content'],
-				'correctOption' => $option['correctOption']
-			));
+	// 		$newOption = new Option(array(
+	// 			'content' => $option['content'],
+	// 			'correctOption' => $option['correctOption']
+	// 		));
 
-			$question->options()->save($newOption);
-		}
-		$options = $question->options()->get();
-		return $options;
-	}
+	// 		$question->options()->save($newOption);
+	// 	}
+	// 	$options = $question->options()->get();
+	// 	return $options;
+	// }
 
 }

@@ -38,23 +38,23 @@ class CodeCrunchSeeder extends Seeder {
 
                 //seed users table
                 $initUser1 = User::create(array(
-                	'name' => 'Lingyi',
-                        'nus_id' => 'A0091628',
+                        'name' => 'Admin Lingyi',
+                        'nus_id' => 'admin',
                 ));
 
                 $initUser2 = User::create(array(
-                        'name' => 'Lingyi',
+                        'name' => 'TA Lingyi',
                         'nus_id' => 'A000',
                 ));
 
                 $initUser3 = User::create(array(
-                        'name' => 'Lingyi',
+                        'name' => 'Student Lingyi',
                         'nus_id' => 'A123',
                 ));
 
                 $initUser4 = User::create(array(
-                        'name' => 'Admin',
-                        'nus_id' => 'admin',
+                         'name' => 'Lecturer Lingyi',
+                        'nus_id' => 'A321',                       
                 ));
 
                 //seed courses table
@@ -67,6 +67,13 @@ class CodeCrunchSeeder extends Seeder {
                         Plese take note of the following important dates: 
                         <li><mark><small>Assignment 1 due: March 3rd;</small></mark></li>
                         <li><mark><small>Final Exam: May 2nd(pm)</small></mark></li>'
+                ));
+
+                $initCourse2 = Course::create(array(
+                        'nus_id' => 'CS2010',
+                        'name' => 'Algorithms and Data Structure',
+                        'description' => '<h3>Welcome!</h3><br>
+                        Please be prepared for a lot of learnings and assignments too!' 
                 ));
 
                 //seed question type table
@@ -148,6 +155,11 @@ class CodeCrunchSeeder extends Seeder {
                 $initUser2->courses()->save($initCourse1,array('role_id'=>$initRole2->id));
                 $initUser3->courses()->save($initCourse1,array('role_id'=>$initRole3->id));
                 $initUser4->courses()->save($initCourse1,array('role_id'=>$initRole1->id));
+
+                $initUser1->courses()->save($initCourse2,array('role_id'=>$initRole1->id));
+                $initUser2->courses()->save($initCourse2,array('role_id'=>$initRole3->id));
+                $initUser3->courses()->save($initCourse2,array('role_id'=>$initRole3->id));
+                $initUser4->courses()->save($initCourse2,array('role_id'=>$initRole2->id));
 
 	}
 

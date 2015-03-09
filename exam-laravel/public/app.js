@@ -63,7 +63,8 @@ examApp.controller('loginController', ['$scope', '$location', '$window', '$http'
 			$scope.loginError = null;	
 			$http.post('/login', loginVar)
 				.success(function(data, status, header, config) {
-					if(data.success === true){
+					console.log(data);
+					if(data.code === 200){
 						$location.path('/home');
 					}else {
 						$scope.loginError = 'Incorrect user id or password. Login failed!';
@@ -78,7 +79,11 @@ examApp.controller('loginController', ['$scope', '$location', '$window', '$http'
 
 examApp.controller('ModalInstanceCtrl', function ($scope, $modalInstance, $http, courses) {
 	$scope.courses = courses;
-
+	$scope.exam = {
+		'course_id':1,
+		'title':""
+	};
+// console.log($scope.exam);
 	$scope.ok = function () {
 
 		$scope.createError = null;
@@ -341,8 +346,6 @@ examApp.controller('newExamController', ['$scope', '$location','$http', '$routeP
 	$scope.finishEditExam = function(){
 		$http.put('/api/exam/' + $scope.examId + '/editexam',$scope.exam)
 		.success(function(data){
-			console.log('exam received:');
-			console.log(data.data);
 			if (data.code === 200) {
 				$scope.exam = data.data;
 			}
@@ -401,15 +404,15 @@ examApp.controller('newExamController', ['$scope', '$location','$http', '$routeP
 				}
 			});
 		} else {
+			console.log($scope.exam.questions[index]);
 			// id does not exist, create question
 			$http.post('/api/exam/' + $scope.examId + '/question', $scope.exam.questions[index])
 			.success(function(data){
 				if (data.code === 200) {
 					$scope.exam.questions[index] = data.data;
+					$scope.exam.totalqn += 1;
 				}
-			});
-			
-			$scope.exam.totalqn += 1;
+			});			
 		}
 
 		
