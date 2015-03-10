@@ -50,8 +50,57 @@ examApp.config(['$routeProvider', '$locationProvider',
 	}
 ]);
 
-examApp.controller('loginController', ['$scope', '$location', '$window', '$http',
-	function($scope, $location, $window, $http) {
+examApp.service('sessionService', function() {
+	this.create = function(userId, userName) {
+		this.userId = userId;
+		this.userName = userName;
+	};
+
+	this.clear = function() {
+		this.userId = null;
+		this.userName = null;
+	};
+});
+
+examApp.controller('headerController', ['$scope', 'sessionService', '$location',
+	function($scope, sessionService, $location) {
+
+		$scope.isLogin = false;
+		$scope.userName = '';
+
+		$scope.$on('auth_event', function() {
+			$scope.updateLoginStatus();
+		});
+		
+		$scope.updateLoginStatus = function() {
+			if (sessionService.userName) {
+				$scope.isLogin = true;
+				$scope.userName = sessionService.userName;
+			} else {
+				$scope.isLogin = false;
+				$scope.userName = '';
+			}
+			$scope.option = ($scope.isLogin === true) ? 'logout' : 'login';
+		};
+
+		$scope.onAuthClicked = function() {
+			if ($scope.isLogin) {
+				// logout
+				// todo: send logout request
+				sessionService.clear();
+				$scope.updateLoginStatus();
+				$location.path('/');
+			} else {
+				// login
+				$location.path('/');
+			}
+		};
+
+		$scope.updateLoginStatus();
+}]);
+
+examApp.controller('loginController', ['$scope', '$rootScope','$location', '$window', '$http', 'sessionService',
+	function($scope, $rootScope, $location, $window, $http, sessionService) {
 
 		$scope.signin = function() {
 
@@ -65,6 +114,8 @@ examApp.controller('loginController', ['$scope', '$location', '$window', '$http'
 				.success(function(data, status, header, config) {
 					console.log(data);
 					if(data.code === 200){
+						sessionService.create('user_id', data.data);
+						$rootScope.$broadcast('auth_event');
 						$location.path('/home');
 					}else {
 						$scope.loginError = 'Incorrect user id or password. Login failed!';
