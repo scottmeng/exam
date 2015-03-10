@@ -46,6 +46,10 @@ examApp.config(['$routeProvider', '$locationProvider',
 				templateUrl: 'views/preview_exam.html',
 				controller: 'previewExamController'
 			})
+			.when('/exam/:examId/submission/:submissionId', {
+				templateUrl: 'views/mark_exam.html',
+				controller: 'markExamController'
+			})
 			.otherwise({
 				templateUrl: 'views/not_found.html'
 			});
@@ -503,6 +507,107 @@ examApp.controller('viewExamController', ['$scope', '$http', '$routeParams',
 	};
 
 	$scope.getExamInfo();
+}]);
+
+examApp.controller('markExamController', ['$scope', '$routeParams', '$http', 'QN_TYPES', 'EXAM_STATUS', 
+	function($scope, $routeParams, $http, QN_TYPES, EXAM_STATUS) {
+
+		$scope.examId = $routeParams.examId;
+		$scope.submissionId = $routeParams.submissionId;
+
+		$scope.isMCQ = function(question) {
+			return question.questiontype_id === QN_TYPES.QN_MCQ;
+		};
+		$scope.isMRQ = function(question){
+			return question.questiontype_id === QN_TYPES.QN_MRQ;
+		}
+
+		$scope.isCodingQuestion = function(question) {
+			return question.questiontype_id === QN_TYPES.QN_CODING;
+		};
+
+		$scope.isShortQuestion = function(question) {
+			return question.questiontype_id === QN_TYPES.QN_SHORT;
+		};
+		
+		$scope.markQuestion = function(index) {
+			// todo: post current question submission to server
+
+			// update total mark calculation
+			updateTotalMarks();
+		};
+
+		$scope.getExamInfo = function() {
+			$http.get('/api/exam/' + $scope.examId + '/examinfo')
+			.success(function(data){
+				if (data.code === 200) {
+					console.log(data.data);
+					$scope.exam = data.data;
+					$scope.mergeSubmissionToExam();
+					console.log($scope.exam);
+					
+					if ($scope.exam.status === EXAM_STATUS.UNAVAILABLE) {
+						$scope.error = 'You are not allowed to view this page';
+					}
+				}
+			});
+		};
+
+		$scope.getSubmission = function() {
+			// todo
+			// get exam submission data from server
+			$http.get('/api/submission/' + $scope.submissionId)
+			.success(function(data){
+				if (data.code === 200) {
+					console.log(data.data);
+					$scope.submission = data.data;
+				}
+
+				// todo 
+				// remove this
+				$scope.submission = {};
+				$scope.mergeSubmissionToExam();
+			});
+		};
+
+		$scope.mergeSubmissionToExam = function() {
+			if (!$scope.submission) {
+				return;
+			}
+			if (!$scope.exam) {
+				return;
+			}
+
+			for (var i in $scope.exam.questions) {
+				$scope.exam.questions[i].submission = 
+					$scope.getQuestionSubmission($scope.exam.questions[i].id);
+			}
+		};
+
+		$scope.getQuestionSubmission = function(questionId) {
+			for (var i in $scope.submission.questions) {
+				if ($scope.submission.questions[i].question_id === questionId) {
+					return $scope.submission.questions[i];
+				}
+			}
+
+			return null;
+		};
+
+		// helper function to calculate the total mark
+		$scope.updateTotalMarks = function() {
+			if (!$scope.submission) {
+				return;
+			}
+
+			$scope.submission['total_marks'] = 0;
+			for (var i in $scope.submission.questions) {
+				$scope.submission['total_marks'] += 
+					$scope.submission.questions[i]['marks_obtained'];
+			}
+		};
+
+		$scope.getExamInfo();
 }]);
 
 examApp.controller('newExamController', ['$scope', '$location','$http', '$routeParams', 'QN_TYPES', 'EXAM_STATUS',
