@@ -3,7 +3,7 @@
 var examApp = angular
 	.module('examApp', ['ngRoute', 'checklist-model','ui.bootstrap.modal','ui.bootstrap.tabs',
 		'ui.ace','textAngular','ui.bootstrap.buttons','ui.bootstrap.collapse',
-		'mgcrea.ngStrap.datepicker','mgcrea.ngStrap.timepicker', 'timer','ui.bootstrap.tooltip'])
+		'mgcrea.ngStrap.datepicker','mgcrea.ngStrap.timepicker', 'timer'])
 	.constant('QN_TYPES', {
 		'QN_MCQ'	: 1,
 		'QN_MRQ'	: 2,
@@ -43,8 +43,8 @@ examApp.config(['$routeProvider', '$locationProvider',
 				controller: 'viewCourseController'
 			})
 			.when('/exam/:examId/preview',{
-				templateUrl: 'views/preview_course.html',
-				controller: 'previewCourseController'
+				templateUrl: 'views/preview_exam.html',
+				controller: 'previewExamController'
 			})
 			.when('/exam/:examId/submission/:submissionId', {
 				templateUrl: 'views/mark_exam.html',
@@ -69,6 +69,67 @@ examApp.service('sessionService', function() {
 		this.userName = null;
 	};
 });
+
+examApp.controller('previewExamController', ['$scope', '$http', '$routeParams', '$location',
+	'QN_TYPES', 'EXAM_STATUS', function($scope, $http, $routeParams, $location, QN_TYPES, EXAM_STATUS){
+	
+	$scope.examId = $routeParams.examId;
+
+	$scope.getExamInfo = function() {
+		console.log($scope.examId);
+		$http.get('/api/exam/' + $scope.examId + '/examinfo')
+			.success(function(data){
+				if (data.code === 200) {
+					$scope.exam = data.data;
+					$scope.publish = $scope.exam.status === EXAM_STATUS.DRAFT? 'Publish':'Unpublish';
+				} else {
+					$scope.error = data.data;
+				}
+		});
+	};
+
+	$scope.isMCQ = function(question) {
+		return question.questiontype_id === QN_TYPES.QN_MCQ;
+	};
+	$scope.isMRQ = function(question){
+		return question.questiontype_id === QN_TYPES.QN_MRQ;
+	}
+
+	$scope.isCodingQuestion = function(question) {
+		return question.questiontype_id === QN_TYPES.QN_CODING;
+	};
+
+	$scope.isShortQuestion = function(question) {
+		return question.questiontype_id === QN_TYPES.QN_SHORT;
+	};
+
+	$scope.publishUnpublish = function(){
+		if($scope.exam.status === EXAM_STATUS.DRAFT){
+			$http.get('/api/exam/' + $scope.examId + '/publish')
+				.success(function(data){
+			});
+		}else 
+		{
+			$http.get('/api/exam/' + $scope.examId + '/unpublish')
+				.success(function(data){
+			});
+		}
+		$location.path('/home');
+	};
+
+	$scope.cancel = function(){
+		if($scope.exam.status === EXAM_STATUS.DRAFT){
+			$location.path('/exam/' + $scope.examId + '/edit');
+		}else{
+			$location.path('/home');
+		}
+
+	}
+
+
+	$scope.getExamInfo();
+
+}]);
 
 examApp.controller('headerController', ['$scope', 'sessionService', '$location',
 	function($scope, sessionService, $location) {
@@ -165,8 +226,8 @@ examApp.controller('ModalInstanceCtrl', function ($scope, $modalInstance, $http,
 	};
 });
 
-examApp.controller('dashboardController', ['$scope', '$location', '$modal', '$http',
-	function($scope, $location, $modal, $http) {
+examApp.controller('dashboardController', ['$scope', '$location', '$modal', '$http', 'EXAM_STATUS',
+	function($scope, $location, $modal, $http, EXAM_STATUS) {
 	
 	$scope.selectedTab = 1;
 
@@ -209,8 +270,32 @@ examApp.controller('dashboardController', ['$scope', '$location', '$modal', '$ht
 			});
 	};
 
-	$scope.viewExam = function(examId){
-		$location.path('/exam/' + examId + '/edit');
+	$scope.redirectExam = function(exam){
+		if(exam.status === EXAM_STATUS.DRAFT){
+			$location.path('/exam/' + exam.id + '/edit');
+		}else if (exam.status === EXAM_STATUS.NOT_STARTED){
+			$location.path('/exam/' + exam.id + '/preview');
+		}else if (exam.status === EXAM_STATUS.IN_EXAM){
+			$location.path('/exam/' + exam.id);
+		}else{
+			$location.path('/exam/' + exam.id + '/preview');
+		}
+	}
+
+	$scope.getExamLabel = function(exam){
+		if(exam.status === EXAM_STATUS.DRAFT){
+			$scope.examActionText = "Edit";
+			return "label-primary";
+		}else if (exam.status === EXAM_STATUS.NOT_STARTED){
+			$scope.examActionText = "View";
+			return "label-success";
+		}else if (exam.status === EXAM_STATUS.IN_EXAM){
+			$scope.examActionText = "Start";
+			return "label-warning";
+		}else{
+			$scope.examActionText = "View";
+			return "label-info";
+		}	
 	}
 
 	$scope.addExam = function() {
@@ -251,7 +336,6 @@ examApp.controller('viewExamController', ['$scope', '$http', '$routeParams',
 	$scope.examId = $routeParams.examId;
 	$scope.error = null;
 	$scope.showTimer=true;
-	$scope.test=15;
 	$scope.langs=['C/C++','Java']
 	// code editor setting
     $scope.aceOptions = {
@@ -279,7 +363,7 @@ examApp.controller('viewExamController', ['$scope', '$http', '$routeParams',
 				if (data.code === 200) {
 					console.log(data.data);
 					$scope.exam = data.data;
-					$scope.endTime = new Date(new Date($scope.exam.starttime).getTime() + $scope.exam.duration*60000);
+					$scope.startExamSubmission();
 				} else {
 					$scope.error = data.data;
 				}
@@ -380,6 +464,7 @@ examApp.controller('viewExamController', ['$scope', '$http', '$routeParams',
 	$scope.goToQuestion = function(newIndex) {
 		$scope.submitCurrentQuestion();
 		// get question submission by question id
+		console.log($scope.exam.questions);
 		$scope.curQnSubmission = $scope.getQuestionSubmission($scope.exam.questions[newIndex].id);
 		$scope.curQnIndex = newIndex;	
 	};
@@ -422,7 +507,6 @@ examApp.controller('viewExamController', ['$scope', '$http', '$routeParams',
 	};
 
 	$scope.getExamInfo();
-	$scope.startExamSubmission();
 }]);
 
 examApp.controller('markExamController', ['$scope', '$routeParams', '$http', 'QN_TYPES', 'EXAM_STATUS', 
@@ -544,15 +628,10 @@ examApp.controller('newExamController', ['$scope', '$location','$http', '$routeP
 			});	
 	};
 
-	$scope.saveExam = function(){
-		console.log('exam sent:');
-		console.log($scope.exam);
-		
+	$scope.saveExam = function(){	
 		$scope.isExamInfoCollapsed = true;
 		$http.put('/api/exam/' + $scope.examId + '/editexam',$scope.exam)
 			.success(function(data){
-				console.log('exam received:');
-				console.log(data.data);
 				if (data.code === 200) {
 					for (var key in data.data) {
 						$scope.exam[key] = data.data[key];
@@ -561,14 +640,14 @@ examApp.controller('newExamController', ['$scope', '$location','$http', '$routeP
 			})
 	};
 
-	$scope.finishEditExam = function(){
+	$scope.saveNPreview = function(){
 		$http.put('/api/exam/' + $scope.examId + '/editexam',$scope.exam)
 		.success(function(data){
 			if (data.code === 200) {
 				$scope.exam = data.data;
 			}
 		})
-		$location.path('/home');
+		$location.path('/exam/'+ $scope.examId + '/preview');
 	};
 
 	$scope.getExamInfo = function() {
@@ -576,12 +655,11 @@ examApp.controller('newExamController', ['$scope', '$location','$http', '$routeP
 		$http.get('/api/exam/' + $scope.examId + '/examinfo')
 		.success(function(data){
 			if (data.code === 200) {
-				console.log(data.data);
-				$scope.exam = data.data;
-				console.log($scope.exam);
-				
+				$scope.exam = data.data;				
 				if ($scope.exam.status === EXAM_STATUS.UNAVAILABLE) {
 					$scope.error = 'You are not allowed to view this page';
+				}else if ($scope.exam.status != EXAM_STATUS.DRAFT){
+					$scope.error = 'You are not allowed to edit an active/archived exam!'
 				}
 			}
 		})

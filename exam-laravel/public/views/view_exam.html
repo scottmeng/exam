@@ -9,7 +9,7 @@
 	<h3 class="col-md-6 text-right" data-ng-if="canAnswerQuestion();">
 		<timer ng-show="showTimer" language="en" countdown="1" max-time-unit="'hour'" interval="1000" finish-callback="onTimeUp();" autostart="false">{{hhours}} hour{{hhoursS}} {{mminutes}} minute{{minutesS}}, {{sseconds}} second{{secondsS}}</timer>
 		<button class="button-transparent" data-ng-click="showTimer=!showTimer">
-			<small><a tooltip-placement="top" tooltip="Show/Hide Timer"><i class="fa fa-eye fa-sm"></i></a></small>
+			<small><i class="fa fa-eye fa-sm"></i></small>
 		</button>
 	</h3>
 </div>

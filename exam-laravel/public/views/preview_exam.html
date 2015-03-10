@@ -1,76 +1,51 @@
-<div class="panel panel-default">
-	<div class="panel-heading" >
-		<h2 class="panel-title">{{exam.title}}</h2>
+<div class="row" style="margin:5px" >
+	<div class="col-md-6">
+		<h3>{{ exam.title }}</h3>
 	</div>
-	<div class="panel-body">
-		<div class="row form-group">
-			<label class="col-md-1 text-right" style="padding-right:0px">Title:</label>
-		    <div class="col-md-4">
-	      		<div type="text" class="form-control" data-ng-model="exam.title"></div>
-	      	</div>
-		    <label class="col-md-2 text-right" style="padding-right:0px">Full Marks:</label>
-		    <div class="col-md-4">
-	      		<div type="text" class="form-control" data-ng-model="exam.fullmarks"></div>
-			</div>
-
-			<div class="row form-group">
-				<label class="col-md-1 text-right" style="padding-right:0px">Time:</label>
-			    <div class="form-group col-md-4" data-ng-model="exam.starttime"></div>
-				<label class="col-md-2 text-right" style="padding-right:0px" >Duration(mins):</label>
-			    <div class="col-md-4">
-		      		<div type="text" class="form-control" data-ng-model="exam.duration"></div>
-				</div>
-				<div class="row form-group" style="margin:10px">
-					<label class="col-sm-3 text-left">Exam Instructions:</label>
-					<div class="col-md-12" data-ng-bind-html="exam.description"></div>
-				</div>
-			</div>
-			<div class="row formgroup">
-				<button class="btn btn-success col-md-offset-5 col-md-2 text-right" style="padding:10px" ng-click="saveExam()">OK</button>
-			</div>
-		</div>
+</div>
+<div class="panel-body">
+	<div class="row">
+		<label class="col-md-2 text-right">Total Marks:</label>
+		<p class="col-md-1 text-left">{{ exam.fullmarks }}</p>
+		<label class="col-md-2 text-right">Exam Time:</label>
+		<p class="col-md-3">{{ exam.starttime }}</p>
+		<label class="col-md-1 text-left">Duration:</label>
+		<p class="col-md-2">{{ exam.duration }} minutes</p>
+	</div>
+	<div class="row well">
+		<div data-ng-bind-html="exam.description"></div>
 	</div>
 </div>
 
 <div class="panel panel-info" data-ng-repeat="question in exam.questions">
-	<div class="panel-heading">
-		<div class="row">
-			<div class="col-md-1">Q{{ $index + 1 }}:</div>
-			<div class="col-md-7">
-				<div class="col-md-5" type="text" data-ng-model="question.title"></div>
-			</div>
-			<div class="col-md-2 control-label text-right" style="padding-right:0px">Full Marks</div>
-			<div class="col-md-2" class="form-control" data-ng-model="question.full_marks"></div>
-		</div>
-	</div>
-	<div class="panel-body">
-		<div class="tab-content">
-			<label class="control-label" style="margin-bottom:15px">Question body</label>
-			<div data-ng-bind-html="question.content"></div>	
-			<form class="form-vertical">
-				<div class="form-group" data-ng-show="isMCQ(question.questiontype_id);" style="margin-top:15px">
-					<div class="col-md-6" style="margin-bottom: 10px" data-ng-repeat="option in question.options">
-						<label class="checkbox-inline">
-							<input type="radio" ng-true-value="1" ng-false-value="0" ng-checked="option.correctOption==1" value="{{option.id}}" data-ng-model="option.correctOption">
-							{{ option.content }}
-						</label>
-					</div>
-				</div>
-				<div class="form-group" data-ng-show="isMRQ(question.questiontype_id);" style="margin-top:15px">
-					<div class="col-md-6" style="margin-bottom: 10px" data-ng-repeat="option in question.options">
-						<input type="checkbox" ng-true-value="1" ng-false-value="0" ng-checked="option.correctOption==1" ng-data-model="option.correctOption">{{ option.content }}
-					</div>
-				</div>
-			</form>
-			<div class="row" style="margin:10px" data-ng-show="isCodingQn(question.questiontype_id);">
-				<label class="checkbox-inline">
-					<input type="checkbox" id="inlineCheckbox1" data-ng-model="question.compiler_enable"> Enable Compiler In Exam
-				</label>
+
+		<div class="panel-heading">
+			<div class="row">
+				<div class="col-md-8">Question {{ $index + 1 }}: {{question.title}} ({{ question.full_marks}} marks)</div>
 			</div>
 		</div>
-	</div>		
-</div>		
+
+		<div class="panel-body">
+			<div data-ng-bind-html="question.content" class="question-body"></div>
+			<div data-ng-if="isMCQ(question);" class="row">
+				<div class="col-md-6" style="margin-bottom: 10px" data-ng-repeat="option in question.options">
+					<label class="checkbox-inline">
+						<input type="radio" name="question.id" ng-checked="isChecked(option.id)" value="{{option.id}}" data-ng-model="curQnSubmission.choice">
+						{{ option.content }}
+					</label>
+				</div>
+			</div>
+			<div data-ng-if="isMRQ(question);" class="row">
+				<div class="col-md-6" style="margin-bottom: 10px" data-ng-repeat="option in question.options">
+						<input type="checkbox" ng-checked="isChecked(option.id)" checklist-value="option.id" checklist-model="curQnSubmission.choices">
+						{{ option.content }}
+					</label>
+				</div>
+			</div>			
+		</div>
+
+</div>
 <div class="pull-right">
 	<button class="btn btn-primary" data-ng-click="cancel()">Back</button>
-	<button class="btn btn-success" data-ng-click="finishEditExam()">Publish</button>
+	<button class="btn btn-success" data-ng-click="publishUnpublish()">{{publish}}</button>
 </div>

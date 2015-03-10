@@ -50,7 +50,6 @@ class Question extends Eloquent {
         }
 
         $exam->questions()->save($this);
-        $this->options()->delete();
         if (array_key_exists('options', $updated)){
             $this->options = $this->populateOptions($updated['options']);
         }
@@ -61,13 +60,18 @@ class Question extends Eloquent {
     public function populateOptions($inputOptions)
     {
         foreach ($inputOptions as $option) {
-
-            $newOption = new Option(array(
-                'content' => $option['content'],
-                'correctOption' => $option['correctOption']
-            ));
-
-            $this->options()->save($newOption);
+            if(array_key_exists('id', $option)){
+                $old_option = Option::find($option['id']);
+                $old_option->content = $option['content'];
+                $old_option->correctOption = $option['correctOption'];
+                $old_option->save();
+            }else{
+                $newOption = new Option(array(
+                    'content' => $option['content'],
+                    'correctOption' => $option['correctOption']
+                ));
+                $this->options()->save($newOption);
+            }
         }
         $options = $this->options()->get();
         return $options;

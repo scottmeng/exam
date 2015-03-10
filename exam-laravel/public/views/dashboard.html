@@ -44,8 +44,10 @@
 			<div class="panel-body bg-info" data-ng-bind-html="course.description">
 			</div>
 			<div class="list-group">
-				<a class="list-group-item" data-ng-repeat="exam in course.exams" data-ng-click="viewExam(exam.id)">
-					<span class="badge">{{ exam.starttime | date:'medium' }}</span> {{ exam.title }}
+				<a class="list-group-item" data-ng-repeat="exam in course.exams" data-ng-click="redirectExam(exam)">
+				{{ exam.title }}
+					<span class="badge">{{ exam.starttime | date:'medium' }}</span>
+					<span class="label" ng-class="getExamLabel(exam)">{{examActionText}}</span>
 				</a>
 			</div>
 		</div>

@@ -73,6 +73,13 @@ class ExamController extends BaseController {
 		return Response::success($exam);
 	}
 
+	public function getPublish($exam_id){
+		$exam = Exam::findOrFail($exam_id);
+		$exam->publish();
+
+		return Response::success($exam);
+	}
+
 
 	public function getSubmission($exam_id){
 		$exam = Exam::findOrFail($exam_id);
@@ -137,11 +144,9 @@ class ExamController extends BaseController {
 		$updated->full_marks = Input::get('full_marks',0);
 
 		$question = $question->updateQuestion($updated,$exam);
-		$question->options()->delete();
 		if(Input::has('options')){
 			$question['options'] = $question->populateOptions(Input::get('options'));
 		}
-		// $question['options'] = $this->populateOptions($question,Input::get('options'));
 		return Response::success($question);
 	}
 
@@ -154,24 +159,6 @@ class ExamController extends BaseController {
 		$question->delete(); 
 
 		return Response::success($question);
-	}
-
-	public function putPublish($exam_id)
-	{
-		$exam = Exam::findOrFail($exam_id);
-		$publish_state = ExamState::whereRaw('name = ?',array('active'))->first();
-		$publish_state->exams()->save($exam);
-
-		return Response::success($exam);
-	}
-
-	public function putUnpublish($exam_id)
-	{
-		$exam = Exam::findOrFail($exam_id);
-		$draft_state = ExamState::whereRaw('name = ?',array('draft'))->first();
-		$draft_state->exams()->save($exam);
-
-		return Response::success($exam);
 	}
 
 	private function retrieveQuestions($exam,$isEditing)
