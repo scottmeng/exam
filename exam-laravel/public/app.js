@@ -429,12 +429,14 @@ examApp.controller('newExamController', ['$scope', '$location','$http', '$routeP
 	}
 
 	$scope.submitQuestion = function(index){
+		console.log($scope.exam.questions[index]);
 		
 		if ($scope.exam.questions[index].id) {
 			// id does exist, update question
 			$http.put('/api/exam/' + $scope.examId + '/question', $scope.exam.questions[index])
 			.success(function(data){
 				if (data.code === 200) {
+					console.log(data.data);
 					$scope.exam.questions[index] = data.data;
 				}
 			});

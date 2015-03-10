@@ -130,6 +130,8 @@ class ExamController extends BaseController {
 
 	public function putQuestion($exam_id)
 	{
+		$exam = Exam::findOrFail($exam_id);
+
 		$question_id = Input::get('id');
 		$question = Question::findOrFail($question_id);
 		$updated = new Question();
@@ -144,8 +146,11 @@ class ExamController extends BaseController {
 		$updated->marking_scheme = Input::get('marking_scheme',NULL);
 		$updated->full_marks = Input::get('full_marks',0);
 
-		$question = $question->updateQuestion($updated);
-		// $question->options()->delete();
+		$question = $question->updateQuestion($updated,$exam);
+		$question->options()->delete();
+		if(Input::has('options')){
+			$question['options'] = $question->populateOptions(Input::get('options'));
+		}
 		// $question['options'] = $this->populateOptions($question,Input::get('options'));
 		return Response::success($question);
 	}
