@@ -329,9 +329,11 @@ examApp.controller('viewExamController', ['$scope', '$http', '$routeParams',
 
 
 	$scope.isMCQ = function(question) {
-		return question.questiontype_id === QN_TYPES.QN_MCQ ||
-			   question.questiontype_id === QN_TYPES.QN_MRQ;
+		return question.questiontype_id === QN_TYPES.QN_MCQ;
 	};
+	$scope.isMRQ = function(question){
+		return questions.questiontype_id === QN_TYPES.QN_MRQ;
+	}
 
 	$scope.isCodingQuestion = function(question) {
 		return question.questiontype_id === QN_TYPES.QN_CODING;
@@ -501,23 +503,24 @@ examApp.controller('newExamController', ['$scope', '$location','$http', '$routeP
 					$scope.exam.totalqn += 1;
 				}
 			});			
-		}
-
-		
-
-		// $http.post('/api/exam/' + $scope.examId + '/options', $scope.questions[index].options)
-		// .success(function(data){
-		// 	if (data.code === 200) {
-		// 		console.log('options received:');
-		// 		console.log(data.data);
-		// 	}
-		// })	
+		}	
 	};
+
+	$scope.onRadioSelection = function (qn_index, option_index){
+		//set all other options false
+		for (var i in $scope.exam.questions[qn_index].options) {
+			if(i!=option_index){
+				$scope.exam.questions[qn_index].options[i].correctOption = false;
+			}
+		}
+	}
 
 	$scope.isMCQ = function(questiontype) {
-		return questiontype === QN_TYPES.QN_MCQ || 
-			   questiontype === QN_TYPES.QN_MRQ;
+		return questiontype === QN_TYPES.QN_MCQ;
 	};
+	$scope.isMRQ = function(questiontype){
+		return questiontype === QN_TYPES.QN_MRQ;
+	}
 	$scope.isCodingQn = function(questiontype){
 		return questiontype == QN_TYPES.QN_CODING;
 	}
@@ -547,6 +550,13 @@ examApp.controller('newExamController', ['$scope', '$location','$http', '$routeP
 		}			
 		$scope.exam.questions.splice(index, 1);
 	};
+
+	$scope.removeOption = function(qn_index,option_index){
+		console.log('removing options:');
+		console.log(qn_index);
+		console.log(option_index);
+		$scope.exam.questions[qn_index].options.splice([option_index],1);
+	}
 
 	$scope.addOption = function(question) {
 		if (question.questiontype_id != QN_TYPES.QN_MCQ && question.questiontype_id != QN_TYPES.QN_MRQ) {

@@ -31,7 +31,7 @@
 			<div class="row">
 				<button class="btn btn-primary btn-xs" style="margin-right: 10px" data-ng-disabled="curQnIndex<=0;" data-ng-click="goToQuestion(curQnIndex - 1);">Previous Question</button>
 				<button class="btn btn-primary btn-xs" style="margin-right: 10px" data-ng-disabled="curQnIndex>=exam.questions.length - 1;" data-ng-click="goToQuestion(curQnIndex + 1);">Next Question</button>
-				<div class="col-md-8">Question {{ curQnIndex + 1 }} ({{ exam.questions[curQnIndex].full_marks}} marks)</div>
+				<div class="col-md-8">Question {{ curQnIndex + 1 }}: {{exam.questions[curQnIndex].title}} ({{ exam.questions[curQnIndex].full_marks}} marks)</div>
 			</div>
 		</div>
 		<div class="panel-body">
@@ -44,6 +44,14 @@
 					</label>
 				</div>
 			</div>
+			<div data-ng-if="isMRQ(exam.questions[curQnIndex]);" class="row">
+				<div class="col-md-6" style="margin-bottom: 10px" data-ng-repeat="option in exam.questions[curQnIndex].options">
+					<label class="checkbox-inline">
+						<input type="checkbox" id="inlineCheckbox1" ng-true-value="1" ng-false-value="0"  ng-checked="option.correctOption == 1" data-ng-model="option.correctOption">
+						{{ option.content }}
+					</label>
+				</div>
+			</div>			
 			<div data-ng-if="isShortQuestion(exam.questions[curQnIndex]);" class="row">
 				<textarea class="form-control" data-ng-model="curQnSubmission.answer" rows="4"></textarea>
 			</div>
