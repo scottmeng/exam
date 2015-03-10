@@ -32,7 +32,7 @@ class HomeController extends BaseController {
 
 	public function getQnTypes()
 	{
-		return Response::success(QuestionType::all());
+		return Response::success(Questiontype::all());
 	}
 
 	public function newExam()
