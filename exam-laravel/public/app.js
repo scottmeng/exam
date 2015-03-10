@@ -42,6 +42,10 @@ examApp.config(['$routeProvider', '$locationProvider',
 				templateUrl: 'views/view_course.html',
 				controller: 'viewCourseController'
 			})
+			.when('/exam/:examid/preview',{
+				templateUrl: 'views/preview_course.html',
+				controller: 'previewCourseController'
+			})
 			.otherwise({
 				templateUrl: 'views/not_found.html'
 			});
@@ -244,6 +248,7 @@ examApp.controller('viewExamController', ['$scope', '$http', '$routeParams',
 	$scope.error = null;
 	$scope.showTimer=true;
 	$scope.test=15;
+	$scope.langs=['C/C++','Java']
 	// code editor setting
     $scope.aceOptions = {
 	  useWrapMode : true,

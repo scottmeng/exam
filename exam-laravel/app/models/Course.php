@@ -62,7 +62,7 @@ class Course extends Eloquent {
 			}
 			$exam->status = $status; 
 		}
-		$this->user_role = ROLE::find($this->pivot->role_id)->name;
+		$this->user_role = Role::find($this->pivot->role_id)->name;
 		$this->exams = $exams;
 		return $this;
 	}
