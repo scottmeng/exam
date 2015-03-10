@@ -47,7 +47,10 @@ class ExamController extends BaseController {
 		if(!$user){
 			return Response::error(401,'unauthorized');
 		}
+		Log::info($exam_id);
 		$exam = Exam::find($exam_id);
+		Log::info($exam);
+
 
 		$course_id = $exam->course->id;
 		$course = $user->courses()->where('courses.id', '=', $course_id)->first();

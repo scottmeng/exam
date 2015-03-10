@@ -42,9 +42,9 @@ examApp.config(['$routeProvider', '$locationProvider',
 				templateUrl: 'views/view_course.html',
 				controller: 'viewCourseController'
 			})
-			.when('/exam/:examid/preview',{
-				templateUrl: 'views/preview_course.html',
-				controller: 'previewCourseController'
+			.when('/exam/:examId/preview',{
+				templateUrl: 'views/preview_exam.html',
+				controller: 'previewExamController'
 			})
 			.otherwise({
 				templateUrl: 'views/not_found.html'
@@ -65,6 +65,48 @@ examApp.service('sessionService', function() {
 		this.userName = null;
 	};
 });
+
+examApp.controller('previewExamController', ['$scope', '$http', '$routeParams', '$location',
+	'QN_TYPES', 'EXAM_STATUS', function($scope, $http, $routeParams, $location, QN_TYPES, EXAM_STATUS){
+	
+	$scope.examId = $routeParams.examId;
+
+	$scope.getExamInfo = function() {
+		console.log($scope.examId);
+		$http.get('/api/exam/' + $scope.examId + '/examinfo')
+			.success(function(data){
+				if (data.code === 200) {
+					console.log(data.data);
+					$scope.exam = data.data;
+				} else {
+					$scope.error = data.data;
+				}
+		});
+	};
+
+	$scope.isMCQ = function(question) {
+		return question.questiontype_id === QN_TYPES.QN_MCQ;
+	};
+	$scope.isMRQ = function(question){
+		return question.questiontype_id === QN_TYPES.QN_MRQ;
+	}
+
+	$scope.isCodingQuestion = function(question) {
+		return question.questiontype_id === QN_TYPES.QN_CODING;
+	};
+
+	$scope.isShortQuestion = function(question) {
+		return question.questiontype_id === QN_TYPES.QN_SHORT;
+	};
+
+	$scope.publishExam = function(){
+		$location.path('/home');
+	};
+
+
+	$scope.getExamInfo();
+
+}]);
 
 examApp.controller('headerController', ['$scope', 'sessionService', '$location',
 	function($scope, sessionService, $location) {
@@ -247,7 +289,6 @@ examApp.controller('viewExamController', ['$scope', '$http', '$routeParams',
 	$scope.examId = $routeParams.examId;
 	$scope.error = null;
 	$scope.showTimer=true;
-	$scope.test=15;
 	$scope.langs=['C/C++','Java']
 	// code editor setting
     $scope.aceOptions = {
@@ -456,14 +497,14 @@ examApp.controller('newExamController', ['$scope', '$location','$http', '$routeP
 			})
 	};
 
-	$scope.finishEditExam = function(){
+	$scope.saveNPreview = function(){
 		$http.put('/api/exam/' + $scope.examId + '/editexam',$scope.exam)
 		.success(function(data){
 			if (data.code === 200) {
 				$scope.exam = data.data;
 			}
 		})
-		$location.path('/home');
+		$location.path('/exam/'+ $scope.examId + '/preview');
 	};
 
 	$scope.getExamInfo = function() {
