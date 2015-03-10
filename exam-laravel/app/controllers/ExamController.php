@@ -137,11 +137,9 @@ class ExamController extends BaseController {
 		$updated->full_marks = Input::get('full_marks',0);
 
 		$question = $question->updateQuestion($updated,$exam);
-		$question->options()->delete();
 		if(Input::has('options')){
 			$question['options'] = $question->populateOptions(Input::get('options'));
 		}
-		// $question['options'] = $this->populateOptions($question,Input::get('options'));
 		return Response::success($question);
 	}
 

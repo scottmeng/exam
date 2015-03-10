@@ -3,7 +3,7 @@
 var examApp = angular
 	.module('examApp', ['ngRoute', 'checklist-model','ui.bootstrap.modal','ui.bootstrap.tabs',
 		'ui.ace','textAngular','ui.bootstrap.buttons','ui.bootstrap.collapse',
-		'mgcrea.ngStrap.datepicker','mgcrea.ngStrap.timepicker', 'timer','ui.bootstrap.tooltip'])
+		'mgcrea.ngStrap.datepicker','mgcrea.ngStrap.timepicker', 'timer'])
 	.constant('QN_TYPES', {
 		'QN_MCQ'	: 1,
 		'QN_MRQ'	: 2,
@@ -275,7 +275,7 @@ examApp.controller('viewExamController', ['$scope', '$http', '$routeParams',
 				if (data.code === 200) {
 					console.log(data.data);
 					$scope.exam = data.data;
-					$scope.endTime = new Date(new Date($scope.exam.starttime).getTime() + $scope.exam.duration*60000);
+					$scope.startExamSubmission();
 				} else {
 					$scope.error = data.data;
 				}
@@ -376,6 +376,7 @@ examApp.controller('viewExamController', ['$scope', '$http', '$routeParams',
 	$scope.goToQuestion = function(newIndex) {
 		$scope.submitCurrentQuestion();
 		// get question submission by question id
+		console.log($scope.exam.questions);
 		$scope.curQnSubmission = $scope.getQuestionSubmission($scope.exam.questions[newIndex].id);
 		$scope.curQnIndex = newIndex;	
 	};
@@ -418,7 +419,6 @@ examApp.controller('viewExamController', ['$scope', '$http', '$routeParams',
 	};
 
 	$scope.getExamInfo();
-	$scope.startExamSubmission();
 }]);
 
 examApp.controller('newExamController', ['$scope', '$location','$http', '$routeParams', 'QN_TYPES', 'EXAM_STATUS',

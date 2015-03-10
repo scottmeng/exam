@@ -18,7 +18,7 @@
 
     <!-- local js and css files -->
     <script src="{{ URL::to('app.js') }}"></script>
-    <script src="{{ URL::to('js/ui-bootstrap-0.12.0.min.js') }}"></script>
+    <script src="{{ URL::to('js/ui-bootstrap-0.12.1.js') }}"></script>
     <script src="{{ URL::to('js/ace/ace.js') }}" type="text/javascript" charset="utf-8"></script>
     <script src="{{ URL::to('js/ui-ace.js') }}"></script>
     <script src="{{ URL::to('js/ace/ext-language_tools.js') }}"></script>
