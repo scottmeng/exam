@@ -33,6 +33,7 @@
     <script src="{{ URL::to('js/locales.min.js') }}"></script>
     <script src="{{ URL::to('js/moment.min.js') }}"></script>
     <script src="{{ URL::to('js/humanize-duration.js') }}"></script>
+    <script src="{{ URL::to('js/checklist-model.js') }}"></script>
 </head>
 <body>
 

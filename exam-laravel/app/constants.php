@@ -25,3 +25,8 @@ define('STATUS_NOT_STARTED','not_started');
 define('STATUS_IN_EXAM','in_exam');
 define('STATUS_FINISHED','finished');
 define('STATUS_PUBLISHED','published');
+
+define('MCQ',1);
+define('MRQ',2);
+define('SHORT_QN',3);
+define('CODING_QN',4);

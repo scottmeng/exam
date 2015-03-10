@@ -1,9 +1,9 @@
 // app.js
 
 var examApp = angular
-	.module('examApp', ['ngRoute', 'ui.bootstrap.modal','ui.bootstrap.tabs',
+	.module('examApp', ['ngRoute', 'checklist-model','ui.bootstrap.modal','ui.bootstrap.tabs',
 		'ui.ace','textAngular','ui.bootstrap.buttons','ui.bootstrap.collapse',
-		'mgcrea.ngStrap.datepicker','mgcrea.ngStrap.timepicker', 'timer'])
+		'mgcrea.ngStrap.datepicker','mgcrea.ngStrap.timepicker', 'timer','ui.bootstrap.tooltip'])
 	.constant('QN_TYPES', {
 		'QN_MCQ'	: 1,
 		'QN_MRQ'	: 2,
@@ -242,6 +242,8 @@ examApp.controller('viewExamController', ['$scope', '$http', '$routeParams',
 	$scope.curQnIndex = 0;
 	$scope.examId = $routeParams.examId;
 	$scope.error = null;
+	$scope.showTimer=true;
+	$scope.test=15;
 	// code editor setting
     $scope.aceOptions = {
 	  useWrapMode : true,
@@ -249,12 +251,17 @@ examApp.controller('viewExamController', ['$scope', '$http', '$routeParams',
 	  mode: 'javascript',
 	  firstLineNumber: 1,
 	  require:['ace/ext/language_tools'],
+	  onload: "aceLoaded",
 	  advanced:{
 	  	enableSnippets: true,
 	  	enableLiveAutocompletion: true
 	  }
-
     };
+
+   //   $scope.aceLoaded = function(_editor) {
+	  //   // Options
+	  //   _editor.$blockScrolling = 0;
+	  // };
 
 	$scope.getExamInfo = function() {
 
@@ -291,6 +298,8 @@ examApp.controller('viewExamController', ['$scope', '$http', '$routeParams',
 	};
 
 	$scope.submitCurrentQuestion = function(){
+		console.log($scope.curQnSubmission);
+
 		if (!$scope.curQnSubmission) {
 			return;
 		}
@@ -298,7 +307,8 @@ examApp.controller('viewExamController', ['$scope', '$http', '$routeParams',
 			// id does exist, update submission
 			$http.put('/api/submission/' + $scope.submission.id + '/questionsubmission', $scope.curQnSubmission)
 			.success(function(data){
-				if (data.code === 200) {
+				if (data.code === 200){
+					console.log(data.data)
 					$scope.updateQuestionSubmission(data.data);
 				}
 			});
@@ -332,7 +342,7 @@ examApp.controller('viewExamController', ['$scope', '$http', '$routeParams',
 		return question.questiontype_id === QN_TYPES.QN_MCQ;
 	};
 	$scope.isMRQ = function(question){
-		return questions.questiontype_id === QN_TYPES.QN_MRQ;
+		return question.questiontype_id === QN_TYPES.QN_MRQ;
 	}
 
 	$scope.isCodingQuestion = function(question) {
@@ -343,12 +353,23 @@ examApp.controller('viewExamController', ['$scope', '$http', '$routeParams',
 		return question.questiontype_id === QN_TYPES.QN_SHORT;
 	};
 
-	$scope.goToQuestion = function(newIndex) {
-		// todo
-		// save question submission of curQnIndex
-		// update curQnIndex with the new index
-		$scope.submitCurrentQuestion();
+	$scope.isChecked = function(option_id) {
+		if($scope.exam.questions[$scope.curQnIndex].questiontype_id === QN_TYPES.QN_MCQ){
+			if($scope.curQnSubmission.choice == option_id){
+				return true;
+			}
+		}else if($scope.exam.questions[$scope.curQnIndex].questiontype_id === QN_TYPES.QN_MRQ){
+			for (var i in $scope.curQnSubmission.choices) {
+				if($scope.curQnSubmission.choices[i] == option_id){
+					return true;
+				}
+			}
+		}
+		return false;
+	}
 
+	$scope.goToQuestion = function(newIndex) {
+		$scope.submitCurrentQuestion();
 		// get question submission by question id
 		$scope.curQnSubmission = $scope.getQuestionSubmission($scope.exam.questions[newIndex].id);
 		$scope.curQnIndex = newIndex;	

@@ -25,4 +25,17 @@ class ExamSubmission extends Eloquent{
         return $this->belongsTo('SubmissionState');
     }
 
+    public function getQnSubmissions(){
+        $questions = $this->questionsubmissions()->get();
+        foreach($questions as $question){
+            if($question->question()->first()->questiontype_id===MRQ){
+                $question = $question->getChoices(True);
+            }else if($question->question()->first()->questiontype_id===MCQ){
+                $question = $question->getChoices(False);
+            }
+        }
+        $this->questions = $questions;
+        return $this;
+    }
+
 }

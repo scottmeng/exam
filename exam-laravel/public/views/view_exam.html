@@ -6,16 +6,25 @@
 			<button class="btn btn-warning" data-ng-click="isExamInfoCollapsed=!isExamInfoCollapsed">{{ (isExamInfoCollapsed) ? 'View details' : 'Hide details'}}</button>
 		</h3>
 	</div>
-	<h3 class="col-md-6 text-right" data-ng-if="canAnswerQuestion();"><timer language="en" countdown="1" max-time-unit="'hour'" interval="1000" finish-callback="onTimeUp();" autostart="false">{{hhours}} hour{{hhoursS}} {{mminutes}} minute{{minutesS}}, {{sseconds}} second{{secondsS}}</timer></h3>
+	<h3 class="col-md-6 text-right" data-ng-if="canAnswerQuestion();">
+		<timer ng-show="showTimer" language="en" countdown="1" max-time-unit="'hour'" interval="1000" finish-callback="onTimeUp();" autostart="false">{{hhours}} hour{{hhoursS}} {{mminutes}} minute{{minutesS}}, {{sseconds}} second{{secondsS}}</timer>
+		<button class="button-transparent" data-ng-click="showTimer=!showTimer">
+			<small><a tooltip-placement="top" tooltip="Show/Hide Timer"><i class="fa fa-eye fa-sm"></i></a></small>
+		</button>
+	</h3>
 </div>
 <div class="panel-body" collapse="isExamInfoCollapsed">
 	<div class="row">
-		<label class="col-md-2">Full marks:</label>
-		<p class="col-md-1">{{ exam.fullmarks }}</p>
-		<label class="col-md-2">Exam Time:</label>
-		<p class="col-md-4">{{ exam.starttime }} - {{ endTime }}</p>
-		<label class="col-md-1">Duration:</label>
-		<p class="col-md-1">{{ exam.duration }}</p>
+		<label class="col-md-2 text-right">Total Marks:</label>
+		<p class="col-md-1 text-left">{{ exam.fullmarks }}</p>
+		<label class="col-md-2 text-right">Exam Time:</label>
+		<p class="col-md-3">{{ exam.starttime }}</p>
+		<label class="col-md-1 text-left">Duration:</label>
+		<p class="col-md-2">{{ exam.duration }} minutes</p>
+	</div>
+	<!-- <p>{{exam.description}}</p> -->
+	<div class="row well">
+		<div data-ng-bind-html="exam.description"></div>
 	</div>
 </div>
 
@@ -39,15 +48,14 @@
 			<div data-ng-if="isMCQ(exam.questions[curQnIndex]);" class="row">
 				<div class="col-md-6" style="margin-bottom: 10px" data-ng-repeat="option in exam.questions[curQnIndex].options">
 					<label class="checkbox-inline">
-						<input type="checkbox" id="inlineCheckbox1" ng-true-value="1" ng-false-value="0"  ng-checked="option.correctOption == 1" data-ng-model="option.correctOption">
+						<input type="radio" name="exam.questions[curQnIndex].id" ng-checked="isChecked(option.id)" value="{{option.id}}" data-ng-model="curQnSubmission.choice">
 						{{ option.content }}
 					</label>
 				</div>
 			</div>
 			<div data-ng-if="isMRQ(exam.questions[curQnIndex]);" class="row">
 				<div class="col-md-6" style="margin-bottom: 10px" data-ng-repeat="option in exam.questions[curQnIndex].options">
-					<label class="checkbox-inline">
-						<input type="checkbox" id="inlineCheckbox1" ng-true-value="1" ng-false-value="0"  ng-checked="option.correctOption == 1" data-ng-model="option.correctOption">
+						<input type="checkbox" ng-checked="isChecked(option.id)" checklist-value="option.id" checklist-model="curQnSubmission.choices">
 						{{ option.content }}
 					</label>
 				</div>
@@ -57,7 +65,7 @@
 			</div>
 			<div data-ng-if="isCodingQuestion(exam.questions[curQnIndex]);" class="row">
 				<div id="coding-area" class="col-md-10 col-md-offset-1">
-					<textarea ui-ace=aceOptions class="form-control" data-ng-model="curQnSubmission.answer" rows="4"></textarea>
+					<div id="editor" ui-ace=aceOptions data-ng-model="curQnSubmission.answer" rows="4"></div>
 				</div>
 			</div>
 		</div>

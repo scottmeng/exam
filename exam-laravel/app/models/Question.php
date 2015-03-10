@@ -25,8 +25,6 @@ class Question extends Eloquent {
 
     public function updateQuestion($updated, Exam $exam)
     {
-        Log::info('updated quetsion:');
-        Log::info($updated);
         $this->index = $updated['index'];
         if (array_key_exists('subindex', $updated)){
             $this->subindex = $updated['subindex'];

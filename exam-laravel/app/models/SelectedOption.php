@@ -1,8 +1,9 @@
 <?php
 
-class Option extends Eloquent {
+class SelectedOption extends Eloquent {
 
-	protected $fillable = array('index','content','question_id','correctOption');
+	protected $fillable = array('option_id','qnsubmission_id');
+	protected $table="selected_options";
 
     public function submission()
     {
