@@ -6,6 +6,6 @@ class ExamState extends Eloquent{
     protected $table = 'examstates';
 
     public function exams(){
-		return $this->hasMany('Exam');
+		return $this->hasMany('Exam','examstate_id');
     }
 }

@@ -1,4 +1,5 @@
 <?php
+use Carbon\Carbon;
 
 class Course extends Eloquent {
 

@@ -21,7 +21,7 @@
 
 		<div class="panel-heading">
 			<div class="row">
-				<div class="col-md-8">Question {{ curQnIndex + 1 }}: {{question.title}} ({{ question.full_marks}} marks)</div>
+				<div class="col-md-8">Question {{ $index + 1 }}: {{question.title}} ({{ question.full_marks}} marks)</div>
 			</div>
 		</div>
 
@@ -47,5 +47,5 @@
 </div>
 <div class="pull-right">
 	<button class="btn btn-primary" data-ng-click="cancel()">Back</button>
-	<button class="btn btn-success" data-ng-click="publishExam()">Publish</button>
+	<button class="btn btn-success" data-ng-click="publishUnpublish()">{{publish}}</button>
 </div>

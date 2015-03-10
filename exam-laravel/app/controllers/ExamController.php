@@ -47,10 +47,7 @@ class ExamController extends BaseController {
 		if(!$user){
 			return Response::error(401,'unauthorized');
 		}
-		Log::info($exam_id);
 		$exam = Exam::find($exam_id);
-		Log::info($exam);
-
 
 		$course_id = $exam->course->id;
 		$course = $user->courses()->where('courses.id', '=', $course_id)->first();
@@ -73,6 +70,13 @@ class ExamController extends BaseController {
 		}
 		$exam->status = $status;
 		$exam->totalqn = $exam->questions()->get()->count();
+		return Response::success($exam);
+	}
+
+	public function getPublish($exam_id){
+		$exam = Exam::findOrFail($exam_id);
+		$exam->publish();
+
 		return Response::success($exam);
 	}
 
@@ -155,24 +159,6 @@ class ExamController extends BaseController {
 		$question->delete(); 
 
 		return Response::success($question);
-	}
-
-	public function putPublish($exam_id)
-	{
-		$exam = Exam::findOrFail($exam_id);
-		$publish_state = ExamState::whereRaw('name = ?',array('active'))->first();
-		$publish_state->exams()->save($exam);
-
-		return Response::success($exam);
-	}
-
-	public function putUnpublish($exam_id)
-	{
-		$exam = Exam::findOrFail($exam_id);
-		$draft_state = ExamState::whereRaw('name = ?',array('draft'))->first();
-		$draft_state->exams()->save($exam);
-
-		return Response::success($exam);
 	}
 
 	private function retrieveQuestions($exam,$isEditing)
