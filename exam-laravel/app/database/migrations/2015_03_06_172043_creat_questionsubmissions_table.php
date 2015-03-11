@@ -20,7 +20,7 @@ class CreatQuestionsubmissionsTable extends Migration {
 			$table->foreign('question_id')->references('id')->on('questions');
 			$table->integer('examsubmission_id')->unsigned();
 			$table->foreign('examsubmission_id')->references('id')->on('examsubmissions');
-			$table->integer('marks_obtained')->default(0);
+			$table->integer('marks_obtained')->nullable();
 			$table->integer('submissionstate_id')->unsigned()->default(1);
 			$table->foreign('submissionstate_id')->references('id')->on('submissionstates');
 			$table->text('comment')->nullable();

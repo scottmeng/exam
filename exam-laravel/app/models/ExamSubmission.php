@@ -22,19 +22,22 @@ class ExamSubmission extends Eloquent{
     }
 
     public function status(){
-        return $this->belongsTo('SubmissionState');
+        return $this->belongsTo('SubmissionState','submissionstate_id');
     }
 
     public function getQnSubmissions(){
         $questions = $this->questionsubmissions()->get();
-        foreach($questions as $question){
-            if($question->question()->first()->questiontype_id===MRQ){
-                $question = $question->getChoices(True);
-            }else if($question->question()->first()->questiontype_id===MCQ){
-                $question = $question->getChoices(False);
+        $total_marks = 0;
+        foreach($questions as $question_submission){
+            if($question_submission->question->questiontype_id===MRQ){
+                $question_submission = $question_submission->getChoices(True);
+            }else if($question_submission->question->questiontype_id===MCQ){
+                $question_submission = $question_submission->getChoices(False);
             }
+            $total_marks += $question_submission->marks_obtained;
         }
         $this->questions = $questions;
+        $this->total_marks = $total_marks;
         return $this;
     }
 

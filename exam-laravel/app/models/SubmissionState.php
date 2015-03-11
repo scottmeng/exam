@@ -6,10 +6,10 @@ class SubmissionState extends Eloquent{
     protected $table = 'submissionstates';
 
     public function questionsubmissions(){
-		return $this->hasMany('QuestionSubmission');
+		return $this->hasMany('QuestionSubmission','submissionstate_id');
     }
 
     public function examsubmissions(){
-		return $this->hasMany('ExamSubmission');
+		return $this->hasMany('ExamSubmission','submissionstate_id');
     }
 }

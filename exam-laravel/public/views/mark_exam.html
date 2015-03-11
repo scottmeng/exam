@@ -1,7 +1,7 @@
 <h3 data-ng-if="error">{{ error }}</h3>
 <div data-ng-if="!error">
 	<div class="well">
-		<label>{{ exam.title }} <small>({{ exam.description }})</small></label>
+		<label>{{ exam.title }} <small data-ng-bind-html="exam.description"></small></label>
 		<div class="row">
 			<div class="col-md-2">Submitted at: </div>
 			<div class="col-md-4">{{ submission.updated_at }}</div>
@@ -25,14 +25,14 @@
 				<div data-ng-if="isMCQ(question);" class="row">
 					<div class="col-md-6" style="margin-bottom: 10px" data-ng-repeat="option in question.options">
 						<label class="checkbox-inline">
-							<input type="radio" name="question.id" ng-checked="isChecked(option.id)" value="{{option.id}}" disabled>
+							<input type="radio" name="question.id" ng-checked="option.id===question.submission.choice" value="{{option.id}}" disabled>
 							{{ option.content }}
 						</label>
 					</div>
 				</div>
 				<div data-ng-if="isMRQ(question);" class="row">
 					<div class="col-md-6" style="margin-bottom: 10px" data-ng-repeat="option in question.options">
-							<input type="checkbox" ng-checked="isChecked(option.id)" checklist-value="option.id" checklist-model="curQnSubmission.choices" disabled>
+							<input type="checkbox" checklist-value="option.id" checklist-model="question.submission.choices" disabled>
 							{{ option.content }}
 						</label>
 					</div>
@@ -41,14 +41,14 @@
 					<textarea class="form-control" data-ng-model="question.submission.answer" rows="4" readonly></textarea>
 				</div>
 				<div data-ng-if="isCodingQuestion(question);">
-					<div id="editor" ui-ace=aceOptions data-ng-model="question.submission.answer" rows="4"></div>
-					<button class="btn btn-warning pull-right" style="margin-top: 10px;">Run for result</button>
+					<div id="editor" ui-ace data-ng-model="question.submission.answer" rows="4"></div>
+					<button class="btn btn-warning pull-right" style="margin-top: 10px;">Compile and Run</button>
 				</div>
 			</div>
 			<div class="col-md-6">
 				<div data-ng-if="isMRQ(question) || isMCQ(question)">
 					<label>Answers:</label>
-					<p>@Lingyi: add answers here</p>
+					<p>TODO: add answers here</p>
 				</div>
 
 				<label>Marking scheme:</label>
@@ -58,18 +58,23 @@
 						<div class="form-group">
 							<label class="col-md-3 control-label">Marks:</label>
 							<div class="col-md-9">
-								<input type="text" placeholder="{{ question.full_marks }}"/> / {{ question.full_marks }}
+								<input type="text" data-ng-model="question.submission.marks_obtained" placeholder="{{ question.full_marks }}"/> / {{ question.full_marks }}
 							</div>
 						</div>
 						<div class="form-group">
 							<label class="col-md-3 control-label">Comments:</label>
 							<div class="col-md-9">
-								<textarea class="form-control" rows="2"></textarea>
+								<textarea class="form-control" rows="2" data-ng-model="question.submission.comment"></textarea>
 							</div>
 						</div>
 					</form>
 				</div>
 			</div>
+		</div>
+	</div>
+	<div class="panel-footer">
+		<div class="row formgroup">
+			<button class="btn btn-success col-md-offset-5 col-md-2 text-right" style="padding:10px" ng-click="markQuestion($index)">OK</button>
 		</div>
 	</div>
 </div>

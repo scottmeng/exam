@@ -27,7 +27,8 @@
 
 		<div class="panel-body">
 			<div data-ng-bind-html="question.content" class="question-body"></div>
-			<div data-ng-if="isMCQ(question);" class="row">
+			<div data-ng-if="isCodingQuestion(question);" class="java hljs"><code>{{question.content}}</code></div>
+		 	<div data-ng-if="isMCQ(question);" class="row">
 				<div class="col-md-6" style="margin-bottom: 10px" data-ng-repeat="option in question.options">
 					<label class="checkbox-inline">
 						<input type="radio" name="question.id" ng-checked="isChecked(option.id)" value="{{option.id}}" data-ng-model="curQnSubmission.choice">

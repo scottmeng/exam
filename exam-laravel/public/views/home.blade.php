@@ -24,6 +24,7 @@
     <script src="{{ URL::to('js/ace/ext-language_tools.js') }}"></script>
     <link rel="stylesheet" href="{{ URL::to('styles/style.css') }}">
     <link rel='stylesheet' href="{{ URL::to('styles/textAngular.css') }}">
+    <link rel='stylesheet' href="{{ URL::to('styles/hljs-default.css') }}">
 
     <script src="{{ URL::to('js/textAngular/textAngular-rangy.min.js') }}"></script>
     <script src="{{ URL::to('js/textAngular/textAngular-sanitize.min.js') }}"></script>
@@ -34,6 +35,8 @@
     <script src="{{ URL::to('js/moment.min.js') }}"></script>
     <script src="{{ URL::to('js/humanize-duration.js') }}"></script>
     <script src="{{ URL::to('js/checklist-model.js') }}"></script>
+    <script src="{{ URL::to('js/highlight.pack.js') }}"></script>
+    <script src="{{ URL::to('js/angular-highlightjs.min.js') }}"></script>
 </head>
 <body>
 

@@ -3,7 +3,7 @@
 var examApp = angular
 	.module('examApp', ['ngRoute', 'checklist-model','ui.bootstrap.modal','ui.bootstrap.tabs',
 		'ui.ace','textAngular','ui.bootstrap.buttons','ui.bootstrap.collapse',
-		'mgcrea.ngStrap.datepicker','mgcrea.ngStrap.timepicker', 'timer'])
+		'mgcrea.ngStrap.datepicker','mgcrea.ngStrap.timepicker', 'timer','hljs'])
 	.constant('QN_TYPES', {
 		'QN_MCQ'	: 1,
 		'QN_MRQ'	: 2,
@@ -74,6 +74,9 @@ examApp.controller('previewExamController', ['$scope', '$http', '$routeParams', 
 	'QN_TYPES', 'EXAM_STATUS', function($scope, $http, $routeParams, $location, QN_TYPES, EXAM_STATUS){
 	
 	$scope.examId = $routeParams.examId;
+	$scope.highlightCode = function(){
+		hljs.initHighlightingOnLoad();
+	};
 
 	$scope.getExamInfo = function() {
 		console.log($scope.examId);
@@ -531,24 +534,26 @@ examApp.controller('markExamController', ['$scope', '$routeParams', '$http', 'QN
 		};
 		
 		$scope.markQuestion = function(index) {
-			// todo: post current question submission to server
 
+			$http.put('/api/submission/' + $scope.submissionId + '/qnmarking', 
+				$scope.exam.questions[index].submission).success(function(data){});
 			// update total mark calculation
-			updateTotalMarks();
+			$scope.updateTotalMarks();
 		};
 
 		$scope.getExamInfo = function() {
 			$http.get('/api/exam/' + $scope.examId + '/examinfo')
 			.success(function(data){
 				if (data.code === 200) {
-					console.log(data.data);
+					// console.log(data.data);
 					$scope.exam = data.data;
-					$scope.mergeSubmissionToExam();
-					console.log($scope.exam);
-					
+
 					if ($scope.exam.status === EXAM_STATUS.UNAVAILABLE) {
 						$scope.error = 'You are not allowed to view this page';
 					}
+					else{
+						$scope.getSubmission();
+					}	
 				}
 			});
 		};
@@ -556,17 +561,13 @@ examApp.controller('markExamController', ['$scope', '$routeParams', '$http', 'QN
 		$scope.getSubmission = function() {
 			// todo
 			// get exam submission data from server
-			$http.get('/api/submission/' + $scope.submissionId)
+			$http.get('/api/submission/' + $scope.submissionId + '/examsubmission')
 			.success(function(data){
 				if (data.code === 200) {
-					console.log(data.data);
 					$scope.submission = data.data;
+					$scope.mergeSubmissionToExam();
+					console.log($scope.exam);
 				}
-
-				// todo 
-				// remove this
-				$scope.submission = {};
-				$scope.mergeSubmissionToExam();
 			});
 		};
 
@@ -602,8 +603,10 @@ examApp.controller('markExamController', ['$scope', '$routeParams', '$http', 'QN
 
 			$scope.submission['total_marks'] = 0;
 			for (var i in $scope.submission.questions) {
-				$scope.submission['total_marks'] += 
+				if($scope.submission.questions[i]['marks_obtained']){
+					$scope.submission['total_marks'] += 
 					$scope.submission.questions[i]['marks_obtained'];
+				}
 			}
 		};
 

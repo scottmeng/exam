@@ -18,7 +18,7 @@ class QuestionSubmission extends Eloquent{
     }
 
     public function status(){
-        return $this->belongsTo('SubmissionState');
+        return $this->belongsTo('SubmissionState','submissionstate_id');
     }
 
     public function getChoices($isMRQ){
