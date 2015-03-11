@@ -30,6 +30,10 @@ examApp.config(['$routeProvider', '$locationProvider',
 				templateUrl: 'views/dashboard.html',
 				controller: 'dashboardController'
 			})
+			.when('/exam/:examId/view_paper', {
+				templateUrl: 'views/view_graded_paper.html',
+				controller: 'viewPaperController'
+			})
 			.when('/exam/:examId/edit', {
 				templateUrl: 'views/create_exam.html',
 				controller: 'newExamController'
@@ -70,13 +74,81 @@ examApp.service('sessionService', function() {
 	};
 });
 
+examApp.controller('viewPaperController', ['$scope', '$routeParams', '$http', 'QN_TYPES', 
+	function($scope, $routeParams, $http, QN_TYPES) {
+		$scope.examId = $routeParams.examId;
+
+		$scope.getExamInfo = function() {
+			$http.get('/api/exam/' + $scope.examId + '/examinfo')
+				.success(function(data){
+					if (data.code === 200) {
+						console.log(data.data);
+						$scope.exam = data.data;
+						$scope.getSubmissionInfo();
+					} else {
+						$scope.error = data.data;
+					}
+			});
+		};
+
+		$scope.getSubmissionInfo = function(){
+			console.log('get submission info');
+			$http.get('/api/exam/' + $scope.examId + '/submission')
+				.success(function(data) {
+					if (data.code === 200) {
+						$scope.submission = data.data;
+						$scope.mergeSubmissionToExam();
+					}
+				});
+		};
+
+		$scope.getQuestionSubmission = function(questionId) {
+			for (var i in $scope.submission.questions) {
+				if ($scope.submission.questions[i].question_id === questionId) {
+					return $scope.submission.questions[i];
+				}
+			}
+
+			return null;
+		};
+
+		$scope.isMCQ = function(question) {
+			return question.questiontype_id === QN_TYPES.QN_MCQ;
+		};
+		$scope.isMRQ = function(question){
+			return question.questiontype_id === QN_TYPES.QN_MRQ;
+		}
+
+		$scope.isCodingQuestion = function(question) {
+			return question.questiontype_id === QN_TYPES.QN_CODING;
+		};
+
+		$scope.isShortQuestion = function(question) {
+			return question.questiontype_id === QN_TYPES.QN_SHORT;
+		};
+
+		$scope.mergeSubmissionToExam = function() {
+			if (!$scope.submission) {
+				return;
+			}
+			if (!$scope.exam) {
+				return;
+			}
+
+			for (var i in $scope.exam.questions) {
+				$scope.exam.questions[i].submission = 
+					$scope.getQuestionSubmission($scope.exam.questions[i].id);
+				$scope.exam.questions[i].answers = [];
+			}
+		};
+
+		$scope.getExamInfo();
+}]);
+
 examApp.controller('previewExamController', ['$scope', '$http', '$routeParams', '$location',
 	'QN_TYPES', 'EXAM_STATUS', function($scope, $http, $routeParams, $location, QN_TYPES, EXAM_STATUS){
 	
 	$scope.examId = $routeParams.examId;
-	$scope.highlightCode = function(){
-		hljs.initHighlightingOnLoad();
-	};
 
 	$scope.getExamInfo = function() {
 		console.log($scope.examId);
@@ -90,6 +162,25 @@ examApp.controller('previewExamController', ['$scope', '$http', '$routeParams', 
 				}
 		});
 	};
+
+	$scope.generatePDF = function(){
+		var doc = new jsPDF();
+        var source = $('#view-exam').first();
+		var specialElementHandlers = {
+			'#editor': function(element, renderer){
+				return true;
+			}
+		};
+
+		// All units are in the set measurement for the document
+		// This can be changed to "pt" (points), "mm" (Default), "cm", "in"
+		doc.fromHTML($('#view-exam').get(0), 15, 15, {
+			'width': 170, 
+			'elementHandlers': specialElementHandlers
+		});
+
+        doc.output('/pdf');
+	}
 
 	$scope.isMCQ = function(question) {
 		return question.questiontype_id === QN_TYPES.QN_MCQ;
@@ -539,6 +630,7 @@ examApp.controller('markExamController', ['$scope', '$routeParams', '$http', 'QN
 				$scope.exam.questions[index].submission).success(function(data){});
 			// update total mark calculation
 			$scope.updateTotalMarks();
+			console.log($scope.exam.questions[index].answers);
 		};
 
 		$scope.getExamInfo = function() {
@@ -582,6 +674,7 @@ examApp.controller('markExamController', ['$scope', '$routeParams', '$http', 'QN
 			for (var i in $scope.exam.questions) {
 				$scope.exam.questions[i].submission = 
 					$scope.getQuestionSubmission($scope.exam.questions[i].id);
+				$scope.exam.questions[i].answers = [];
 			}
 		};
 
@@ -609,6 +702,39 @@ examApp.controller('markExamController', ['$scope', '$routeParams', '$http', 'QN
 				}
 			}
 		};
+
+		$scope.isCorrectMCQ = function(submission,option){
+			if(option.correctOption == 1){
+				return 'green';
+			}else if(submission.choice == option.id){
+				if(option.correctOption != 1){
+					return 'red';
+				}
+			}
+			return 'black';		
+		}
+
+		$scope.isCorrectMRQ = function(submission, option){
+			if(option.correctOption === 1){
+				for (var i in submission.choices){
+					//if choosen
+					if (submission.choices[i] === option.id){
+						return 'green';
+					}
+				}
+				return 'orange';
+			}
+			//wrong option
+			else{
+					for (var i in submission.choices){
+						//if choosen
+						if (submission.choices[i] === option.id){
+							return 'red';
+						}
+				}
+			}
+			return 'black';	
+		}
 
 		$scope.getExamInfo();
 }]);

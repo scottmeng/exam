@@ -1,3 +1,20 @@
+.correct-option{
+  color:green;
+  font-weight: bold;
+}
+
+.wrong-option{
+  color:red;
+}
+
+.normal-option{
+  color:black;
+}
+
+.missed-option{
+  color:orange;
+}
+
 .ace_editor  {
   height : 300px;
 }

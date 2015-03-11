@@ -37,6 +37,11 @@
     <script src="{{ URL::to('js/checklist-model.js') }}"></script>
     <script src="{{ URL::to('js/highlight.pack.js') }}"></script>
     <script src="{{ URL::to('js/angular-highlightjs.min.js') }}"></script>
+    <script src="{{ URL::to('js/FileSaver.min.js') }}"></script>
+    <script src="{{ URL::to('js/BlobBuilder.min.js') }}"></script>
+    <script src-"{{ URL::to('js/jspdf.plugin.from_html.js') }}"></script>
+    <script src-"{{ URL::to('js/jspdf.plugin.standard_fonts_metrics.js') }}"></script> 
+    <script src-"{{ URL::to('js/jspdf.plugin.split_text_to_size.js') }}"></script>
 </head>
 <body>
 
