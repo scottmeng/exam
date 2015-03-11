@@ -1,7 +1,7 @@
 // app.js
 
 var examApp = angular
-	.module('examApp', ['ngRoute', 'checklist-model','ui.bootstrap.modal','ui.bootstrap.tabs',
+	.module('examApp', ['ngRoute', 'angularMoment', 'checklist-model','ui.bootstrap.modal','ui.bootstrap.tabs',
 		'ui.ace','textAngular','ui.bootstrap.buttons','ui.bootstrap.collapse',
 		'mgcrea.ngStrap.datepicker','mgcrea.ngStrap.timepicker', 'timer','hljs'])
 	.constant('QN_TYPES', {
@@ -739,8 +739,9 @@ examApp.controller('markExamController', ['$scope', '$routeParams', '$http', 'QN
 		$scope.getExamInfo();
 }]);
 
-examApp.controller('newExamController', ['$scope', '$location','$http', '$routeParams', 'QN_TYPES', 'EXAM_STATUS',
-	function($scope, $location, $http, $routeParams, QN_TYPES, EXAM_STATUS) {
+examApp.controller('newExamController', ['$scope', '$location','$http', '$routeParams', 
+	'QN_TYPES', 'EXAM_STATUS', 'moment',
+	function($scope, $location, $http, $routeParams, QN_TYPES, EXAM_STATUS, moment) {
 
 	$scope.examId = $routeParams.examId;
 	$scope.error = null;
@@ -759,7 +760,8 @@ examApp.controller('newExamController', ['$scope', '$location','$http', '$routeP
 
 	$scope.saveExam = function(){	
 		$scope.isExamInfoCollapsed = true;
-		$http.put('/api/exam/' + $scope.examId + '/editexam',$scope.exam)
+		console.log($scope.exam);
+		$http.put('/api/exam/' + $scope.examId + '/editexam', $scope.exam)
 			.success(function(data){
 				if (data.code === 200) {
 					for (var key in data.data) {
@@ -784,7 +786,14 @@ examApp.controller('newExamController', ['$scope', '$location','$http', '$routeP
 		$http.get('/api/exam/' + $scope.examId + '/examinfo')
 		.success(function(data){
 			if (data.code === 200) {
-				$scope.exam = data.data;				
+				$scope.exam = data.data;
+				console.log($scope.exam);
+
+				// add 8 hours since the server returns UTC time
+				var time = moment($scope.exam.starttime).toDate();
+				time.setHours(time.getHours() + 8);
+				$scope.exam.starttime = time;
+
 				if ($scope.exam.status === EXAM_STATUS.UNAVAILABLE) {
 					$scope.error = 'You are not allowed to view this page';
 				}else if ($scope.exam.status != EXAM_STATUS.DRAFT){
