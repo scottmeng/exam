@@ -26,6 +26,7 @@ class CreateExamsTable extends Migration {
 			$table->foreign('course_id')->references('id')->on('courses');
 			$table->foreign('examstate_id')->references('id')->on('examstates');
 			$table->boolean('randomizeQuestions')->default(0);
+			$table->text('general_feedback')->nullable();
 			$table->timestamps();
 		});
 	}

@@ -80,7 +80,6 @@ class ExamController extends BaseController {
 		return Response::success($exam);
 	}
 
-
 	public function getSubmission($exam_id){
 		$exam = Exam::findOrFail($exam_id);
 		$user = User::find(Session::get('userid'));
@@ -90,17 +89,15 @@ class ExamController extends BaseController {
 		$exam_submission = ExamSubmission::whereRaw('user_id = ? and exam_id = ?', array($user->id,$exam_id))->first();	
 		if(!$exam_submission){
 			//create exam submission
-			$exam_submission = new ExamSubmission(array(
-				'user_id' => $user->id
-			));
-			$exam->submissions()->save($exam_submission);
-			$exam_submission->questions = [];
+			$exam_submission = $this->newSubmission($exam,$user);
 		}else{
 			$exam_submission = $exam_submission->getQnSubmissions();
 		}
 			
 		return Response::success($exam_submission);
 	}
+
+	
 
 	public function postQuestion($exam_id)
 	{
@@ -180,21 +177,13 @@ class ExamController extends BaseController {
 		return $questions;
 	}
 
-	// private function populateOptions($question, $inputOptions)
-	// {
- //        foreach ($inputOptions as $option) {
-
- //        	Log::info($option);
-
-	// 		$newOption = new Option(array(
-	// 			'content' => $option['content'],
-	// 			'correctOption' => $option['correctOption']
-	// 		));
-
-	// 		$question->options()->save($newOption);
-	// 	}
-	// 	$options = $question->options()->get();
-	// 	return $options;
-	// }
+	private function newSubmission($exam,$user){
+		$exam_submission = new ExamSubmission(array(
+				'user_id' => $user->id
+			));
+		$exam->submissions()->save($exam_submission);
+		$exam_submission->questions = [];
+		return $exam_submission;
+	}
 
 }
