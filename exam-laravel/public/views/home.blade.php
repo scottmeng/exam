@@ -17,7 +17,6 @@
     <script src="//cdnjs.cloudflare.com/ajax/libs/angular-strap/2.1.2/angular-strap.tpl.min.js"></script>
 
     <!-- local js and css files -->
-    <script src="{{ URL::to('app.js') }}"></script>
     <script src="{{ URL::to('js/ui-bootstrap-0.12.1.js') }}"></script>
     <script src="{{ URL::to('js/ace/ace.js') }}" type="text/javascript" charset="utf-8"></script>
     <script src="{{ URL::to('js/ui-ace.js') }}"></script>
@@ -31,8 +30,9 @@
     <script src="{{ URL::to('js/textAngular/textAngular.min.js') }}"></script>
     <script src="{{ URL::to('js/timer.js') }}"></script>
     <script src="{{ URL::to('js/i18nService.js') }}"></script>
-    <script src="{{ URL::to('js/locales.min.js') }}"></script>
     <script src="{{ URL::to('js/moment.min.js') }}"></script>
+    <script src="{{ URL::to('js/locales.min.js') }}"></script>
+    <script src="{{ URL::to('js/angular-moment.js') }}"></script>
     <script src="{{ URL::to('js/humanize-duration.js') }}"></script>
     <script src="{{ URL::to('js/checklist-model.js') }}"></script>
     <script src="{{ URL::to('js/highlight.pack.js') }}"></script>
@@ -42,6 +42,8 @@
     <script src-"{{ URL::to('js/jspdf.plugin.from_html.js') }}"></script>
     <script src-"{{ URL::to('js/jspdf.plugin.standard_fonts_metrics.js') }}"></script> 
     <script src-"{{ URL::to('js/jspdf.plugin.split_text_to_size.js') }}"></script>
+
+    <script src="{{ URL::to('app.js') }}"></script>
 </head>
 <body>
 
