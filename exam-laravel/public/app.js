@@ -146,7 +146,8 @@ examApp.controller('viewPaperController', ['$scope', '$routeParams', '$http', 'Q
 }]);
 
 examApp.controller('previewExamController', ['$scope', '$http', '$routeParams', '$location',
-	'QN_TYPES', 'EXAM_STATUS', function($scope, $http, $routeParams, $location, QN_TYPES, EXAM_STATUS){
+	'QN_TYPES', 'EXAM_STATUS', 'moment',
+	function($scope, $http, $routeParams, $location, QN_TYPES, EXAM_STATUS, moment){
 	
 	$scope.examId = $routeParams.examId;
 
@@ -156,6 +157,12 @@ examApp.controller('previewExamController', ['$scope', '$http', '$routeParams', 
 			.success(function(data){
 				if (data.code === 200) {
 					$scope.exam = data.data;
+					// add 8 hours since the server returns UTC time
+					var time = moment.tz($scope.exam.starttime, 'Europe/London').toDate();
+					// time.setHours(time.getHours() + 8);
+					$scope.exam.starttime = time;
+					console.log($scope.exam.starttime);
+
 					$scope.publish = $scope.exam.status === EXAM_STATUS.DRAFT? 'Publish':'Unpublish';
 				} else {
 					$scope.error = data.data;
@@ -790,8 +797,7 @@ examApp.controller('newExamController', ['$scope', '$location','$http', '$routeP
 				console.log($scope.exam);
 
 				// add 8 hours since the server returns UTC time
-				var time = moment($scope.exam.starttime).toDate();
-				time.setHours(time.getHours() + 8);
+				var time = moment.tz($scope.exam.starttime, 'Europe/London').toDate();
 				$scope.exam.starttime = time;
 
 				if ($scope.exam.status === EXAM_STATUS.UNAVAILABLE) {

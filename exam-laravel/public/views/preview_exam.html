@@ -9,7 +9,7 @@
 		<label class="col-md-2 text-right">Total Marks:</label>
 		<p class="col-md-1 text-left">{{ exam.fullmarks }}</p>
 		<label class="col-md-2 text-right">Exam Time:</label>
-		<p class="col-md-3">{{ exam.starttime }}</p>
+		<p class="col-md-3">{{ exam.starttime | date:'yyyy-MM-dd HH:mm:ss':'+0800' }}</p>
 		<label class="col-md-1 text-left">Duration:</label>
 		<p class="col-md-2">{{ exam.duration }} minutes</p>
 	</div>
