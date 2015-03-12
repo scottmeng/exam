@@ -79,4 +79,23 @@ class Course extends Eloquent {
 		return false;
 	}
 
+	public function getExamsWithSubmissions($user){
+		$exams = $this->exams()->get();
+		foreach($exams as $key => $exam){
+			$status = $this->getExamStatus($exam);
+			if ($status == STATUS_UNAVAILABLE){
+				unset($exams[$key]);
+			}else if($status == STATUS_FINISHED || $status == STATUS_PUBLISHED){
+				if($this->isAdmin()){
+					$exam = $exam->getAllExamSubmissions();
+				}else{
+					$exam = $exam->getAllExamSubmissions($user->id);
+				}
+			}
+			$exam->status = $status; 
+		}
+		$this->user_role = Role::find($this->pivot->role_id)->name;
+		$this->exams = $exams;
+		return $this;
+	}
 }

@@ -42,7 +42,7 @@ examApp.config(['$routeProvider', '$locationProvider',
 				templateUrl: 'views/view_exam.html',
 				controller: 'viewExamController'
 			})
-			.when('/courses/:courseId', {
+			.when('/course/:courseId', {
 				templateUrl: 'views/view_course.html',
 				controller: 'viewCourseController'
 			})
@@ -326,12 +326,6 @@ examApp.controller('ModalInstanceCtrl', function ($scope, $modalInstance, $http,
 	};
 });
 
-examApp.controller('finishExamModalCtrl', function ($scope,$modelInstance){
-	$scope.close = function () {
-		$modalInstance.close('finish');
-	};	
-});
-
 examApp.controller('dashboardController', ['$scope', '$location', '$modal', '$http', 'EXAM_STATUS',
 	function($scope, $location, $modal, $http, EXAM_STATUS) {
 	
@@ -433,15 +427,73 @@ examApp.controller('viewCourseController', ['$scope', '$http', '$routeParams', '
 	function($scope, $http, $routeParams, EXAM_STATUS) {
 
 	$scope.courseId = $routeParams.courseId;
+	$scope.isDescriptionCollapsed = true;
+
+	$scope.saveAndToggle = function(){
+		$scope.isDescriptionCollapsed=!$scope.isDescriptionCollapsed;
+		$scope.saveDescription();
+	}
 
 	$scope.getCourseInfo = function() {
 		// get course information
+		$http.get('/api/course/' + $scope.courseId + '/course')
+			.success(function(data) {
+				if (data.code === 200) {
+					console.log(data.data);
+					$scope.course = data.data;
+					$scope.updateExamStartTime();
+					$scope.isAdmin = $scope.course.user_role === 'admin';
+				}else {
+					$scope.error = data.data;
+				}
+			});
 	};
+
+	$scope.saveDescription = function(){
+			// get course information
+		$http.put('/api/course/' + $scope.courseId + '/course',$scope.course)
+			.success(function(data) {
+		});
+	}
+
+	$scope.updateExamStartTime = function(){
+		for(var i in $scope.course.exams){
+			$scope.course.exams[i].starttime = moment.tz($scope.course.exams[i], 'GMT').toDate();
+		}
+		console.log($scope.course);
+	}
+
+	// $scope.getExamTime = function(starttime){
+	// 	var time = moment.tz(starttime, 'GMT').toDate();
+	// 	return time;
+	// }
+
+	$scope.getExamLabel = function(exam){
+		if(exam.status === EXAM_STATUS.FINISHED){
+			exam.statusText = "grading";
+			return "label-warning";
+		}else if (exam.status === EXAM_STATUS.PUBLISHED){
+			exam.statusText = "published!";
+			return "label-success";
+		}else if(exam.status === EXAM_STATUS.DRAFT){
+			exam.statusText = "draft";
+			return "label-info";
+		}else {
+			exam.statusText = "View";
+			return "label-primary";
+		}	
+	}
+
+	$scope.isExamFinished = function(exam){
+		return exam.status === EXAM_STATUS.FINISHED || exam.status === EXAM_STATUS.PUBLISHED;
+	}
+
+	$scope.getCourseInfo();
 }]);
 
 examApp.controller('viewExamController', ['$scope', '$http', '$routeParams', 
-	'QN_TYPES', 'EXAM_STATUS', 'moment','$timeout', '$route','$location', '$modal',
-	function($scope, $http, $routeParams, QN_TYPES, EXAM_STATUS,moment,$timeout,$route,$location,$modal) {
+	'QN_TYPES', 'EXAM_STATUS', 'moment','$timeout', '$route','$location',
+	function($scope, $http, $routeParams, QN_TYPES, EXAM_STATUS,moment,$timeout,$route,$location) {
 
 	$scope.curQnIndex = 0;
 	$scope.examId = $routeParams.examId;
@@ -474,17 +526,23 @@ examApp.controller('viewExamController', ['$scope', '$http', '$routeParams',
 		$http.get('/api/exam/' + $scope.examId + '/examinfo')
 			.success(function(data){
 				if (data.code === 200) {
+					console.log(data.data);
 					$scope.exam = data.data;
-					var canStartExam = moment().isAfter(moment.tz($scope.exam.starttime, 'GMT'));
+					$scope.endtime = moment.tz($scope.exam.starttime, 'GMT').add($scope.exam.duration,'minutes').toDate();
 					$scope.exam.starttime = moment.tz($scope.exam.starttime, 'GMT').toDate();
-					if(canStartExam){
-						$scope.startDisabled = false;
-						console.log('exam already started');
-						//$scope.startExam();
-						// $scope.startCountdown();
-					}else{
-						console.log('counting down for exam start');
-						$scope.startCountdown();
+
+					if (moment().isAfter($scope.exam.endTime)){
+						$scope.examAction="Exam Has Finished!"
+					}else {
+						$scope.examAction="Start Exam"
+						var canStartExam = moment().isAfter($scope.exam.starttime);
+						if(canStartExam){
+							$scope.startDisabled = false;
+							console.log('exam already started');
+						}else{
+							console.log('counting down for exam start');
+							$scope.startCountdown();
+						}
 					}
 
 				} else {
@@ -641,16 +699,26 @@ examApp.controller('viewExamController', ['$scope', '$http', '$routeParams',
 		if($scope.canAnswerQuestion){
 			$scope.submitCurrentQuestion();
 
-			var modalInstance = $modal.open({
-				templateUrl: 'finishExamModal.html',
-				controller: 'finishExamModalCtrl',
-				resolve: {}
-			});
-
-			modalInstance.result.then(function () {
-				$location.path('/home');
-			}, function () {
-			});
+			// swal({   
+			// 	title: "Are you sure?",   
+			// 	text: "You will not be able to recover this imaginary file!",   
+			// 	type: "warning",   
+			// 	showCancelButton: true,   
+			// 	confirmButtonColor: "#DD6B55",   
+			// 	confirmButtonText: "Yes, delete it!",   
+			// 	cancelButtonText: "No, cancel plx!", 
+			// 	allowOutsideClick: false,
+			// 	closeOnConfirm: false,   
+			// 	closeOnCancel: false }, 
+			// 	function(isConfirm){   
+			// 		if (isConfirm) {     
+			// 			swal("Deleted!", "Your imaginary file has been deleted.", "success");   
+			// 		} else {     
+			// 			swal("Cancelled", "Your imaginary file is safe :)", "error");   
+			// 		} 
+			// 	});
+			$location.path('/home');
+			
 			// console.log('time is up');
 		}else{
 			$route.reload();

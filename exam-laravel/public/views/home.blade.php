@@ -24,6 +24,7 @@
     <link rel="stylesheet" href="{{ URL::to('styles/style.css') }}">
     <link rel='stylesheet' href="{{ URL::to('styles/textAngular.css') }}">
     <link rel='stylesheet' href="{{ URL::to('styles/hljs-default.css') }}">
+    <link rel='stylesheet' href="{{ URL::to('styles/sweet-alert.css') }}">
 
     <script src="{{ URL::to('js/textAngular/textAngular-rangy.min.js') }}"></script>
     <script src="{{ URL::to('js/textAngular/textAngular-sanitize.min.js') }}"></script>
@@ -31,9 +32,9 @@
     <script src="{{ URL::to('js/timer.js') }}"></script>
     <script src="{{ URL::to('js/i18nService.js') }}"></script>
     <script src="{{ URL::to('js/moment.min.js') }}"></script>
-    <script src="{{ URL::to('js/locales.min.js') }}"></script>
+    <!--<script src="{{ URL::to('js/locales.min.js') }}"></script>-->
     <script src="{{ URL::to('js/angular-moment.js') }}"></script>
-    <script src="{{ URL::to('bower_components/moment-timezone/builds/moment-timezone-with-data.js') }}"></script>
+    <script src="{{ URL::to('js/moment-timezone-with-data.js') }}"></script>
 
     <script src="{{ URL::to('js/humanize-duration.js') }}"></script>
     <script src="{{ URL::to('js/checklist-model.js') }}"></script>
@@ -44,6 +45,8 @@
     <script src-"{{ URL::to('js/jspdf.plugin.from_html.js') }}"></script>
     <script src-"{{ URL::to('js/jspdf.plugin.standard_fonts_metrics.js') }}"></script> 
     <script src-"{{ URL::to('js/jspdf.plugin.split_text_to_size.js') }}"></script>
+    <script src-"{{ URL::to('js/sweet-alert.min.js') }}"></script> 
+    <script src-"{{ URL::to('js/SweetAlert.js') }}"></script> 
 
     <script src="{{ URL::to('app.js') }}"></script>
 </head>

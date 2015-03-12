@@ -25,13 +25,15 @@ class QuestionSubmission extends Eloquent{
         if($isMRQ == True){
             $choices = [];
             $selected_options = $this->choices()->get();
-            foreach($selected_options as $option){
-                array_push($choices, $option->option_id);
+                if($selected_options){
+                foreach($selected_options as $option){
+                    array_push($choices, $option->option_id);
+                }
             }
             $this->choices = $choices;
         }else{
             $selected_option = $this->choices()->first();
-            $this->choice = $selected_option->option_id;
+            $this->choice = $selected_option == null? null : $selected_option->option_id;
         }
         return $this;
     }

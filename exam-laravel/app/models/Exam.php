@@ -39,4 +39,25 @@ class Exam extends Eloquent{
         }
         return $this;
     }
+
+    public function getAllExamSubmissions(){
+        $submissions = $this->submissions()->get();
+        foreach($submissions as $exam_submission){
+            $exam_submission = $exam_submission->getQnSubmissions();
+        }
+        $this->submissions = $submissions;
+        return $this;
+    }
+
+    public function getExamSubmissions($grader_id){
+        $grader = User::findOrFail($grader_id);
+        $submissions = $this->submissions()->where('grader_id','=',$user->id)->get();
+        if($submissions){
+            foreach($submissions as $submission){
+                $submission = $submission->getQnSubmissions();
+            }
+            $this->submissions = $submissions;
+        }
+        return $this;
+    }
 }

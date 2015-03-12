@@ -1,0 +1,31 @@
+
+<h3 data-ng-if="error">{{ error }}</h3>
+<div data-ng-if="!error">
+	<div class="row tab-content">
+		<button data-ng-click="addExam();" class="btn btn-primary pull-right" ng-show="isAdmin">Create new exam</button>
+	</div>
+	<div style="padding-top: 20px">
+		<h3>{{ course.nus_id + " " + course.name }}</h3>
+		<div class="panel panel-primary" data-ng-model="course">
+			<div class="panel-heading" data-ng-click="saveAndToggle()">
+				<div class="row">
+					<div class="col-md-6">Course Description</div>
+	 				<span class="text-right col-md-6"><i class="fa fa-pencil fa-lg" style="color:white"></i></span>
+				</div>
+			</div>
+<!-- 			<div class="panel-body bg-info" data-ng-bind-html="course.description">
+			</div> -->
+			<div class=" row panel-body" collapse="isDescriptionCollapsed">
+				<div class="col-md-12" text-angular ta-toolbar="[['h1','h2','h3','quote'],['bold','italics','underline'],['ul','ol','html'],['justifyLeft','justifyCenter','justifyRight']]" ng-model="course.description"></div>
+			</div>
+			<div class="list-group">
+				<a class="list-group-item" data-ng-repeat="exam in course.exams" data-ng-click="redirectExam(exam)">
+				{{ exam.title }}
+					<span class="badge" ng-hide="isExamFinished(exam)">{{exam.starttime | date:'dd/MM/yyyy HH:mm' }}</span>
+					<span class="badge" am-time-ago="exam.starttime" ng-show="isExamFinished(exam)"></span>
+					<span class="label" ng-class="getExamLabel(exam)">{{exam.statusText}}</span>
+				</a>
+			</div>
+		</div>
+	</div>
+</div>
