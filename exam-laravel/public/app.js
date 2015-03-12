@@ -169,24 +169,38 @@ examApp.controller('previewExamController', ['$scope', '$http', '$routeParams', 
 		});
 	};
 
-	// $scope.generatePDF = function(){
-	// 	var doc = new jsPDF();
- //        var source = $('#view-exam').first();
-	// 	var specialElementHandlers = {
-	// 		'#editor': function(element, renderer){
-	// 			return true;
-	// 		}
-	// 	};
+	function createScript(callback) {
+            if (!document) {
+                return;
+            }
+            var scriptTag = document.createElement("script");
+            scriptTag.type = "text/javascript";
+            scriptTag.async = true;
+            scriptTag.src = 'http://mrrio.github.io/jsPDF/dist/jspdf.debug.js';
+            scriptTag.onload = callback;
+            var s = document.getElementsByTagName("head")[0];
+            s.appendChild(scriptTag);
+        }
 
-	// 	// All units are in the set measurement for the document
-	// 	// This can be changed to "pt" (points), "mm" (Default), "cm", "in"
-	// 	doc.fromHTML($('#view-exam').get(0), 15, 15, {
-	// 		'width': 170, 
-	// 		'elementHandlers': specialElementHandlers
-	// 	});
+	$scope.generatePDF = function(){
+		createScript(function() {
+			var doc = new jsPDF();
+			var source = document.getElementById('pdf-template');
+			var specialElementHandlers = {
+				'#editor': function(element, renderer) {
+					return true;
+				}
+			};
+			doc.fromHTML(source, 15, 15, {
+				'width': 160,
+				'elementHandlers': specialElementHandlers
+			});
+			doc.setFont("courier");
+			doc.setFontType("normal");
 
- //        doc.output('/pdf');
-	// }
+			doc.output('dataurlnewwindow');
+		});
+	}
 
 	$scope.isMCQ = function(question) {
 		return question.questiontype_id === QN_TYPES.QN_MCQ;
