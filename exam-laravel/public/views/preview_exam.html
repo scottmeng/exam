@@ -1,4 +1,26 @@
-<div id='view-exam'>
+<script type="text/javascript" src="http://mrrio.github.io/jsPDF/dist/jspdf.debug.js"></script>
+<script>
+	function generatePDF(){
+		var doc = new jsPDF();
+        var source = $('#preview-exam').first();
+		var specialElementHandlers = {
+			'#editor': function(element, renderer){
+				return true;
+			}
+		};
+
+		// All units are in the set measurement for the document
+		// This can be changed to "pt" (points), "mm" (Default), "cm", "in"
+		doc.fromHTML($('#view-exam').get(0), 15, 15, {
+			'width': 170, 
+			'elementHandlers': specialElementHandlers
+		});
+
+        doc.output('/pdf');
+    }
+</script>
+
+<div id='preview-exam'>
 <div class="row" style="margin:5px" >
 	<div class="col-md-6">
 		<h3>{{ exam.title }}</h3>
@@ -9,7 +31,7 @@
 		<label class="col-md-2 text-right">Total Marks:</label>
 		<p class="col-md-1 text-left">{{ exam.fullmarks }}</p>
 		<label class="col-md-2 text-right">Exam Time:</label>
-		<p class="col-md-3">{{ exam.starttime | date:'yyyy-MM-dd HH:mm:ss':'+0800' }}</p>
+		<p class="col-md-3">{{ exam.starttime | date:'yyyy-MM-dd HH:mm' }}</p>
 		<label class="col-md-1 text-left">Duration:</label>
 		<p class="col-md-2">{{ exam.duration }} minutes</p>
 	</div>
@@ -50,6 +72,6 @@
 <div class="pull-right">
 	<button class="btn btn-primary" data-ng-click="cancel()">Back</button>
 	<button class="btn btn-success" data-ng-click="publishUnpublish()">{{publish}}</button>
-	<button class="btn btn-warning" data-ng-click="generatePDF()">PDF</button>
+	<button class="btn btn-warning" click="generatePDF()">PDF</button>
 </div>
 </div>

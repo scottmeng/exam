@@ -28,17 +28,21 @@ class Course extends Eloquent {
 		}
 		else if($exam->examstate_id == ACTIVE)
 		{
-			$now = Carbon::now();
-			$starttime = new Carbon($exam->starttime);
+			$now = Carbon::now('Asia/Singapore');
+			$starttime = new Carbon($exam->starttime,'GMT');
+			$endtime = (new Carbon($exam->starttime,'GMT'))->addMinutes($exam->duration);
+			$visibletime = (new Carbon($exam->starttime,'GMT'))->subMinutes(15);
 
-			if($now->lt($starttime->subMinutes(15))){
+			if($now->lt($visibletime)){
 				if($this->pivot->role_id != STUDENT){
 					$status = STATUS_NOT_STARTED;
 				}
 			}
-			else if($now->gt($starttime->addMinutes($exam->duration))){	
+			else if($now->gt($endtime)){	
 				if($this->pivot->role_id != STUDENT){
 					$status = STATUS_FINISHED;
+				}else{
+					$status = STATUS_UNAVAILABLE;
 				}
 			}	
 			else{

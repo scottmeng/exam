@@ -45,7 +45,7 @@ class ExamController extends BaseController {
 		//error when not accessable
 		$user = User::find(Session::get('userid'));
 		if(!$user){
-			return Response::error(401,'unauthorized');
+			return Response::error(401,'Please Login First!');
 		}
 		$exam = Exam::find($exam_id);
 
@@ -56,7 +56,7 @@ class ExamController extends BaseController {
 
 		// stop user from receiving any information about this exam
 		if ($status == 'unavailable') {
-			return Response::error(401, 'unauthorized');
+			return Response::error(401, 'You are unauthorized to view this page!');
 		}
 
 		if($course->pivot->role_id != ADMIN && $course->pivot->role_id != FACILITATOR && $status == 'in_exam'){

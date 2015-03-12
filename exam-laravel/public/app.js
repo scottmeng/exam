@@ -157,9 +157,8 @@ examApp.controller('previewExamController', ['$scope', '$http', '$routeParams', 
 			.success(function(data){
 				if (data.code === 200) {
 					$scope.exam = data.data;
-					// add 8 hours since the server returns UTC time
-					var time = moment.tz($scope.exam.starttime, 'Europe/London').toDate();
-					// time.setHours(time.getHours() + 8);
+					// server saves standard GMT time
+					var time = moment.tz($scope.exam.starttime, 'GMT').toDate();
 					$scope.exam.starttime = time;
 					console.log($scope.exam.starttime);
 
@@ -170,24 +169,24 @@ examApp.controller('previewExamController', ['$scope', '$http', '$routeParams', 
 		});
 	};
 
-	$scope.generatePDF = function(){
-		var doc = new jsPDF();
-        var source = $('#view-exam').first();
-		var specialElementHandlers = {
-			'#editor': function(element, renderer){
-				return true;
-			}
-		};
+	// $scope.generatePDF = function(){
+	// 	var doc = new jsPDF();
+ //        var source = $('#view-exam').first();
+	// 	var specialElementHandlers = {
+	// 		'#editor': function(element, renderer){
+	// 			return true;
+	// 		}
+	// 	};
 
-		// All units are in the set measurement for the document
-		// This can be changed to "pt" (points), "mm" (Default), "cm", "in"
-		doc.fromHTML($('#view-exam').get(0), 15, 15, {
-			'width': 170, 
-			'elementHandlers': specialElementHandlers
-		});
+	// 	// All units are in the set measurement for the document
+	// 	// This can be changed to "pt" (points), "mm" (Default), "cm", "in"
+	// 	doc.fromHTML($('#view-exam').get(0), 15, 15, {
+	// 		'width': 170, 
+	// 		'elementHandlers': specialElementHandlers
+	// 	});
 
-        doc.output('/pdf');
-	}
+ //        doc.output('/pdf');
+	// }
 
 	$scope.isMCQ = function(question) {
 		return question.questiontype_id === QN_TYPES.QN_MCQ;
@@ -327,6 +326,12 @@ examApp.controller('ModalInstanceCtrl', function ($scope, $modalInstance, $http,
 	};
 });
 
+examApp.controller('finishExamModalCtrl', function ($scope,$modelInstance){
+	$scope.close = function () {
+		$modalInstance.close('finish');
+	};	
+});
+
 examApp.controller('dashboardController', ['$scope', '$location', '$modal', '$http', 'EXAM_STATUS',
 	function($scope, $location, $modal, $http, EXAM_STATUS) {
 	
@@ -345,7 +350,6 @@ examApp.controller('dashboardController', ['$scope', '$location', '$modal', '$ht
 		$http.get('/api/get-admin-courses')
 		.success(function(data,status,header,config){
 			if(data.code === 200){
-				console.log(data.data);
 				if(data.data.length==0){
 					$scope.adminCourse = [];
 					$scope.isAdmin = false;
@@ -360,6 +364,7 @@ examApp.controller('dashboardController', ['$scope', '$location', '$modal', '$ht
 		$http.get('/api/get-courses')
 			.success(function(data, status, header, config) {
 				if (data.code === 200) {
+					console.log(data.data);
 					$scope.courses = data.data;
 				}
 				else if (data.code === 401){
@@ -385,18 +390,23 @@ examApp.controller('dashboardController', ['$scope', '$location', '$modal', '$ht
 
 	$scope.getExamLabel = function(exam){
 		if(exam.status === EXAM_STATUS.DRAFT){
-			$scope.examActionText = "Edit";
-			return "label-primary";
+			exam.examActionText = "Edit";
+			return "label-warning";
 		}else if (exam.status === EXAM_STATUS.NOT_STARTED){
-			$scope.examActionText = "View";
+			exam.examActionText = "View";
 			return "label-success";
 		}else if (exam.status === EXAM_STATUS.IN_EXAM){
-			$scope.examActionText = "Start";
-			return "label-warning";
+			exam.examActionText = "Start";
+			return "label-danger";
 		}else{
-			$scope.examActionText = "View";
+			exam.examActionText = "View";
 			return "label-info";
 		}	
+	}
+
+	$scope.getExamTime = function(starttime){
+		var time = moment.tz(starttime, 'GMT').toDate();
+		return time;
 	}
 
 	$scope.addExam = function() {
@@ -430,13 +440,15 @@ examApp.controller('viewCourseController', ['$scope', '$http', '$routeParams', '
 }]);
 
 examApp.controller('viewExamController', ['$scope', '$http', '$routeParams', 
-	'QN_TYPES', 'EXAM_STATUS', '$timeout',
-	function($scope, $http, $routeParams, QN_TYPES, EXAM_STATUS, $timeout) {
+	'QN_TYPES', 'EXAM_STATUS', 'moment','$timeout', '$route','$location', '$modal',
+	function($scope, $http, $routeParams, QN_TYPES, EXAM_STATUS,moment,$timeout,$route,$location,$modal) {
 
 	$scope.curQnIndex = 0;
 	$scope.examId = $routeParams.examId;
 	$scope.error = null;
 	$scope.showTimer=true;
+	$scope.startDisabled = true;
+
 	$scope.langs=['C/C++','Java']
 	// code editor setting
     $scope.aceOptions = {
@@ -462,14 +474,52 @@ examApp.controller('viewExamController', ['$scope', '$http', '$routeParams',
 		$http.get('/api/exam/' + $scope.examId + '/examinfo')
 			.success(function(data){
 				if (data.code === 200) {
-					console.log(data.data);
 					$scope.exam = data.data;
-					$scope.startExamSubmission();
+					var canStartExam = moment().isAfter(moment.tz($scope.exam.starttime, 'GMT'));
+					$scope.exam.starttime = moment.tz($scope.exam.starttime, 'GMT').toDate();
+					if(canStartExam){
+						$scope.startDisabled = false;
+						console.log('exam already started');
+						//$scope.startExam();
+						// $scope.startCountdown();
+					}else{
+						console.log('counting down for exam start');
+						$scope.startCountdown();
+					}
+
 				} else {
 					$scope.error = data.data;
 				}
 		});
 	};
+
+	$scope.startExam = function(){
+
+		// start timer 
+		// todo calculate based on server returned current time
+		$scope.startExamSubmission();
+		$scope.timerEndTime = parseInt(moment.tz($scope.exam.starttime, 'GMT').add($scope.exam.duration,'minutes').format('x'),10);
+		
+		//start countdown timer
+		$timeout(function(){
+	        $scope.$broadcast('timer-start');
+	    },0);	   
+	   	console.log($scope.timerEndTime);
+	    // $scope.timerRunning = true;
+	   	$scope.canAnswerQuestion = true;
+     };
+
+    $scope.startCountdown = function(){
+	    $scope.timerRunning = false;
+		$scope.timerEndTime = parseInt(moment.tz($scope.exam.starttime, 'GMT').format('x'),10);
+		//start countdown timer
+	    $timeout(function(){
+	        $scope.$broadcast('timer-start');
+	    },0);	
+	    console.log($scope.timerEndTime);
+
+	    $scope.timerRunning = true;
+    };
 
 	$scope.startExamSubmission = function() {
 		// retrieve last exam submission
@@ -480,19 +530,13 @@ examApp.controller('viewExamController', ['$scope', '$http', '$routeParams',
 					console.log(data.data);
 					$scope.submission = data.data;
 					$scope.goToQuestion(0);
-
-					// start timer 
-					// todo calculate based on server returned current time
-					$scope.$broadcast('timer-add-cd-seconds', 60 * $scope.exam.duration - 1);
-			     	$timeout(function(){
-				     	$scope.$broadcast('timer-start');
-				  	},0);
+				}else {
+					$scope.error = data.data;
 				}
 			});
 	};
 
 	$scope.submitCurrentQuestion = function(){
-		console.log($scope.curQnSubmission);
 
 		if (!$scope.curQnSubmission) {
 			return;
@@ -502,7 +546,7 @@ examApp.controller('viewExamController', ['$scope', '$http', '$routeParams',
 			$http.put('/api/submission/' + $scope.submission.id + '/questionsubmission', $scope.curQnSubmission)
 			.success(function(data){
 				if (data.code === 200){
-					console.log(data.data)
+					console.log(data.data);
 					$scope.updateQuestionSubmission(data.data);
 				}
 			});
@@ -516,13 +560,6 @@ examApp.controller('viewExamController', ['$scope', '$http', '$routeParams',
 			});
 		}
 	}
-
-	$scope.canAnswerQuestion = function() {
-		// todo 
-		// depends on user relation with course
-		// only 'student' accessing an 'active' exam can answer question
-		return true;
-	};
 
 	$scope.getCountDown = function() {
 		if ($scope.exam) {
@@ -596,15 +633,29 @@ examApp.controller('viewExamController', ['$scope', '$http', '$routeParams',
 
 	$scope.timer = {};
 	$scope.timer.status = 1;
-	$scope.timer.onTimeUp = function() {
-		console.log('test');
-	};
+	// $scope.timer.onTimeUp = function() {
+	// 	console.log('test');
+	// };
 	$scope.onTimeUp = function() {
-		// todo
-		// prompt user
-		// submit question
-		// disable input and etc.
-		console.log('time is up');
+
+		if($scope.canAnswerQuestion){
+			$scope.submitCurrentQuestion();
+
+			var modalInstance = $modal.open({
+				templateUrl: 'finishExamModal.html',
+				controller: 'finishExamModalCtrl',
+				resolve: {}
+			});
+
+			modalInstance.result.then(function () {
+				$location.path('/home');
+			}, function () {
+			});
+			// console.log('time is up');
+		}else{
+			$route.reload();
+		}
+
 	};
 
 	$scope.getExamInfo();
@@ -796,8 +847,7 @@ examApp.controller('newExamController', ['$scope', '$location','$http', '$routeP
 				$scope.exam = data.data;
 				console.log($scope.exam);
 
-				// add 8 hours since the server returns UTC time
-				var time = moment.tz($scope.exam.starttime, 'Europe/London').toDate();
+				var time = moment.tz($scope.exam.starttime, 'GMT').toDate();
 				$scope.exam.starttime = time;
 
 				if ($scope.exam.status === EXAM_STATUS.UNAVAILABLE) {
@@ -810,9 +860,9 @@ examApp.controller('newExamController', ['$scope', '$location','$http', '$routeP
 	};
 
 	$scope.isExamInfoCollapsed = false;
-	$scope.ExamName="CS1010 Mid-Term Exam";
+	// $scope.ExamName="CS1010 Mid-Term Exam";
 
-	$scope.defaultDate = "2015-02-05T08:00:01.534Z"; // (formatted: 2/5/15 4:00 PM)
+	// $scope.defaultDate = "2015-02-05T08:00:01.534Z"; // (formatted: 2/5/15 4:00 PM)
 	$scope.isMarkingSchemeCollapsed = true;
 	$scope.hasMarkingScheme = false;
 

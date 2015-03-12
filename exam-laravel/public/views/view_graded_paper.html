@@ -7,15 +7,15 @@
 </div>
 <div class="panel-body">
 	<div class="row">
-		<label class="col-md-2 text-right">Total Marks:</label>
-		<p class="col-md-1 text-left">{{ exam.fullmarks }}</p>
+		<label class="col-md-2 text-right">Marks Obtained:</label>
+		<p class="col-md-1 text-left">{{submission.total_marks}} / {{ exam.fullmarks }}</p>
 		<label class="col-md-2 text-right">Exam Time:</label>
 		<p class="col-md-3">{{ exam.starttime }}</p>
 		<label class="col-md-1 text-left">Duration:</label>
 		<p class="col-md-2">{{ exam.duration }} minutes</p>
 	</div>
-	<div class="row well">
-		<div data-ng-bind-html="exam.description"></div>
+	<div class="row well" data-ng-if="exam.general_feedback!=null">
+		<div data-ng-bind-html="exam.general_feedback"></div>
 	</div>
 </div>
 
@@ -23,14 +23,14 @@
 
 		<div class="panel-heading">
 			<div class="row">
-				<div class="col-md-8">Question {{ $index + 1 }}: {{question.title}} ({{ question.full_marks}} marks)</div>
+				<div class="col-md-8">Question {{ $index + 1 }}: {{question.title}} ({{question.submission.marks_obtained}}/{{ question.full_marks}} marks)</div>
 			</div>
 		</div>
 
 		<div class="panel-body">
 			<div data-ng-bind-html="question.content" class="question-body"></div>
-			<div>
-				<label>Student's answer:</label>
+			<div name="student-answer" style="margin:10px">
+				<label>Your answer:</label>
 				<div data-ng-if="isMCQ(question);" class="row">
 					<div class="col-md-6" data-ng-repeat="option in question.options">
 						<label class="checkbox-inline" style="color:{{isCorrectMCQ(question.submission,option)}}">
@@ -52,14 +52,27 @@
 				</div>
 				<div data-ng-if="isCodingQuestion(question);">
 					<div id="editor" ui-ace data-ng-model="question.submission.answer" rows="4"></div>
-					<button class="btn btn-warning pull-right" style="margin-top: 10px;">Compile and Run</button>
 				</div>
-			</div>		
+			</div>	
+		</div>
+		<div class="panel-footer">
+			<div name="suggested-answer" style="margin:10px">
+				<label>Suggested Answer:</label>
+				<div ng-repeat="option in question.options" ng-show="option.correctOption == 1">{{option.content}}</div>
+			</div>
+			<div name="comment" style="margin:10px">
+				<label>Comment:</label>
+				{{question.submission.comment}}
+			</div>
+			<div name="general-feedback" style="margin:10px">
+				<label>General Feedback:</label>
+
+			</div>	
 		</div>
 
 </div>
 <div class="pull-right">
 	<button class="btn btn-primary" data-ng-click="cancel()">Back</button>
-	<button class="btn btn-success" data-ng-click="publishUnpublish()">{{publish}}</button>
+	<button class="btn btn-warning" data-ng-click="generatePDF()">PDF</button>
 </div>
 </div>
