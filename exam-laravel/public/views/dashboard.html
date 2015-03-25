@@ -30,6 +30,19 @@
     </div>
 </script>
 
+<script type="text/ng-template" id="deleteModal.html">
+    <div class="modal-header">
+        <h3 class="modal-title" data-ng-model="exam">{{'Deleting ' + exam.title}}</h3>
+    </div>
+    <div class="modal-body">
+    	Do you want to delete all linked questions as well?
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-info" ng-click="cancel()">Cancel</button>
+        <button class="btn btn-danger" ng-click="deleteExamWithQuestions()">Delete Exam And Questions</button>
+        <button class="btn btn-primary" ng-click="deleteExam()">Delete Exam Only</button>
+    </div>
+</script>
 
 <button data-ng-click="addExam();" class="btn btn-primary pull-right" ng-show="isAdmin">Create new exam</button>
 <ul class="nav nav-tabs">
@@ -38,17 +51,23 @@
 </ul>	
 <div class="tab-content" style="padding-top: 20px">
 	<div class="tab-pane" data-ng-class="{active:isTabSelected(1)}">
-		<div class="panel panel-primary" data-ng-repeat="course in courses">
-			<div class="panel-heading">{{ course.nus_id + " " + course.name }}
-			</div>
-			<div class="panel-body bg-info" data-ng-bind-html="course.description">
-			</div>
+		<div class="panel panel-default" data-ng-repeat="course in courses">
+			<div class="panel-heading"><a data-ng-click="viewCourse(course.id)">{{ course.nus_id + " " + course.name }}</a></div>
+			<div class="panel-body" data-ng-bind-html="course.description"></div>
 			<div class="list-group">
-				<a class="list-group-item" data-ng-repeat="exam in course.exams" data-ng-click="redirectExam(exam)">
-				{{ exam.title }}
-					<span class="badge">{{ getExamTime(exam.starttime) | date:'dd/MM/yyyy HH:mm' }}</span>
-					<span class="label" ng-class="getExamLabel(exam)">{{exam.examActionText}}</span>
-				</a>
+				<div class="list-group-item" data-ng-repeat="exam in course.exams">
+					<div class="row">
+						<div class="col-md-6">
+							<h5>{{ exam.title }} <span class="label" ng-class="getExamLabel(exam)">{{exam.status}}</span>
+							</h5>
+						</div>
+						<div class=" col-md-3 col-md-offset-3">
+							<button data-ng-click="removeExam(exam);" class="btn btn-danger pull-right" ng-show="course.user_role=='admin'&&exam.status=='draft'"><small><i class="fa fa-trash-o"></i></small></button>
+							<button data-ng-click="editExam(exam.id);" class="btn btn-default pull-right" ng-show="course.user_role=='admin'&&exam.status=='draft'"><small><i class="fa fa-pencil"></i></small></button>
+							<button data-ng-click="previewExam(exam.id);" class="btn btn-default pull-right" ng-show="isAdmin"><small><i class="fa fa-eye"></i></small></button>
+						</div>
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>

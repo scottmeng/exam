@@ -1,3 +1,48 @@
+<script type="text/ng-template" id="myModalContent.html">
+    <div class="modal-header">
+        <h3 class="modal-title">Create new exam</h3>
+    </div>
+    <div class="modal-body">
+    	<form class="form-horizontal" role="form">
+    		<div class="form-group">
+    			<label for="title" class="col-md-2 col-md-offset-1 control-label">Course</label>
+    			<div class="col-md-8">
+					<select class="form-control" data-ng-model="exam.course_id" data-ng-options="course.id as course.nus_id for course in courses">
+					</select>
+				</div>
+    		</div>
+    		<div class="form-group">
+    			<label for="title" class="col-md-2 col-md-offset-1 control-label">Title</label>
+			    <div class="col-md-8">
+		      		<input type="text" class="form-control" id="title" placeholder="Exam title" data-ng-model="exam.title">
+			    </div>
+    		</div>	
+    	</form>
+    </div>
+	<div class="alert alert-danger" role="alert" data-ng-show="createError">
+		<span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+			<span class="sr-only">Error:</span>
+			{{ createError }}
+	</div>
+    <div class="modal-footer">
+        <button class="btn btn-primary" ng-click="ok()">OK</button>
+        <button class="btn btn-info" ng-click="cancel()">Cancel</button>
+    </div>
+</script>
+
+<script type="text/ng-template" id="deleteModal.html">
+    <div class="modal-header">
+        <h3 class="modal-title" data-ng-model="exam">{{'Deleting ' + exam.title}}</h3>
+    </div>
+    <div class="modal-body">
+    	Do you want to delete all linked questions as well?
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-info" ng-click="cancel()">Cancel</button>
+        <button class="btn btn-danger" ng-click="deleteExamWithQuestions()">Delete Exam And Questions</button>
+        <button class="btn btn-primary" ng-click="deleteExam()">Delete Exam Only</button>
+    </div>
+</script>
 
 <h3 data-ng-if="error">{{ error }}</h3>
 <div data-ng-if="!error">
@@ -18,12 +63,15 @@
 		        	Exams
 		      	</tab-heading>
 				<div class="well" style="margin:10px" data-ng-repeat="exam in course.exams">
-					<div data-ng-click="redirectExam(exam)">
+					<div>
 						<h4> {{exam.title}} 
-							<small><span class="label" ng-class="getExamLabel(exam)">{{exam.statusText}}</span>
-							<span class="badge pull-right" ng-hide="isExamFinished(exam)">{{exam.starttime | date:'dd/MM/yyyy HH:mm' }}</span>
-							<span class="badge pull-right" am-time-ago="exam.starttime" ng-show="isExamFinished(exam)"></span></small>
+							<small><span class="label" ng-class="getExamLabel(exam)">{{exam.statusText}}</span></small>
+								<button data-ng-click="removeExam(exam);" class="btn btn-danger pull-right" ng-show="course.user_role=='admin'&&exam.status=='draft'"><small><i class="fa fa-trash-o" style="color:white"></i></small></button>
+								<button data-ng-click="editExam(exam.id);" class="btn btn-default pull-right" ng-show="course.user_role=='admin'&&exam.status=='draft'"><small><i class="fa fa-pencil"></i></small></button>
+								<button data-ng-click="previewExam(exam.id);" class="btn btn-default pull-right" ng-show="isAdmin"><small><i class="fa fa-eye"></i></small></button>
 						</h4>
+						<small ng-show="isExamFinished(exam)"><i class="fa fa-clock-o" style="color:grey"></i><span am-time-ago="exam.starttime" style="font-weight:light;color:grey;margin-left:5px"></span></small>
+
 					</div>
 					<div data-ng-show="isExamFinished(exam)" collapse='exam.isGradingCollapse' style="margin-top:30px">
 						<div class="row" style="margin:10px" >

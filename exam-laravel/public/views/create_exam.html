@@ -1,41 +1,42 @@
 <h3 data-ng-if="error">{{ error }}</h3>
 <div data-ng-if="!error">
-	<div class="panel panel-default">
-		<div class="panel-heading" >
-			<h2 class="panel-title" data-ng-click="isExamInfoCollapsed=!isExamInfoCollapsed">Editing {{exam.title}}
-			<i class="fa fa-pencil-square-o fa-lg" style="color:green"></i></h2>
-		</div>
-		<div class="panel-body" collapse="isExamInfoCollapsed">
-				<div class="row form-group">
-					<label class="col-md-1 text-right" style="padding-right:0px">Title:</label>
-				    <div class="col-md-4">
-			      		<input type="text" class="form-control" data-ng-model="exam.title">
-				    </div>
-				    <label class="col-md-2 text-right" style="padding-right:0px">Full Marks:</label>
-				    <div class="col-md-4">
-			      		<input type="text" class="form-control" data-ng-model="exam.fullmarks">
-				    </div>
-				</div>
 
-				<div class="row form-group">
-					<label class="col-md-1 text-right" style="padding-right:0px">Time:</label>
-				    <div class="form-group col-md-2">
-				      <input type="text" size="6" class="form-control" data-ng-model="exam.starttime" data-autoclose="1" placeholder="Date" bs-datepicker data-date-format="dd/MM/yyyy" >
-				    </div>
-				    <div class="form-group col-md-2">
-				      <input type="text" size="6" class="form-control" data-ng-model="exam.starttime" data-autoclose="1" placeholder="Time" bs-timepicker>
-				    </div>
-					<label class="col-md-2 text-right" style="padding-right:0px" >Duration(mins):</label>
-				    <div class="col-md-4">
-			      		<input type="text" class="form-control" data-ng-model="exam.duration">
-				    </div>
+	<div class="tab-content">
+		<h3>Editing {{ exam.title }}
+			<button data-ng-click="isExamInfoCollapsed=!isExamInfoCollapsed" class="btn btn-default pull-right" data-ng-hide="isExamInfoCollapsed"><small><i class="fa fa-chevron-up fa-lg"></i></small></button>
+			<button data-ng-click="isExamInfoCollapsed=!isExamInfoCollapsed" class="btn btn-default pull-right" data-ng-show="isExamInfoCollapsed"><small><i class="fa fa-chevron-down fa-lg"></i></small></button>
+		</h3>
+		<div class="panel-body" collapse="isExamInfoCollapsed">
+			<div class="row form-group">
+				<label class="col-md-1 text-right" style="padding-right:0px">Title:</label>
+			    <div class="col-md-4">
+		      		<input type="text" class="form-control" data-ng-model="exam.title">
+			    </div>
+			    <label class="col-md-2 text-right" style="padding-right:0px">Full Marks:</label>
+			    <div class="col-md-4">
+		      		<input type="text" class="form-control" data-ng-model="exam.fullmarks">
+			    </div>
+			</div>
+
+			<div class="row form-group">
+				<label class="col-md-1 text-right" style="padding-right:0px">Time:</label>
+			    <div class="form-group col-md-2">
+			      <input type="text" size="6" class="form-control" data-ng-model="exam.starttime" data-autoclose="1" placeholder="Date" bs-datepicker data-date-format="dd/MM/yyyy" >
+			    </div>
+			    <div class="form-group col-md-2">
+			      <input type="text" size="6" class="form-control" data-ng-model="exam.starttime" data-autoclose="1" placeholder="Time" bs-timepicker>
+			    </div>
+				<label class="col-md-2 text-right" style="padding-right:0px" >Duration(mins):</label>
+			    <div class="col-md-4">
+		      		<input type="text" class="form-control" data-ng-model="exam.duration">
+			    </div>
+			</div>
+			<div class="row form-group" style="margin:10px">
+				<label class="col-sm-3 text-left">Exam Instructions:</label>
+				<div class="col-md-12">
+					<div text-angular ta-toolbar="[['h1','h2','h3','quote'],['bold','italics','underline'],['ul','ol','html'],['justifyLeft','justifyCenter','justifyRight']]" ng-model="exam.description"></div>
 				</div>
-				<div class="row form-group" style="margin:10px">
-					<label class="col-sm-3 text-left">Exam Instructions:</label>
-					<div class="col-md-12">
-						<div text-angular ta-toolbar="[['h1','h2','h3','quote'],['bold','italics','underline'],['ul','ol','html'],['justifyLeft','justifyCenter','justifyRight']]" ng-model="exam.description"></div>
-					</div>
-				</div>
+			</div>
 			<div class="row formgroup">
 				<button class="btn btn-success col-md-offset-5 col-md-2 text-right" style="padding:10px" ng-click="saveExam()">OK</button>
 			</div>

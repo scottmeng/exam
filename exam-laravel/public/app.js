@@ -329,6 +329,19 @@ examApp.controller('loginController', ['$scope', '$rootScope','$location', '$win
 	}
 ]);
 
+examApp.controller('DeleteModalController',function($scope,$modalInstance,$http,exam){
+	$scope.exam = exam;
+	$scope.cancel = function(){
+		$modalInstance.dismiss('cancel');
+	};
+	$scope.deleteExamWithQuestions = function(){
+
+	};
+	$scope.deleteExam = function(){
+
+	};
+});
+
 examApp.controller('ModalInstanceCtrl', function ($scope, $modalInstance, $http, courses) {
 	$scope.courses = courses;
 	$scope.exam = {
@@ -402,30 +415,49 @@ examApp.controller('dashboardController', ['$scope', '$location', '$modal', '$ht
 			});
 	};
 
-	$scope.redirectExam = function(exam){
-		if(exam.status === EXAM_STATUS.DRAFT){
+
+	$scope.editExam = function (exam_id){
+		$location.path('/exam/' + exam_id + '/edit');
+	}
+
+	$scope.previewExam = function(exam_id){
+		$location.path('/exam/' + exam_id + '/preview');
+	}
+
+
+	$scope.removeExam = function(exam){
+		var modalInstance = $modal.open({
+			templateUrl: 'deleteModal.html',
+			controller: 'DeleteModalController',
+			resolve: {
+				exam: function () {
+				  return exam;
+				}
+			}
+		});
+
+		modalInstance.result.then(function (exam) {
 			$location.path('/exam/' + exam.id + '/edit');
-		}else if (exam.status === EXAM_STATUS.NOT_STARTED){
-			$location.path('/exam/' + exam.id + '/preview');
-		}else if (exam.status === EXAM_STATUS.IN_EXAM){
-			$location.path('/exam/' + exam.id);
-		}else{
-			$location.path('/exam/' + exam.id + '/preview');
-		}
+		}, function () {
+		});	
+	};
+
+	$scope.viewCourse = function(course_id){
+		$location.path('/course/' + course_id);
 	}
 
 	$scope.getExamLabel = function(exam){
 		if(exam.status === EXAM_STATUS.DRAFT){
-			exam.examActionText = "Edit";
+			// exam.examActionText = "Edit";
 			return "label-warning";
 		}else if (exam.status === EXAM_STATUS.NOT_STARTED){
-			exam.examActionText = "View";
+			// exam.examActionText = "View";
 			return "label-success";
 		}else if (exam.status === EXAM_STATUS.IN_EXAM){
-			exam.examActionText = "Start";
+			// exam.examActionText = "Start";
 			return "label-danger";
 		}else{
-			exam.examActionText = "View";
+			// exam.examActionText = "View";
 			return "label-info";
 		}	
 	}
@@ -455,8 +487,8 @@ examApp.controller('dashboardController', ['$scope', '$location', '$modal', '$ht
 	$scope.init();
 }]);
 
-examApp.controller('viewCourseController', ['$scope', '$http', '$routeParams', 'EXAM_STATUS','SUBMISSION_STATUS', '$location',
-	function($scope, $http, $routeParams, EXAM_STATUS,SUBMISSION_STATUS,$location) {
+examApp.controller('viewCourseController', ['$scope', '$http', '$routeParams', 'EXAM_STATUS','SUBMISSION_STATUS', '$location','$modal',
+	function($scope, $http, $routeParams, EXAM_STATUS,SUBMISSION_STATUS,$location,$modal) {
 
 	$scope.courseId = $routeParams.courseId;
 	$scope.isDescriptionCollapsed = true;
@@ -479,15 +511,59 @@ examApp.controller('viewCourseController', ['$scope', '$http', '$routeParams', '
 					$scope.prepareExams(data.data.exams);
 					$scope.course = data.data;
 					$scope.isAdmin = $scope.course.user_role === 'admin';
-					console.log($scope.course);
 				}else {
 					$scope.error = data.data;
 				}
 			});
 	};
 
+
+	$scope.editExam = function (exam_id){
+		$location.path('/exam/' + exam_id + '/edit');
+	}
+
+	$scope.previewExam = function(exam_id){
+		$location.path('/exam/' + exam_id + '/preview');
+	}
+
+
+	$scope.removeExam = function(exam){
+		var modalInstance = $modal.open({
+			templateUrl: 'deleteModal.html',
+			controller: 'DeleteModalController',
+			resolve: {
+				exam: function () {
+				  return exam;
+				}
+			}
+		});
+
+		modalInstance.result.then(function (exam) {
+			$location.path('/exam/' + exam.id + '/edit');
+		}, function () {
+		});	
+	};
+
+	$scope.addExam = function() {
+		var courses = [];
+		courses.push($scope.course);
+		var modalInstance = $modal.open({
+			templateUrl: 'myModalContent.html',
+			controller: 'ModalInstanceCtrl',
+			resolve: {
+				courses: function () {
+				  return courses;
+				}
+			}
+		});
+
+		modalInstance.result.then(function (exam) {
+			$location.path('/exam/' + exam.id + '/edit');
+		}, function () {
+		});
+	};
+
 	$scope.getStatusClass = function (submission){
-		console.log(submission);
 		if(submission.submissionstate_id == SUBMISSION_STATUS.NOT_GRADED){
 			submission.statusText = 'Submitted';
 			return 'label-important';
@@ -500,17 +576,17 @@ examApp.controller('viewCourseController', ['$scope', '$http', '$routeParams', '
 		}
 	}
 
-	$scope.redirectExam = function(exam){
-		if(exam.status === EXAM_STATUS.DRAFT){
-			$location.path('/exam/' + exam.id + '/edit');
-		}else if (exam.status === EXAM_STATUS.NOT_STARTED){
-			$location.path('/exam/' + exam.id + '/preview');
-		}else if (exam.status === EXAM_STATUS.IN_EXAM){
-			$location.path('/exam/' + exam.id);
-		}else{
-			// exam.isGradingCollapse = !exam.isGradingCollapse;
-		}
-	}
+	// $scope.redirectExam = function(exam){
+	// 	if(exam.status === EXAM_STATUS.DRAFT){
+	// 		$location.path('/exam/' + exam.id + '/edit');
+	// 	}else if (exam.status === EXAM_STATUS.NOT_STARTED){
+	// 		$location.path('/exam/' + exam.id + '/preview');
+	// 	}else if (exam.status === EXAM_STATUS.IN_EXAM){
+	// 		$location.path('/exam/' + exam.id);
+	// 	}else{
+	// 		// exam.isGradingCollapse = !exam.isGradingCollapse;
+	// 	}
+	// }
 
 	$scope.saveDescription = function(){
 		// put course information
@@ -961,9 +1037,10 @@ examApp.controller('markExamController', ['$scope', '$routeParams', '$http', 'QN
 
 examApp.controller('newExamController', ['$scope', '$location','$http', '$routeParams', 
 	'QN_TYPES', 'EXAM_STATUS', 'moment',
-	function($scope, $location, $http, $routeParams, QN_TYPES, EXAM_STATUS, moment) {
+	function($scope, $location, $http, $routeParams,QN_TYPES, EXAM_STATUS, moment) {
 
 	$scope.examId = $routeParams.examId;
+	$scope.isExamInfoCollapsed = true;
 	$scope.error = null;
 
 	$scope.getQuestionTypes = function() {
