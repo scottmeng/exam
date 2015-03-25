@@ -80,6 +80,13 @@ class ExamController extends BaseController {
 		return Response::success($exam);
 	}
 
+	public function getUnpublish($exam_id){
+		$exam = Exam::findOrFail($exam_id);
+		$exam->unpublish();
+
+		return Response::success($exam);
+	}
+
 	public function getSubmission($exam_id){
 		$exam = Exam::findOrFail($exam_id);
 		$user = User::find(Session::get('userid'));

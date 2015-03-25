@@ -16,6 +16,10 @@ class Course extends Eloquent {
         return $this->belongsToMany('User')->withPivot('role_id');
     }
 
+    public function groups(){
+    	return $this->hasMany('Group');
+    }
+
     public function getExamStatus($exam){
 
 		$status = STATUS_UNAVAILABLE;
@@ -88,8 +92,9 @@ class Course extends Eloquent {
 			}else if($status == STATUS_FINISHED || $status == STATUS_PUBLISHED){
 				if($this->isAdmin()){
 					$exam = $exam->getAllExamSubmissions();
+					$this->groups = $this->groups()->get();
 				}else{
-					$exam = $exam->getAllExamSubmissions($user->id);
+					$exam = $exam->getExamSubmissions($user->id);
 				}
 			}
 			$exam->status = $status; 

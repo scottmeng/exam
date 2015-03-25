@@ -13,6 +13,14 @@ class User extends Eloquent{
     	return $this->hasMany('ExamSubmission', 'user_id', 'id');
 	}
 
+	public function group(){
+		return $this->belongsToMany('Group');
+	}
+
+	public function ta_group(){
+		return $this->hasMany('Group','ta_id');
+	}
+
 	public function getCourses(){
 		
 		$courses = $this->courses()->get();

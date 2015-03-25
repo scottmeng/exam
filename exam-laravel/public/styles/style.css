@@ -1,3 +1,21 @@
+.nav-tabs > li, .nav-pills > li {
+    float:none;
+    display:inline-block;
+    *display:inline; /* ie7 fix */
+     zoom:1; /* hasLayout ie7 trigger */
+    -webkit-border-radius: 0;
+    -moz-border-radius: 0;
+    border-radius: 0;
+}
+
+.nav-tabs, .nav-pills {
+    text-align:center;
+}
+
+.navbar {
+   /*background:#69C2C8 !important;*/
+}
+
 .correct-option{
   color:green;
   font-weight: bold;

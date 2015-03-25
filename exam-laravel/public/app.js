@@ -2,8 +2,8 @@
 
 var examApp = angular
 	.module('examApp', ['ngRoute', 'angularMoment', 'checklist-model','ui.bootstrap.modal','ui.bootstrap.tabs',
-		'ui.ace','textAngular','ui.bootstrap.buttons','ui.bootstrap.collapse',
-		'mgcrea.ngStrap.datepicker','mgcrea.ngStrap.timepicker', 'timer','hljs'])
+		'ui.ace','textAngular','ui.bootstrap.buttons','ui.bootstrap.collapse', 'ui.bootstrap.progressbar', 
+		'mgcrea.ngStrap.datepicker','mgcrea.ngStrap.timepicker','timer','hljs'])
 	.constant('QN_TYPES', {
 		'QN_MCQ'	: 1,
 		'QN_MRQ'	: 2,
@@ -17,6 +17,11 @@ var examApp = angular
 		'FINISHED'		: 'finished',
 		'IN_EXAM'		: 'in_exam',
 		'PUBLISHED'		: 'published' 
+	})
+	.constant('SUBMISSION_STATUS',{
+		'NOT_GRADED'	:	1,
+		'GRADED'		: 	2, 
+		'GRADING'		: 	3
 	});
 
 examApp.config(['$routeProvider', '$locationProvider', 
@@ -183,6 +188,7 @@ examApp.controller('previewExamController', ['$scope', '$http', '$routeParams', 
         }
 
 	$scope.generatePDF = function(){
+		console.log('I was here!');
 		createScript(function() {
 			var doc = new jsPDF();
 			var source = document.getElementById('pdf-template');
@@ -191,12 +197,22 @@ examApp.controller('previewExamController', ['$scope', '$http', '$routeParams', 
 					return true;
 				}
 			};
-			doc.fromHTML(source, 15, 15, {
+			doc.fromHTML(document.getElementById('pdf-template'), 15, 15, {
 				'width': 160,
 				'elementHandlers': specialElementHandlers
 			});
 			doc.setFont("courier");
 			doc.setFontType("normal");
+
+			// // doc.line(20, 20, 60, 20); // horizontal line
+			// // doc.setLineWidth(0.5);
+
+			// doc.fromHTML(document.getElementById('exam-questions'), 15, 15, {
+			// 	'width': 160,
+			// 	'elementHandlers': specialElementHandlers
+			// });
+			// doc.setFont("courier");
+			// doc.setFontType("normal");
 
 			doc.output('dataurlnewwindow');
 		});
@@ -226,6 +242,8 @@ examApp.controller('previewExamController', ['$scope', '$http', '$routeParams', 
 		{
 			$http.get('/api/exam/' + $scope.examId + '/unpublish')
 				.success(function(data){
+				console.log(data.data);
+
 			});
 		}
 		$location.path('/home');
@@ -437,11 +455,16 @@ examApp.controller('dashboardController', ['$scope', '$location', '$modal', '$ht
 	$scope.init();
 }]);
 
-examApp.controller('viewCourseController', ['$scope', '$http', '$routeParams', 'EXAM_STATUS',
-	function($scope, $http, $routeParams, EXAM_STATUS) {
+examApp.controller('viewCourseController', ['$scope', '$http', '$routeParams', 'EXAM_STATUS','SUBMISSION_STATUS', '$location',
+	function($scope, $http, $routeParams, EXAM_STATUS,SUBMISSION_STATUS,$location) {
 
 	$scope.courseId = $routeParams.courseId;
 	$scope.isDescriptionCollapsed = true;
+	$scope.areSubmissionsCollapsed = true;
+
+	$scope.gradePaper = function(exam_id,submission_id){
+		$location.path('/exam/' + exam_id + '/submission/' + submission_id);
+	}
 
 	$scope.saveAndToggle = function(){
 		$scope.isDescriptionCollapsed=!$scope.isDescriptionCollapsed;
@@ -453,34 +476,91 @@ examApp.controller('viewCourseController', ['$scope', '$http', '$routeParams', '
 		$http.get('/api/course/' + $scope.courseId + '/course')
 			.success(function(data) {
 				if (data.code === 200) {
-					console.log(data.data);
+					$scope.prepareExams(data.data.exams);
 					$scope.course = data.data;
-					$scope.updateExamStartTime();
 					$scope.isAdmin = $scope.course.user_role === 'admin';
+					console.log($scope.course);
 				}else {
 					$scope.error = data.data;
 				}
 			});
 	};
 
+	$scope.getStatusClass = function (submission){
+		console.log(submission);
+		if(submission.submissionstate_id == SUBMISSION_STATUS.NOT_GRADED){
+			submission.statusText = 'Submitted';
+			return 'label-important';
+		}else if(submission.submissionstate_id == SUBMISSION_STATUS.GRADING){
+			submission.statusText = 'Grading';
+			return 'label-warning';
+		}else{
+			submission.statusText = 'Graded';
+			return 'label-success';
+		}
+	}
+
+	$scope.redirectExam = function(exam){
+		if(exam.status === EXAM_STATUS.DRAFT){
+			$location.path('/exam/' + exam.id + '/edit');
+		}else if (exam.status === EXAM_STATUS.NOT_STARTED){
+			$location.path('/exam/' + exam.id + '/preview');
+		}else if (exam.status === EXAM_STATUS.IN_EXAM){
+			$location.path('/exam/' + exam.id);
+		}else{
+			// exam.isGradingCollapse = !exam.isGradingCollapse;
+		}
+	}
+
 	$scope.saveDescription = function(){
-			// get course information
+		// put course information
 		$http.put('/api/course/' + $scope.courseId + '/course',$scope.course)
 			.success(function(data) {
 		});
 	}
 
-	$scope.updateExamStartTime = function(){
-		for(var i in $scope.course.exams){
-			$scope.course.exams[i].starttime = moment.tz($scope.course.exams[i], 'GMT').toDate();
-		}
-		console.log($scope.course);
+	$scope.prepareExams = function(exams){
+		$scope.updateStartTime(exams);
+		$scope.updateGradingStatus(exams);
 	}
 
-	// $scope.getExamTime = function(starttime){
-	// 	var time = moment.tz(starttime, 'GMT').toDate();
-	// 	return time;
-	// }
+	$scope.updateGradingStatus = function(exams){
+		for(var i in exams){
+			var exam = exams[i];
+			if(exam.status === EXAM_STATUS.FINISHED){
+				exam.status_data = [];
+			  	exam.status_data.push({
+		          value: (exam.submission_status.graded*100)/exam.submission_status.total,
+		          count:exam.submission_status.graded,
+		          text:'Finished:',
+		          type: 'success'
+		        });
+		        exam.status_data.push({
+		          value: (exam.submission_status.grading*100)/exam.submission_status.total,
+  		          count:exam.submission_status.grading,
+		          text:'Grading:',
+		          type: 'info'
+		        });
+		        exam.status_data.push({
+		          value: (exam.submission_status.not_graded*100)/exam.submission_status.total,
+		          count:exam.submission_status.not_graded,
+		          text:'Left:',
+		          type: 'danger'
+		        });
+		        if(exam.submission_status.graded == exam.submission_status.total){
+		        	exam.grading_finished = true;
+		        }else{
+		        	exam.grading_finished = false;
+		        }
+			}
+		}
+	}
+
+	$scope.updateStartTime = function(exams){
+		for(var i in exams){
+			exams[i].starttime = moment.tz(exams[i].starttime, 'GMT').toDate();
+		}
+	}
 
 	$scope.getExamLabel = function(exam){
 		if(exam.status === EXAM_STATUS.FINISHED){
@@ -493,7 +573,7 @@ examApp.controller('viewCourseController', ['$scope', '$http', '$routeParams', '
 			exam.statusText = "draft";
 			return "label-info";
 		}else {
-			exam.statusText = "View";
+			exam.statusText = "coming soon";
 			return "label-primary";
 		}	
 	}
@@ -542,10 +622,10 @@ examApp.controller('viewExamController', ['$scope', '$http', '$routeParams',
 				if (data.code === 200) {
 					console.log(data.data);
 					$scope.exam = data.data;
-					$scope.endtime = moment.tz($scope.exam.starttime, 'GMT').add($scope.exam.duration,'minutes').toDate();
+					var endtime = moment.tz($scope.exam.starttime, 'GMT').add($scope.exam.duration,'minutes');
 					$scope.exam.starttime = moment.tz($scope.exam.starttime, 'GMT').toDate();
 
-					if (moment().isAfter($scope.exam.endTime)){
+					if (moment().isAfter(moment.tz($scope.exam.starttime, 'GMT').add($scope.exam.duration,'minutes'))){
 						$scope.examAction="Exam Has Finished!"
 					}else {
 						$scope.examAction="Start Exam"
