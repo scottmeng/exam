@@ -71,6 +71,38 @@ examApp.config(['$routeProvider', '$locationProvider',
 	}
 ]);
 
+// simple decorator
+examApp.config(function($provide){
+    $provide.decorator('taOptions', ['taRegisterTool', '$delegate', '$modal', 
+    	function(taRegisterTool, taOptions, $modal){
+        // $delegate is the taOptions we are decorating
+        // register the tool with textAngular
+        taRegisterTool('code', {
+            iconclass: "fa fa-terminal",
+            action: function(promise, restoreSelection){
+            	var field = this;
+	            var modalInstance = $modal.open({
+	                templateUrl: 'views/editorModal.html',
+	                controller: 'insertCodeModalController'
+	            });
+	            //define result modal , when user complete result information 
+				modalInstance.result.then(function(content){
+					restoreSelection();
+                    var formatted = '<pre><code>' + content + '</code></pre><br>';
+                    field.$editor().wrapSelection('inserthtml', formatted, true);
+                    promise.resolve();
+	            });
+	            return false;
+
+                // this.$editor().wrapSelection('inserthtml', '<pre><code>for i in test: dsda dasdas</code></pre>');
+            }
+        });
+        // add the button to the default toolbar definition
+        taOptions.toolbar[1].push('code');
+        return taOptions;
+    }]);
+});
+
 examApp.service('sessionService', function() {
 	this.create = function(userId, userName) {
 		this.userId = userId;
@@ -99,6 +131,60 @@ examApp.controller('CarouselDemoCtrl', function ($scope) {
   }
 });
 
+examApp.directive('kaizhi', ['$interval', '$compile', function($interval, $compile) {
+  return {
+  	restrict: 'E',
+  	scope: {
+  		raw: '=raw'
+  	},
+    link: function(scope, elem, attrs) {
+    	var regex = /<pre><code>.*?<\/code><\/pre>/g;
+    	scope.code = [];
+
+    	function generate() {
+    		var html = scope.raw;
+    		if (!html) {
+    			return;
+    		}
+    		var matches = html.match(regex);
+    		for (var i in matches) {
+    			var code = matches[i].replace(/<pre><code>/g, '')
+    								 .replace(/<\/code><\/pre>/g, '');
+    			console.log(code);
+    			scope.code.push(escape(code));
+    			html = html.replace(matches[i], '<div hljs source="code[' + i + ']"></div>');
+    		}
+    		// var html = scope.raw.replace(/<pre><code>/g, '<div hljs>');
+    		// html = html.replace(/<\/code><\/pre>/g, '</div>');
+    		// html = unescapeHTML(html);
+    		console.log(html);
+    		elem.append(html);
+	    	// elem.html(html);
+	    	$compile(elem)(scope);
+    	}
+
+    	function escape(data) {
+    		var div = document.createElement('div');
+			div.innerHTML = data;
+			return div.firstChild.nodeValue;
+    	}
+    	
+    	generate();
+    }
+  };
+}]);
+
+examApp.controller('insertCodeModalController', function($scope, $modalInstance) {
+	$scope.content = '';
+
+	$scope.ok = function() {
+		$modalInstance.close($scope.content);
+	};
+
+	$scope.cancel = function() {
+		$modalInstance.dismiss('cancel');
+	};
+});
 
 examApp.controller('viewPaperController', ['$scope', '$routeParams', '$http', 'QN_TYPES', 
 	function($scope, $routeParams, $http, QN_TYPES) {
@@ -176,18 +262,18 @@ examApp.controller('previewExamController', ['$scope', '$http', '$routeParams', 
 	function($scope, $http, $routeParams, $location, QN_TYPES, EXAM_STATUS, moment){
 	
 	$scope.examId = $routeParams.examId;
+	console.log('raw is - ' + $scope.raw);
 
 	$scope.getExamInfo = function() {
 		console.log($scope.examId);
 		$http.get('/api/exam/' + $scope.examId + '/examinfo')
 			.success(function(data){
 				if (data.code === 200) {
+					console.log(data.data);
 					$scope.exam = data.data;
 					// server saves standard GMT time
 					var time = moment.tz($scope.exam.starttime, 'GMT').toDate();
 					$scope.exam.starttime = time;
-					console.log($scope.exam.starttime);
-
 					$scope.publish = $scope.exam.status === EXAM_STATUS.DRAFT? 'Publish':'Unpublish';
 				} else {
 					$scope.error = data.data;
@@ -1378,8 +1464,8 @@ examApp.controller('markExamController', ['$scope', '$routeParams', '$http', 'QN
 }]);
 
 examApp.controller('newExamController', ['$scope', '$location','$http', '$routeParams', 
-	'QN_TYPES', 'EXAM_STATUS', 'moment',
-	function($scope, $location, $http, $routeParams,QN_TYPES, EXAM_STATUS, moment) {
+	'QN_TYPES', 'EXAM_STATUS', 'moment', 'taSelection',
+	function($scope, $location, $http, $routeParams, QN_TYPES, EXAM_STATUS, moment, taSelection) {
 
 	$scope.examId = $routeParams.examId;
 	$scope.isExamInfoCollapsed = true;

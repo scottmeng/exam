@@ -25,6 +25,7 @@
     "angular-momentjs": "~0.1.9",
     "moment-timezone": "~0.3.0",
     "textAngular": "~1.3.7",
-    "jspdf": "~1.0.272"
+    "jspdf": "~1.0.272",
+    "rangy": "1.3"
   }
 }
