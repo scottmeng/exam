@@ -28,32 +28,32 @@ class Question extends Eloquent {
         Log::info($updated);
 
         $this->index = $updated['index'];
-        if (array_key_exists('subindex', $updated)){
-            Log::info('test');
+
+        if (isset($updated['subindex'])){
             $this->subindex = $updated['subindex'];
         }
         $this->questiontype_id = $updated['questiontype_id'];
-        if (array_key_exists('title', $updated)){
+        if (isset($updated['title'])){
             $this->title = $updated['title'];
         }
-        if (array_key_exists('content', $updated)){
+        if (isset($updated['content'])){
             $this->content = $updated['content'];
         }
-        if (array_key_exists('coding_qn', $updated)){
+        if (isset($updated['coding_qn'])){
             $this->coding_qn = $updated['coding_qn'];
         }
-        if (array_key_exists('compiler_enable', $updated)){
+        if (isset($updated['compiler_enable'])){
             $this->compiler_enable = $updated['compiler_enable'];
         }
-        if (array_key_exists('marking_scheme', $updated)){
+        if (isset($updated['marking_scheme'])){
             $this->marking_scheme = $updated['marking_scheme'];
         }
-        if (array_key_exists('full_marks', $updated)){
+        if (isset($updated['full_marks'])){
             $this->full_marks = $updated['full_marks'];
         }
 
         $exam->questions()->save($this);
-        if (array_key_exists('options', $updated)){
+        if (isset($updated['options'])){
             $this->options = $this->populateOptions($updated['options']);
         }
 

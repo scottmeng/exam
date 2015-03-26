@@ -26,7 +26,7 @@
 		</div>
 
 		<div class="panel-body">
-			<div data-ng-bind-html="question.content" class="question-body"></div>
+			<kaizhi raw="question.content"></kaizhi>
 			<div data-ng-if="isCodingQuestion(question);" class="java hljs"><code>{{question.content}}</code></div>
 		 	<div data-ng-if="isMCQ(question);" class="row">
 				<div class="col-md-6" style="margin-bottom: 10px" data-ng-repeat="option in question.options">
@@ -67,7 +67,7 @@
 	<div id="exam-questions" style="margin-top:30px">
 		<div data-ng-repeat="question in exam.questions">
 			<h4>Question {{ $index + 1 }}: {{question.title}} ({{ question.full_marks}} marks)</h4>
-			<div data-ng-bind-html="question.content"></div>
+			<div data-ng-bind-html="question.content" hljs></div>
 			<div data-ng-if="isMCQ(question) || isMRQ(question)">
 				<ul style="list-style-type:disc">
 					<li data-ng-repeat="option in question.options">{{ option.content }}</li>
