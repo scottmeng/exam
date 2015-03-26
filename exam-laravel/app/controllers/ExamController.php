@@ -58,6 +58,8 @@ class ExamController extends BaseController {
 		return Response::success($count);
 	}
 
+	//get exam with status
+	//no submission info is returned
 	public function getExaminfo($exam_id)
 	{
 		//1.user role + exam status
@@ -89,6 +91,34 @@ class ExamController extends BaseController {
 		}
 		$exam->status = $status;
 		$exam->totalqn = $exam->questions()->get()->count();
+		return Response::success($exam);
+	}
+
+	public function getExamsubmissions($exam_id){
+		$user = User::find(Session::get('userid'));
+		if(!$user){
+			return Response::error(401,'Please Login First!');
+		}
+		$exam = Exam::find($exam_id);
+
+		$course_id = $exam->course->id;
+		$course = $user->courses()->where('courses.id', '=', $course_id)->first();
+
+		$status = $course->getExamStatus($exam);
+
+		// stop user from receiving any information about this exam
+		if ($status == STATUS_UNAVAILABLE) {
+			return Response::error(401, 'You are unauthorized to view this page!');
+		}else if ($status == STATUS_DRAFT || $status == STATUS_NOT_STARTED){
+			return Response::error(404,'The requested page is not available!');
+		}else{
+			if($course->isAdmin()){
+				$exam = $exam->getAllExamSubmissions();
+			}else{
+				$exam = $exam->getExamSubmissions($user->id);
+			}
+		}
+		$exam->status = $status; 
 		return Response::success($exam);
 	}
 

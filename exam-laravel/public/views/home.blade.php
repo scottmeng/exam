@@ -10,6 +10,7 @@
     <!-- SPELLS -->
     <!-- load angular and angular route via CDN -->
      <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js"></script>
+     <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular-animate.js"></script>
     <!-- // <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.12/angular.min.js"></script> -->
 
     <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular-route.js"></script>
@@ -24,7 +25,7 @@
     <link rel="stylesheet" href="{{ URL::to('styles/style.css') }}">
     <link rel='stylesheet' href="{{ URL::to('styles/textAngular.css') }}">
     <link rel='stylesheet' href="{{ URL::to('styles/hljs-default.css') }}">
-    <link rel='stylesheet' href="{{ URL::to('styles/sweet-alert.css') }}">
+    <link rel='stylesheet' href="{{ URL::to('styles/ui-grid-stable.css') }}">
 
     <script src="{{ URL::to('js/textAngular/textAngular-rangy.min.js') }}"></script>
     <script src="{{ URL::to('js/textAngular/textAngular-sanitize.min.js') }}"></script>
@@ -42,11 +43,10 @@
     <script src="{{ URL::to('js/angular-highlightjs.min.js') }}"></script>
     <script src="{{ URL::to('js/FileSaver.min.js') }}"></script>
     <script src="{{ URL::to('js/BlobBuilder.min.js') }}"></script>
-    <script src-"{{ URL::to('js/jspdf.plugin.from_html.js') }}"></script>
-    <script src-"{{ URL::to('js/jspdf.plugin.standard_fonts_metrics.js') }}"></script> 
-    <script src-"{{ URL::to('js/jspdf.plugin.split_text_to_size.js') }}"></script>
-    <script src-"{{ URL::to('js/sweet-alert.min.js') }}"></script> 
-    <script src-"{{ URL::to('js/SweetAlert.js') }}"></script> 
+<!--     // <script src="{{ URL::to('js/jspdf.plugin.from_html.js') }}"></script>
+    // <script src="{{ URL::to('js/jspdf.plugin.standard_fonts_metrics.js') }}"></script> 
+    // <script src="{{ URL::to('js/jspdf.plugin.split_text_to_size.js') }}"></script> -->
+    <script src="{{ URL::to('js/ui-grid-stable.js') }}"></script>
 
     <script src="{{ URL::to('app.js') }}"></script>
 </head>

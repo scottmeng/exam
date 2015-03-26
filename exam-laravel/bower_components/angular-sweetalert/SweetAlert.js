@@ -5,9 +5,9 @@
 
 */
 
-// 'use strict';
+'use strict';
 
-angular.module('ngSweetAlert', [])
+angular.module('oitozero.ngSweetAlert', [])
 .factory('SweetAlert', [ '$timeout', '$window', function ( $timeout, $window ) {
 
 	var swal = $window.swal;
@@ -64,6 +64,7 @@ angular.module('ngSweetAlert', [])
 			}, 200);
 		}
 	};
+	
 	return self;
 }]);
 

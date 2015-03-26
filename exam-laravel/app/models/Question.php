@@ -25,8 +25,11 @@ class Question extends Eloquent {
 
     public function updateQuestion($updated, Exam $exam)
     {
+        Log::info($updated);
+
         $this->index = $updated['index'];
         if (array_key_exists('subindex', $updated)){
+            Log::info('test');
             $this->subindex = $updated['subindex'];
         }
         $this->questiontype_id = $updated['questiontype_id'];
@@ -54,6 +57,7 @@ class Question extends Eloquent {
             $this->options = $this->populateOptions($updated['options']);
         }
 
+        Log::info($this);
         return $this;
     }
 
