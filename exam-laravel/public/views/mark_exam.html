@@ -1,30 +1,115 @@
 <h3 data-ng-if="error">{{ error }}</h3>
 <div data-ng-if="!error">
 	<div class="well">
-		<label>{{ exam.title }} <small data-ng-bind-html="exam.description"></small></label>
-		<div class="row">
-			<div class="col-md-2">Submitted at: </div>
-			<div class="col-md-4">{{ submission.updated_at }}</div>
+		<div style="margin-top:10px">
+			<h3 class="text-center">
+			<!-- 	<span class="button-transparent" data-ng-click="previousSubmission()"><i class="fa fa-arrow-left pull-left"></i></span> -->
+					Total Marks: {{ submission.total_marks }} / {{ exam.fullmarks }}
+				<span class="button-transparent" data-ng-click="nextSubmission()"><i class="fa fa-random pull-right"></i></span>
+			</h3>
+			<p class="text-center" style="color:grey"><i class="fa fa-user"></i> {{ submission.student }}</p>
 		</div>
-		<div class="row">
-			<div class="col-md-2">Marks obtained: </div>
-			<div class="col-md-4">{{ submission.total_marks }} / {{ exam.fullmarks }}</div>
-		</div>
+		<label>Progress: 
+			<a data-ng-repeat="question in exam.questions" data-ng-click="goToQuestion($index)" class="question-id label" ng-class="getQuestionStatus(question)" ng-class="{'big':currentQuestion===$index}"><span ng-class="{'current_question':isQuestionActive[$index]}">Qn {{ $index + 1}}</span></a>
+		</label>
 	</div>
 
-	<!-- question submission section -->
+	  <div>
+	    <carousel interval="0">
+	      <slide ng-repeat="question in exam.questions" active="isQuestionActive[$index]">        
+	 		<div class="panel panel-info">
+				<div class="panel-heading">
+					Question {{ $index+1 }}: {{ question.title }}
+					<span class="button-transparent" data-ng-click="isQuestionCollapsed[$index]=!isQuestionCollapsed[$index]" data-ng-show="isQuestionCollapsed[$index]"><i class="fa fa-chevron-down"></i></span>
+					<span class="button-transparent" data-ng-click="isQuestionCollapsed[$index]=!isQuestionCollapsed[$index]" data-ng-hide="isQuestionCollapsed[$index]"><i class="fa fa-chevron-up"></i></span>
+				</div>
+				<div class="panel-body" style="padding-left:50px;padding-right:50px">
+					<div class="question-body" style="text-align:left" collapse="isQuestionCollapsed[$index]" data-ng-bind-html="question.content" >
+					</div>
+					<div>
+						<label><i class="fa fa-warning"> Marking scheme:</i></label>
+						<div><textarea class="form-control" style="height:70px;overflow:auto" readonly>{{ question.marking_scheme}}</textarea></div>
+					</div>
+					<div class="row tab-content" style="margin-top:10px">
+						<label>Student's answer:</label>
+						<div data-ng-if="isMCQ(question);" class="row" style="height:200px">
+							<div style="height:100px">
+								<span data-ng-repeat="option in question.options">
+									<label class="checkbox-inline">
+										<input type="radio" name="question.id" ng-checked="option.id===question.submission.choice" ng-model="selected" value="{{option.id}}" disabled>
+										{{ option.content }}
+									</label>
+								</span>	
+							</div>
+							<div style="height:50px;margin=20px">
+								<label>Answers:</label>
+								<div ng-repeat="option in question.options" ng-show="option.correctOption == 1"><h5 style="color:green">{{option.content}}</h5>
+								</div>
+							</div>
+						</div>
+						<div data-ng-if="isMRQ(question);" class="row" style="height:200px">
+							<div class="col-md-6" style="margin-bottom: 10px" data-ng-repeat="option in question.options">
+								</label class="checkbox-inline">
+									<input type="checkbox" checklist-value="option.id" checklist-model="question.submission.choices" disabled>
+									{{ option.content }}
+								</label>
+							</div>
+							<label>Answers:</label>
+							<div ng-repeat="option in question.options" ng-show="option.correctOption == 1"><h5 style="color:green">{{option.content}}</h5>
+							</div>
+						</div>			
+						<div data-ng-if="isShortQuestion(question);" style="height:200px">
+							<textarea class="form-control" data-ng-model="question.submission.answer" rows="4" readonly style="height:200px;overflow:auto"></textarea>
+						</div>
+						<div data-ng-if="isCodingQuestion(question);">
+							<div id="editor" ui-ace data-ng-model="question.submission.answer" style="height:180px"></div>
+							<button class="btn btn-warning pull-right" style="margin-top: 10px;">Compile and Run</button>
+						</div>
+					</div>
+					<div class="row tab-content">
+						<div class="well well-sm" style="margin-top: 20px;">
+							<form class="form-horizontal">
+								<div class="form-group">
+									<label class="col-md-3 control-label">Marks:</label>
+									<div class="col-md-9 text-left">
+										<input type="number" max="{{question.full_marks}}" data-ng-model="question.submission.marks_obtained" placeholder="{{ question.full_marks }}"/> / {{ question.full_marks }}
+									</div>
+								</div>
+								<div class="form-group">
+									<label class="col-md-3 control-label">Comments:</label>
+									<div class="col-md-9">
+										<textarea class="form-control" rows="2" data-ng-model="question.submission.comment"></textarea>
+									</div>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+				<div class="row formgroup">
+					<button class="btn btn-success col-md-offset-5 col-md-2 text-right" style="padding:10px" ng-click="markQuestion($index)">OK</button>
+				</div>
+=			</div>
+	      </slide>
+	    </carousel>
+	  </div>
+
+
+
+	<!-- question submission section
 	<div class="panel panel-info" data-ng-repeat="question in exam.questions">
 		<div class="panel-heading">
-			Question {{ $index+1 }} ({{ question.title }})
+			Question {{ $index+1 }}: {{ question.title }}
+			<span class="button-transparent" data-ng-click="isQuestionCollapsed[$index]=!isQuestionCollapsed[$index]" data-ng-show="isQuestionCollapsed[$index]"><i class="fa fa-chevron-down"></i></span>
+			<span class="button-transparent" data-ng-click="isQuestionCollapsed[$index]=!isQuestionCollapsed[$index]" data-ng-hide="isQuestionCollapsed[$index]"><i class="fa fa-chevron-up"></i></span>
 		</div>
 		<div class="panel-body">
-			<div data-ng-bind-html="question.content" class="question-body"></div>
-			<div class="row">
-			<div class="col-md-6">
+			<div class="question-body" collapse="isQuestionCollapsed[$index]" data-ng-bind-html="question.content" >
+			</div>
+			<div class="row tab-content">
 				<label>Student's answer:</label>
 				<div data-ng-if="isMCQ(question);" class="row">
 					<div class="col-md-6" data-ng-repeat="option in question.options">
-						<label class="checkbox-inline" style="color:{{isCorrectMCQ(question.submission,option)}}">
+						<label class="checkbox-inline">
 							<input type="radio" name="question.id" ng-checked="option.id===question.submission.choice" ng-model="selected" value="{{option.id}}" disabled>
 							{{ option.content }}
 						</label>
@@ -32,21 +117,21 @@
 				</div>
 				<div data-ng-if="isMRQ(question);" class="row">
 					<div class="col-md-6" style="margin-bottom: 10px" data-ng-repeat="option in question.options">
-						</label class="checkbox-inline" style="{{isCorrectMRQ(question.submission,option)}}">
+						</label class="checkbox-inline">
 							<input type="checkbox" checklist-value="option.id" checklist-model="question.submission.choices" disabled>
 							{{ option.content }}
 						</label>
 					</div>
 				</div>			
 				<div data-ng-if="isShortQuestion(question);">
-					<textarea class="form-control" data-ng-model="question.submission.answer" rows="4" readonly></textarea>
+					<textarea class="form-control" data-ng-model="question.submission.answer" rows="4" readonly style="height:150px;overflow:auto"></textarea>
 				</div>
 				<div data-ng-if="isCodingQuestion(question);">
 					<div id="editor" ui-ace data-ng-model="question.submission.answer" rows="4"></div>
 					<button class="btn btn-warning pull-right" style="margin-top: 10px;">Compile and Run</button>
 				</div>
 			</div>
-			<div class="col-md-6">
+			<div class="row tab-content">
 				<div data-ng-if="isMRQ(question) || isMCQ(question)" style="margin-bottom:20px">
 					<label>Answers:</label>
 					<div ng-repeat="option in question.options" ng-show="option.correctOption == 1">{{option.content}}
@@ -73,10 +158,7 @@
 				</div>
 			</div>
 		</div>
-	</div>
-	<div class="panel-footer">
-		<div class="row formgroup">
-			<button class="btn btn-success col-md-offset-5 col-md-2 text-right" style="padding:10px" ng-click="markQuestion($index)">OK</button>
-		</div>
+<!-- 			</div>
+ -->		
 	</div>
 </div>

@@ -30,6 +30,25 @@ class ExamController extends BaseController {
 		return Response::success($exam);
 	}
 
+	public function getRandomsubmission($exam_id){
+
+		$exam = Exam::findOrFail($exam_id);
+
+		$submissions = $exam->submissions()->where(function ($query) {
+		    $query->where('submissionstate_id','=',SUBMITTED)
+		          ->orWhere('submissionstate_id','=',GRADING);
+		})->get();
+				
+		if($submissions->count()>0){
+			$rand = rand(0, $submissions->count()-1);
+			$next_submission = $submissions[$rand];
+
+			return Response::success($next_submission);
+		}else{
+			return Response::error('no other submissions found');
+		}
+	}
+
 	public function getQncount($exam_id)
 	{	
 		$exam = Exam::findOrFail($exam_id);
@@ -159,10 +178,9 @@ class ExamController extends BaseController {
 		$qn_id = Input::get('id');
 
 		$question = Question::find($qn_id);
-		$question->options()->delete();
-		$question->delete(); 
+		$question->deleteQuestion();
 
-		return Response::success($question);
+		return Response::success('deleted');
 	}
 
 	private function retrieveQuestions($exam,$isEditing)

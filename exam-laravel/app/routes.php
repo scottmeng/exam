@@ -19,6 +19,8 @@ Route::get('/api/get-qn-types','HomeController@getQnTypes');
 Route::get('/api/logout', 'LoginController@logout');
 
 Route::post('/api/create-exam','HomeController@newExam');
+Route::post('/api/delete-exam','HomeController@deleteExam');
+Route::post('/api/delete-exam-n-qns','HomeController@deleteExamWithQns');
 Route::controller('/api/exam/{exam_id}','ExamController');
 Route::controller('/api/submission/{submission_id}','SubmissionController');
 Route::controller('api/course/{course_id}','CourseController');

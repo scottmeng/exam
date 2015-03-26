@@ -77,4 +77,9 @@ class Question extends Eloquent {
         return $options;
     }
 
+    public function deleteQuestion(){
+        $this->options()->delete();
+        $this->delete();
+    }
+
 }

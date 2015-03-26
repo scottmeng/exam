@@ -57,4 +57,25 @@ class HomeController extends BaseController {
 		}
 	}
 
+	public function deleteExamWithQns()
+	{
+		$exam_id = Input::get('id');
+		Log::info($exam_id);
+		$exam = Exam::find($exam_id);
+		$exam->deleteExamWithQns();
+
+		return Response::success('deleted');
+	}
+
+	public function deleteExam(){
+
+		$exam_id = Input::get('id');
+		DB::statement('SET FOREIGN_KEY_CHECKS = 0');
+		Exam::destroy($exam_id);
+		DB::statement('SET FOREIGN_KEY_CHECKS = 1');
+
+
+		return Response::success('deleted');
+	}
+
 }

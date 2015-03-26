@@ -54,23 +54,23 @@
 
     <!-- HEADER AND NAVBAR -->
     <header data-ng-controller="headerController">
-        <nav class="navbar navbar-default">
+        <nav class="navbar navbar-default navbar-fixed-top">
         <div class="container">
             <div class="navbar-header">
-                <a class="navbar-brand" href="/home">Exam</a>
+                <a class="navbar-brand" href="/home" style="color:white">Home</a>
             </div>
 
             <ul class="nav navbar-nav navbar-right">
-                <li><a href="#about"><i class="fa fa-shield"></i> About</a></li>
-                <li data-ng-show="isLogin"><b style="padding: 15px; display: block">@{{ userName }}</b></li>
-                <li><a href="" data-ng-click="onAuthClicked();">@{{ option }}</a></li>
+                <li><a href="#about" style="color:#E5E6EB"><i class="fa fa-shield"></i> About</a></li>
+                <li data-ng-show="isLogin"><b style="padding:15px; display: block; color:#E5E6EB">@{{ userName }}</b></li>
+                <li><a href="" data-ng-click="onAuthClicked();" style="color:#E5E6EB">@{{ option }}</a></li>
             </ul>
         </div>
         </nav>
     </header>
 
     <!-- MAIN CONTENT AND INJECTED VIEWS -->
-    <div id="main" class="container">
+    <div id="main" class="container" style="padding-top: 70px;">
         <div data-ng-view></div>
     </div>
 

@@ -12,8 +12,30 @@
     text-align:center;
 }
 
+.carousel-control.left, .carousel-control.right {
+    background-image: none !important;
+}
+/*
+.carousel-indicators li {
+  background-color: #999 !important;
+  background-color: rgba(70,70,70,.25) !important;
+}
+
+.carousel-indicators .active {
+  background-color: #444 !important;
+}*/
+
+.carousel-indicators li {
+  display:none;
+}
+
 .navbar {
-   /*background:#69C2C8 !important;*/
+   background:#003D7C  !important;
+}
+
+.current_question{
+   font-style: oblique;
+   text-decoration: underline;
 }
 
 .correct-option{
@@ -69,9 +91,7 @@
   margin-left: 16px;
 }
 
-.container {
-  width: 960px;
-}
+
 
 .hideElement{
 	visibility: hidden;

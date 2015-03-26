@@ -77,4 +77,25 @@ class Exam extends Eloquent{
         }
         return $this;
     }
+
+    public function deleteExamWithQns(){
+        $questions = $this->questions()->get();
+        foreach($questions as $question){
+            $question->deleteQuestion();
+        }
+        $this->delete();
+    }
+
+    public function getRandomSubmission(){
+        
+        $submissions = ExamSubmission::where(function ($query) {
+            $query->where('submissionstate_id','=',SUBMITTED)
+                  ->orWhere('submissionstate_id','=',GRADING);
+        })->whereNotIn( 'id', [$submission_id])->get();
+                
+        $rand = rand(0, $submissions->count()-1);
+        $next_submission = $submissions[$rand];
+
+        return Response::success($next_submission);
+    }
 }
