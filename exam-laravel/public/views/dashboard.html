@@ -58,12 +58,13 @@
 				<div class="list-group-item" data-ng-repeat="exam in course.exams">
 					<div class="row">
 						<div class="col-md-6">
-							<h5><a style="color:black">{{ exam.title }} </a><span class="label" ng-class="getExamLabel(exam)">{{exam.status}}</span>
+							<h5>{{ exam.title }} <span class="label" ng-class="getExamLabel(exam)">{{exam.status}}</span>
 							</h5>
 						</div>
 						<div class=" col-md-3 col-md-offset-3">
 							<button data-ng-click="removeExam(exam);" class="btn btn-danger pull-right" ng-show="course.user_role=='admin'&&exam.status=='draft'"><small><i class="fa fa-trash-o"></i></small></button>
 							<button data-ng-click="editExam(exam.id);" class="btn btn-default pull-right" ng-show="course.user_role=='admin'&&exam.status=='draft'"><small><i class="fa fa-pencil"></i></small></button>
+							<button data-ng-click="viewSubmissions(exam.id);" class="btn btn-primary pull-right" ng-show="course.user_role!='student'&&exam.status=='finished'"><small><i class="fa fa-bar-chart-o" style="color:white"></i></small></button>
 							<button data-ng-click="previewExam(exam.id);" class="btn btn-default pull-right" ng-show="isAdmin"><small><i class="fa fa-eye"></i></small></button>
 						</div>
 					</div>

@@ -91,10 +91,11 @@ class Course extends Eloquent {
 				unset($exams[$key]);
 			}else if($status == STATUS_FINISHED || $status == STATUS_PUBLISHED){
 				if($this->isAdmin()){
-					$exam = $exam->getAllExamSubmissions();
+					// $exam->submissions = $this->submissions()
+					$exam = $exam->getAllSubmissions(false, false);
 					$this->groups = $this->groups()->get();
 				}else{
-					$exam = $exam->getExamSubmissions($user->id);
+					$exam = $exam->getSubmissions($user->id,false, false);
 				}
 			}
 			$exam->status = $status; 

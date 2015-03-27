@@ -18,6 +18,18 @@
     text-align:center;
 }
 
+.grid-center-align{
+  text-align:center;
+}
+
+.grid-right-align{
+  text-align: right;
+}
+
+.ui-grid-header-cell{
+  text-align: center;
+}
+
 .carousel-control.left, .carousel-control.right {
     background-image: none !important;
 }

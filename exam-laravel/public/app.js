@@ -3,7 +3,8 @@
 var examApp = angular
 	.module('examApp', ['ngRoute', 'angularMoment', 'checklist-model','ui.bootstrap.modal','ui.bootstrap.tabs',
 		'ui.ace','textAngular','ui.bootstrap.buttons','ui.bootstrap.collapse', 'ui.bootstrap.progressbar', 'ui.bootstrap.carousel',
-		'mgcrea.ngStrap.datepicker','mgcrea.ngStrap.timepicker','mgcrea.ngStrap.scrollspy','mgcrea.ngStrap.affix','timer','hljs','ui.grid'])
+		'mgcrea.ngStrap.datepicker','mgcrea.ngStrap.timepicker','mgcrea.ngStrap.scrollspy','mgcrea.ngStrap.affix',
+		'timer','hljs','ui.grid','ui.grid.selection','ui.grid.exporter'])
 	.constant('QN_TYPES', {
 		'QN_MCQ'	: 1,
 		'QN_MRQ'	: 2,
@@ -499,6 +500,10 @@ examApp.controller('dashboardController', ['$scope', '$location', '$modal', '$ht
 		$scope.selectedTab = tabIndex;
 	};
 
+	$scope.viewSubmissions = function(exam_id){
+		$location.path('/exam/' + exam_id + '/submissions');
+	}
+
 	$scope.init = function() {
 
 		$http.get('/api/get-admin-courses')
@@ -613,6 +618,10 @@ examApp.controller('viewCourseController', ['$scope', '$http', '$routeParams', '
 		$location.path('/exam/' + exam_id + '/submission/' + submission_id);
 	}
 
+	$scope.redirectExam = function(exam_id){
+		$location.path('/exam/'+exam_id+'/submissions');
+	}
+
 	$scope.saveAndToggle = function(){
 		$scope.isDescriptionCollapsed=!$scope.isDescriptionCollapsed;
 		$scope.saveDescription();
@@ -626,6 +635,7 @@ examApp.controller('viewCourseController', ['$scope', '$http', '$routeParams', '
 					$scope.prepareExams(data.data.exams);
 					$scope.course = data.data;
 					$scope.isAdmin = $scope.course.user_role === 'admin';
+					console.log($scope.course);
 				}else {
 					$scope.error = data.data;
 				}
@@ -770,16 +780,17 @@ examApp.controller('viewCourseController', ['$scope', '$http', '$routeParams', '
 		}	
 	}
 
-	$scope.isExamFinished = function(exam){
-		return exam.status === EXAM_STATUS.FINISHED || exam.status === EXAM_STATUS.PUBLISHED;
+	$scope.isExamFinished = function(exam_status){
+		return exam_status === EXAM_STATUS.FINISHED || exam_status === EXAM_STATUS.PUBLISHED;
 	}
 
 	$scope.getCourseInfo();
 }]);
 
 
-examApp.controller('examDetailsController', ['$scope', '$http', '$routeParams', 'EXAM_STATUS','SUBMISSION_STATUS', '$location','$modal',
-	function($scope, $http, $routeParams, EXAM_STATUS,SUBMISSION_STATUS,$location,$modal) {
+examApp.controller('examDetailsController', ['$scope', '$http', '$routeParams', 'EXAM_STATUS',
+	'SUBMISSION_STATUS', '$location','$modal','uiGridConstants','$route',
+	function($scope, $http, $routeParams, EXAM_STATUS,SUBMISSION_STATUS,$location,$modal,uiGridConstants,$route) {
 
 	$scope.examId = $routeParams.examId;
 	$scope.isDescriptionCollapsed = true;
@@ -790,70 +801,30 @@ examApp.controller('examDetailsController', ['$scope', '$http', '$routeParams', 
 	$scope.gradingSubmissionData = [];
 
 	$scope.AllSubmissionsGrid = {
-	    showGridFooter: true,
-	    showColumnFooter: true,
 	    enableFiltering: true,
-	    // columnDefs: [
-	    //     { field: 'name', width: '13%' },
-	    //     { field: 'address.street',aggregationType: uiGridConstants.aggregationTypes.sum, width: '13%' },
-	    //     { field: 'age', aggregationType: uiGridConstants.aggregationTypes.avg, aggregationHideLabel: true, width: '13%' },
-	    //     { name: 'ageMin', field: 'age', aggregationType: uiGridConstants.aggregationTypes.min, width: '13%', displayName: 'Age for min' },
-	    //     { name: 'ageMax', field: 'age', aggregationType: uiGridConstants.aggregationTypes.max, width: '13%', displayName: 'Age for max' },
-	    //     { name: 'customCellTemplate', field: 'age', width: '14%', footerCellTemplate: '<div class="ui-grid-cell-contents" style="background-color: Red;color: White">custom template</div>' },
-	    //     { name: 'registered', field: 'registered', width: '20%', cellFilter: 'date', footerCellFilter: 'date', aggregationType: uiGridConstants.aggregationTypes.max }
-	    // ],
-	    data: $scope.allSubmissionData,
+    	enableRowSelection: true,
+	    data: $scope.allSubmissionData
 	};
 
 	$scope.gradedSubmissionsGrid = {
-	    showGridFooter: true,
-	    showColumnFooter: true,
 	    enableFiltering: true,
-	    // columnDefs: [
-	    //     { field: 'name', width: '13%' },
-	    //     { field: 'address.street',aggregationType: uiGridConstants.aggregationTypes.sum, width: '13%' },
-	    //     { field: 'age', aggregationType: uiGridConstants.aggregationTypes.avg, aggregationHideLabel: true, width: '13%' },
-	    //     { name: 'ageMin', field: 'age', aggregationType: uiGridConstants.aggregationTypes.min, width: '13%', displayName: 'Age for min' },
-	    //     { name: 'ageMax', field: 'age', aggregationType: uiGridConstants.aggregationTypes.max, width: '13%', displayName: 'Age for max' },
-	    //     { name: 'customCellTemplate', field: 'age', width: '14%', footerCellTemplate: '<div class="ui-grid-cell-contents" style="background-color: Red;color: White">custom template</div>' },
-	    //     { name: 'registered', field: 'registered', width: '20%', cellFilter: 'date', footerCellFilter: 'date', aggregationType: uiGridConstants.aggregationTypes.max }
-	    // ],
-	    data: $scope.gradedSubmissionData,
+    	enableRowSelection: true,
+	    data: $scope.gradedSubmissionData
 	};
 
 	$scope.notGradedSubmissionsGrid = {
-	    showGridFooter: true,
-	    showColumnFooter: true,
 	    enableFiltering: true,
-	    // columnDefs: [
-	    //     { field: 'name', width: '13%' },
-	    //     { field: 'address.street',aggregationType: uiGridConstants.aggregationTypes.sum, width: '13%' },
-	    //     { field: 'age', aggregationType: uiGridConstants.aggregationTypes.avg, aggregationHideLabel: true, width: '13%' },
-	    //     { name: 'ageMin', field: 'age', aggregationType: uiGridConstants.aggregationTypes.min, width: '13%', displayName: 'Age for min' },
-	    //     { name: 'ageMax', field: 'age', aggregationType: uiGridConstants.aggregationTypes.max, width: '13%', displayName: 'Age for max' },
-	    //     { name: 'customCellTemplate', field: 'age', width: '14%', footerCellTemplate: '<div class="ui-grid-cell-contents" style="background-color: Red;color: White">custom template</div>' },
-	    //     { name: 'registered', field: 'registered', width: '20%', cellFilter: 'date', footerCellFilter: 'date', aggregationType: uiGridConstants.aggregationTypes.max }
-	    // ],
-	    data: $scope.notGradedSubmissionData,
+    	enableRowSelection: true,
+	    data: $scope.notGradedSubmissionData
 	};
 
 	$scope.gradingSubmissionsGrid = {
-	    showGridFooter: true,
-	    showColumnFooter: true,
 	    enableFiltering: true,
-	    // columnDefs: [
-	    //     { field: 'name', width: '13%' },
-	    //     { field: 'address.street',aggregationType: uiGridConstants.aggregationTypes.sum, width: '13%' },
-	    //     { field: 'age', aggregationType: uiGridConstants.aggregationTypes.avg, aggregationHideLabel: true, width: '13%' },
-	    //     { name: 'ageMin', field: 'age', aggregationType: uiGridConstants.aggregationTypes.min, width: '13%', displayName: 'Age for min' },
-	    //     { name: 'ageMax', field: 'age', aggregationType: uiGridConstants.aggregationTypes.max, width: '13%', displayName: 'Age for max' },
-	    //     { name: 'customCellTemplate', field: 'age', width: '14%', footerCellTemplate: '<div class="ui-grid-cell-contents" style="background-color: Red;color: White">custom template</div>' },
-	    //     { name: 'registered', field: 'registered', width: '20%', cellFilter: 'date', footerCellFilter: 'date', aggregationType: uiGridConstants.aggregationTypes.max }
-	    // ],
-	    data: $scope.gradingSubmissionData,
+    	enableRowSelection: true,
+	    data: $scope.gradingSubmissionData
 	};
 
-	$scope.gradePaper = function(exam_id,submission_id){
+	$scope.gradePaper = function(submission_id){
 		$location.path('/exam/' + exam_id + '/submission/' + submission_id);
 	}
 
@@ -879,8 +850,8 @@ examApp.controller('examDetailsController', ['$scope', '$http', '$routeParams', 
 
 	};
 
-	$scope.randomStart = function(exam_id){
-		$http.get('/api/exam/' + exam_id + '/randomsubmission')
+	$scope.randomStart = function(){
+		$http.get('/api/exam/' + $scope.examId + '/randomsubmission')
 			.success(function(data){
 				if(data.code===200){
 					var submissionId = data.data.id;
@@ -889,13 +860,21 @@ examApp.controller('examDetailsController', ['$scope', '$http', '$routeParams', 
 			});
 	};
 
-	$scope.editExam = function (exam_id){
-		$location.path('/exam/' + exam_id + '/edit');
+	$scope.markAllMCQs = function(){
+		$http.get('/api/exam/' + $scope.examId + '/markmcq')
+			.success(function(data){
+				if(data.code===200){
+					$route.reload();
+				}
+			});
 	}
+	// $scope.editExam = function (exam_id){
+	// 	$location.path('/exam/' + exam_id + '/edit');
+	// }
 
-	$scope.previewExam = function(exam_id){
-		$location.path('/exam/' + exam_id + '/preview');
-	}
+	// $scope.previewExam = function(exam_id){
+	// 	$location.path('/exam/' + exam_id + '/preview');
+	// }
 
 	$scope.getStatusClass = function (submission){
 		if(submission.submissionstate_id == SUBMISSION_STATUS.NOT_GRADED){
@@ -914,6 +893,46 @@ examApp.controller('examDetailsController', ['$scope', '$http', '$routeParams', 
 		$scope.updateStartTime(exam);
 		$scope.updateGradingStatus(exam);
 		$scope.prepareGridData(exam);
+		$scope.initializeColumns(exam.totalqn);
+	};
+
+
+	$scope.gradePaper = function(row) {
+      	$location.path('/exam/' + $scope.examId + '/submission/' + row.entity.submission_id);
+     };
+
+
+	$scope.initializeColumns = function(qn_count){
+
+		var grid_columnDefs = [{
+			field: "Student" ,
+			 cellTemplate:'<div>' +
+                   '<a ng-click="grid.appScope.gradePaper(row)">{{row.entity.Student}}</a>' +
+                   '</div>' ,
+              cellClass: 'grid-center-align'
+		}];
+		var index=1;
+		while(index < qn_count+1){
+			var column = "Qn " + index;
+			grid_columnDefs.push({
+				field: column,
+				cellClass: 'grid-center-align'
+			});
+			index +=1;
+		}
+		grid_columnDefs.push({
+			field:"status",
+			name:'Status',
+			cellClass:'grid-center-align'
+		});
+
+		$scope.AllSubmissionsGrid.columnDefs = grid_columnDefs;
+		$scope.gradedSubmissionsGrid.columnDefs = grid_columnDefs;		
+		$scope.gradingSubmissionsGrid.columnDefs = grid_columnDefs;
+		$scope.notGradedSubmissionsGrid.columnDefs = grid_columnDefs;
+
+		console.log($scope.AllSubmissionsGrid);
+
 	};
 
 	$scope.prepareGridData = function(exam){
@@ -921,6 +940,7 @@ examApp.controller('examDetailsController', ['$scope', '$http', '$routeParams', 
 		for(var i in exam.submissions){
 			var submission = {
 				"Student": exam.submissions[i].user,
+				"submission_id": exam.submissions[i].id
 			}
 			var index=1;
 			while(index < exam.totalqn+1){
@@ -951,12 +971,7 @@ examApp.controller('examDetailsController', ['$scope', '$http', '$routeParams', 
 			}
 			$scope.allSubmissionData.push(submission);
 		}
-
-		console.log($scope.allSubmissionData);
-		console.log($scope.gradedSubmissionData);
-		console.log($scope.gradingSubmissionData);
-		console.log($scope.notGradedSubmissionData);
-	}
+	};
 
 	$scope.updateGradingStatus = function(exam){
 		if(exam.status === EXAM_STATUS.FINISHED){
@@ -985,11 +1000,11 @@ examApp.controller('examDetailsController', ['$scope', '$http', '$routeParams', 
 	        	exam.grading_finished = false;
 	        }
 		}
-	}
+	};
 
 	$scope.updateStartTime = function(exam){
 		exam.starttime = moment.tz(exam.starttime, 'GMT').toDate();
-	}
+	};
 
 	$scope.getExamLabel = function(exam){
 		if(exam){
@@ -1007,7 +1022,7 @@ examApp.controller('examDetailsController', ['$scope', '$http', '$routeParams', 
 				return "label-inverse";
 			}	
 		}
-	}
+	};
 
 	$scope.getExamInfo();
 }]);

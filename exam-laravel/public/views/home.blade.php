@@ -25,7 +25,7 @@
     <link rel="stylesheet" href="{{ URL::to('styles/style.css') }}">
     <link rel='stylesheet' href="{{ URL::to('styles/textAngular.css') }}">
     <link rel='stylesheet' href="{{ URL::to('styles/hljs-default.css') }}">
-    <link rel='stylesheet' href="{{ URL::to('styles/ui-grid-stable.css') }}">
+    <link rel='stylesheet' href="{{ URL::to('styles/ui-grid-unstable.css') }}">
 
     <script src="{{ URL::to('js/textAngular/textAngular-rangy.min.js') }}"></script>
     <script src="{{ URL::to('js/textAngular/textAngular-sanitize.min.js') }}"></script>
@@ -33,7 +33,6 @@
     <script src="{{ URL::to('js/timer.js') }}"></script>
     <script src="{{ URL::to('js/i18nService.js') }}"></script>
     <script src="{{ URL::to('js/moment.min.js') }}"></script>
-    <!--<script src="{{ URL::to('js/locales.min.js') }}"></script>-->
     <script src="{{ URL::to('js/angular-moment.js') }}"></script>
     <script src="{{ URL::to('js/moment-timezone-with-data.js') }}"></script>
 
@@ -46,7 +45,7 @@
 <!--     // <script src="{{ URL::to('js/jspdf.plugin.from_html.js') }}"></script>
     // <script src="{{ URL::to('js/jspdf.plugin.standard_fonts_metrics.js') }}"></script> 
     // <script src="{{ URL::to('js/jspdf.plugin.split_text_to_size.js') }}"></script> -->
-    <script src="{{ URL::to('js/ui-grid-stable.js') }}"></script>
+    <script src="{{ URL::to('js/ui-grid-unstable.js') }}"></script>
 
     <script src="{{ URL::to('app.js') }}"></script>
 </head>

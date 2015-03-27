@@ -113,13 +113,34 @@ class ExamController extends BaseController {
 			return Response::error(404,'The requested page is not available!');
 		}else{
 			if($course->isAdmin()){
-				$exam = $exam->getAllExamSubmissions();
+				$exam = $exam->getAllSubmissions(true, false);
 			}else{
-				$exam = $exam->getExamSubmissions($user->id);
+				$exam = $exam->getSubmissions($user->id, true, false);
 			}
 		}
 		$exam->status = $status; 
 		return Response::success($exam);
+	}
+
+	public function getMarkmcq($exam_id){
+		$mcq_qns = Exam::findOrFail($exam_id)->questions()->where('questiontype_id','=',MCQ)->get();
+
+		foreach($mcq_qns as $qn){
+			$correctOption = $qn->options()->where('correctOption','=',1)->first()->id;
+			$qn_submissions = $qn->submissions()->get();
+
+			foreach($qn_submissions as $submission){
+				$selected_option = $submission->choices()->first();
+				// Log::info($selected_option);
+				if($selected_option['option_id'] === $correctOption){
+					$submission->marks_obtained = $qn->full_marks;
+				}else{
+					$submission->marks_obtained = 0;
+				}
+				$submission->save();
+			}
+		}
+		return Response::success('marked');
 	}
 
 	public function getPublish($exam_id){
