@@ -803,26 +803,47 @@ examApp.controller('examDetailsController', ['$scope', '$http', '$routeParams', 
 	$scope.AllSubmissionsGrid = {
 	    enableFiltering: true,
     	enableRowSelection: true,
-	    data: $scope.allSubmissionData
+	    data: $scope.allSubmissionData,
+	    exporterLinkLabel: 'get your csv here',
+	     onRegisterApi: function(gridApi){ 
+		     $scope.gridApi = gridApi;
+		   }
 	};
 
 	$scope.gradedSubmissionsGrid = {
 	    enableFiltering: true,
     	enableRowSelection: true,
-	    data: $scope.gradedSubmissionData
+	    data: $scope.gradedSubmissionData,
+	    exporterLinkLabel: 'get your csv here',
+	     onRegisterApi: function(gridApi){ 
+		     $scope.gridApi = gridApi;
+		   }
 	};
 
 	$scope.notGradedSubmissionsGrid = {
 	    enableFiltering: true,
     	enableRowSelection: true,
-	    data: $scope.notGradedSubmissionData
+	    data: $scope.notGradedSubmissionData,
+	    exporterLinkLabel: 'get your csv here',
+	     onRegisterApi: function(gridApi){ 
+		     $scope.gridApi = gridApi;
+		   }
 	};
 
 	$scope.gradingSubmissionsGrid = {
 	    enableFiltering: true,
     	enableRowSelection: true,
-	    data: $scope.gradingSubmissionData
+	    data: $scope.gradingSubmissionData,
+	    exporterLinkLabel: 'get your csv here',
+	     onRegisterApi: function(gridApi){ 
+		     $scope.gridApi = gridApi;
+		   }
 	};
+
+	$scope.export = function(){
+      var myElement = angular.element(document.querySelectorAll(".custom-csv-link-location"));
+      $scope.gridApi.exporter.csvExport( 'all', 'all', myElement );
+    } 
 
 	$scope.gradePaper = function(submission_id){
 		$location.path('/exam/' + exam_id + '/submission/' + submission_id);

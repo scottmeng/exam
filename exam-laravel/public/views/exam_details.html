@@ -27,19 +27,39 @@
 		<tabset>
 			<tab>
 				<tab-heading>All Submission <span class="badge">{{exam.submission_status.total}}</span></tab-heading>
-				 <div ui-grid="AllSubmissionsGrid" ui-grid-exporter class="submissionGrid"></div>
+				 <div class="tab-content">
+					 <div ui-grid="AllSubmissionsGrid" ui-grid-exporter class="submissionGrid"></div>
+					 <div class="row" style="margin:10px">
+					 	<button class="btn btn-success col-md-2 col-md-offset-5" ng-click="export()">Export</button>
+					 </div>
+				</div>
 			</tab>
 			<tab>
 				<tab-heading>Graded <span class="badge">{{exam.submission_status.graded}}</span></tab-heading>
-				<div ui-grid="gradedSubmissionsGrid" ui-grid-exporter class="submissionGrid"></div>
+				 <div class="tab-content">
+					 <div ui-grid="gradedSubmissionsGrid" ui-grid-exporter class="submissionGrid"></div>
+					 <div class="row" style="margin:10px">
+					 	<button class="btn btn-success col-md-2 col-md-offset-5" ng-click="export()">Export</button>
+					 </div>
+				</div>			
 			</tab>
 			<tab>
 				<tab-heading>Grading <span class="badge">{{exam.submission_status.grading}}</span></tab-heading>
-				<div ui-grid="gradingSubmissionsGrid" ui-grid-exporter class="submissionGrid"></div>
+				 <div class="tab-content">
+					 <div ui-grid="gradingSubmissionsGrid" ui-grid-exporter class="submissionGrid"></div>
+					 <div class="row" style="margin:10px">
+					 	<button class="btn btn-success col-md-2 col-md-offset-5" ng-click="export()">Export</button>
+					 </div>
+				</div>			
 			</tab>
 			<tab>
 				<tab-heading>Not Graded <span class="badge">{{exam.submission_status.not_graded}}</span></tab-heading>
-				<div ui-grid="notGradedSubmissionsGrid" ui-grid-exporter class="submissionGrid"></div>
+				 <div class="tab-content">
+					 <div ui-grid="notGradedSubmissionsGrid" ui-grid-exporter class="submissionGrid"></div>
+					 <div class="row" style="margin:10px">
+					 	<button class="btn btn-success col-md-2 col-md-offset-5" ng-click="export()">Export</button>
+					 </div>
+				</div>			
 			</tab>
 		</tabset>
 	</div>
