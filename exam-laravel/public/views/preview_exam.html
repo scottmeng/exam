@@ -48,7 +48,7 @@
 </div>
 <div class="pull-right">
 	<button class="btn btn-primary" data-ng-click="cancel()">Back</button>
-	<button class="btn btn-success" data-ng-click="publishUnpublish()">{{publish}}</button>
+	<button class="btn btn-success" data-ng-show="isAdmin && (exam.status == 'not_started' || exam.status == 'draft') " data-ng-click="publishUnpublish()">{{publish}}</button>
 	<button class="btn btn-warning" data-ng-click="generatePDF()">PDF</button>
 </div>
 
@@ -132,23 +132,6 @@
 
 		#upper-alpha {
 		  list-style-type: upper-alpha;
-		}
-
-		#none {
-		  list-style-type: none;
-		}
-
-		#outside {
-		  list-style-position: outside;
-		}
-
-		#inside {
-		  list-style-position: inside;
-		}
-
-		#image {
-		  line-height: 1.5em;
-		  list-style-image: url(https://s3-us-west-2.amazonaws.com/s.cdpn.io/4621/treehouse-marker.png);
 		}
 	</style>
 </div>

@@ -35,7 +35,7 @@ class Course extends Eloquent {
 			$now = Carbon::now('Asia/Singapore');
 			$starttime = new Carbon($exam->starttime,'GMT');
 			$endtime = (new Carbon($exam->starttime,'GMT'))->addMinutes($exam->duration);
-			$visibletime = (new Carbon($exam->starttime,'GMT'))->subMinutes(15);
+			$visibletime = (new Carbon($exam->starttime,'GMT'))->subMinutes($exam->grace_period);
 
 			if($now->lt($visibletime)){
 				if($this->pivot->role_id != STUDENT){

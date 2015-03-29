@@ -12,6 +12,7 @@ class ExamController extends BaseController {
 		$exam->fullmarks = Input::get('fullmarks');
 		$exam->totalqn = Input::get('totalqn');
 		$exam->starttime = Input::get('starttime');
+		$exam->grace_period = Input::get('grace_period');
 
 		$exam->save();
 		$questions = Input::get('questions');
@@ -91,6 +92,7 @@ class ExamController extends BaseController {
 		}
 		$exam->status = $status;
 		$exam->totalqn = $exam->questions()->get()->count();
+		$exam->user_role = Role::find($course->pivot->role_id)->name;
 		return Response::success($exam);
 	}
 
@@ -161,7 +163,7 @@ class ExamController extends BaseController {
 		$exam = Exam::findOrFail($exam_id);
 		$user = User::find(Session::get('userid'));
 		if(!$user){
-			return Response::error(401,'unauthorized');
+			return Response::error(401,'Please Login First!');
 		}
 		$exam_submission = ExamSubmission::whereRaw('user_id = ? and exam_id = ?', array($user->id,$exam_id))->first();	
 		if(!$exam_submission){
@@ -258,7 +260,16 @@ class ExamController extends BaseController {
 				'user_id' => $user->id
 			));
 		$exam->submissions()->save($exam_submission);
-		$exam_submission->questions = [];
+		$qnsubmissions = [];
+		$questions = $exam->questions()->get();
+		foreach($questions as $question){
+			$question_submission = new questionSubmission(array(
+				'examsubmission_id' => $exam_submission->id
+			));	
+			$question->submissions->save($question_submission);	
+			array_push($qnsubmissions,$question_submission);
+		}
+		$exam_submission->questions = $qnsubmissions;
 		return $exam_submission;
 	}
 

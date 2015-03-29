@@ -16,7 +16,7 @@
 	  <div>
 	    <carousel interval="0">
 	      <slide ng-repeat="question in exam.questions" active="isQuestionActive[$index]">        
-	 		<div class="panel panel-info">
+	 		<div class="panel panel-primary">
 				<div class="panel-heading">
 					Question {{ $index+1 }}: {{ question.title }}
 					<span class="button-transparent" data-ng-click="isQuestionCollapsed[$index]=!isQuestionCollapsed[$index]" data-ng-show="isQuestionCollapsed[$index]"><i class="fa fa-chevron-down"></i></span>
@@ -26,7 +26,7 @@
 					<div class="question-body" style="text-align:left" collapse="isQuestionCollapsed[$index]" data-ng-bind-html="question.content" >
 					</div>
 					<div class="row tab-content">
-						<label><i class="fa fa-warning"> Marking scheme:</i></label>
+						<label><i class="fa fa-warning" style="color:#EF7C00"></i> Marking scheme:</label>
 						<div><textarea class="form-control" style="height:70px;overflow:auto" readonly>{{ question.marking_scheme}}</textarea></div>
 					</div>
 					<div class="row tab-content text-left" style="margin-top:10px">
@@ -68,28 +68,26 @@
 							<div id="editor" ui-ace data-ng-model="question.submission.answer" style="height:180px"></div>
 							<button class="btn btn-warning pull-right" style="margin-top: 10px;">Compile and Run</button>
 						</div>
-					</div>
-					<div class="row tab-content">
-						<div class="well well-sm" style="margin-top: 20px;">
+						<div class="well" style="margin-top:20px">
 							<form class="form-horizontal">
 								<div class="form-group">
-									<label class="col-md-3 control-label">Marks:</label>
+									<label class="col-md-2 control-label text-right">Marks:</label>
 									<div class="col-md-9 text-left">
 										<input type="number" max="{{question.full_marks}}" data-ng-model="question.submission.marks_obtained" placeholder="{{ question.full_marks }}"/> / {{ question.full_marks }}
 									</div>
 								</div>
 								<div class="form-group">
-									<label class="col-md-3 control-label">Comments:</label>
+									<label class="col-md-2 control-label text-right">Comments:</label>
 									<div class="col-md-9">
 										<textarea class="form-control" rows="2" data-ng-model="question.submission.comment"></textarea>
 									</div>
 								</div>
 							</form>
 						</div>
+						<div class="row">
+							<button class="btn btn-success col-md-offset-5 col-md-2 text-right" style="padding:10px" ng-click="markQuestion($index)">OK</button>
+						</div>
 					</div>
-				</div>
-				<div class="row formgroup">
-					<button class="btn btn-success col-md-offset-5 col-md-2 text-right" style="padding:10px" ng-click="markQuestion($index)">OK</button>
 				</div>
 			</div>
 	      </slide>

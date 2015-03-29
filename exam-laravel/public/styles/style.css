@@ -30,6 +30,12 @@
   text-align: center;
 }
 
+.well-marking{
+  margin-top: 20px; 
+  background:#EF7C00;
+  background:rgba(239,124,0,0.8); 
+}
+
 .carousel-control.left, .carousel-control.right {
     background-image: none !important;
 }
