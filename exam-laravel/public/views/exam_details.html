@@ -28,9 +28,9 @@
 			<tab>
 				<tab-heading>All Submission <span class="badge">{{exam.submission_status.total}}</span></tab-heading>
 				 <div class="tab-content">
-					 <div ui-grid="AllSubmissionsGrid" ui-grid-exporter class="submissionGrid"></div>
+					 <div grid ui-grid="AllSubmissionsGrid" ui-grid-exporter class="submissionGrid"></div>
 					 <div class="row" style="margin:10px">
-					 	<button class="btn btn-success col-md-2 col-md-offset-5" ng-click="export()">Export</button>
+					 	<button class="btn btn-success col-md-2 col-md-offset-5" ng-click="export(1)">Export</button>
 					 </div>
 				</div>
 			</tab>
@@ -39,7 +39,7 @@
 				 <div class="tab-content">
 					 <div ui-grid="gradedSubmissionsGrid" ui-grid-exporter class="submissionGrid"></div>
 					 <div class="row" style="margin:10px">
-					 	<button class="btn btn-success col-md-2 col-md-offset-5" ng-click="export()">Export</button>
+					 	<button class="btn btn-success col-md-2 col-md-offset-5" ng-click="export(2)">Export</button>
 					 </div>
 				</div>			
 			</tab>
@@ -48,7 +48,7 @@
 				 <div class="tab-content">
 					 <div ui-grid="gradingSubmissionsGrid" ui-grid-exporter class="submissionGrid"></div>
 					 <div class="row" style="margin:10px">
-					 	<button class="btn btn-success col-md-2 col-md-offset-5" ng-click="export()">Export</button>
+					 	<button class="btn btn-success col-md-2 col-md-offset-5" ng-click="export(3)">Export</button>
 					 </div>
 				</div>			
 			</tab>
@@ -57,7 +57,7 @@
 				 <div class="tab-content">
 					 <div ui-grid="notGradedSubmissionsGrid" ui-grid-exporter class="submissionGrid"></div>
 					 <div class="row" style="margin:10px">
-					 	<button class="btn btn-success col-md-2 col-md-offset-5" ng-click="export()">Export</button>
+					 	<button class="btn btn-success col-md-2 col-md-offset-5" ng-click="export(4)">Export</button>
 					 </div>
 				</div>			
 			</tab>

@@ -803,51 +803,72 @@ examApp.controller('examDetailsController', ['$scope', '$http', '$routeParams', 
 	$scope.AllSubmissionsGrid = {
 	    enableFiltering: true,
     	enableRowSelection: true,
+    	showGridFooter: true,
+    	showColumnFooter: true,
 	    data: $scope.allSubmissionData,
-	    exporterLinkLabel: 'get your csv here',
 	     onRegisterApi: function(gridApi){ 
-		     $scope.gridApi = gridApi;
+		     $scope.allApi = gridApi;
 		   }
 	};
 
 	$scope.gradedSubmissionsGrid = {
 	    enableFiltering: true,
     	enableRowSelection: true,
+    	showGridFooter: true,
+    	showColumnFooter: true,
 	    data: $scope.gradedSubmissionData,
-	    exporterLinkLabel: 'get your csv here',
 	     onRegisterApi: function(gridApi){ 
-		     $scope.gridApi = gridApi;
+		     $scope.gradedApi = gridApi;
 		   }
 	};
 
 	$scope.notGradedSubmissionsGrid = {
 	    enableFiltering: true,
     	enableRowSelection: true,
+    	showGridFooter: true,
+    	showColumnFooter: true,
 	    data: $scope.notGradedSubmissionData,
-	    exporterLinkLabel: 'get your csv here',
 	     onRegisterApi: function(gridApi){ 
-		     $scope.gridApi = gridApi;
+		     $scope.notGradedApi = gridApi;
 		   }
 	};
 
 	$scope.gradingSubmissionsGrid = {
 	    enableFiltering: true,
     	enableRowSelection: true,
+    	showGridFooter: true,
+    	showColumnFooter: true,
 	    data: $scope.gradingSubmissionData,
-	    exporterLinkLabel: 'get your csv here',
 	     onRegisterApi: function(gridApi){ 
-		     $scope.gridApi = gridApi;
+		     $scope.gradingApi = gridApi;
 		   }
 	};
 
-	$scope.export = function(){
-      var myElement = angular.element(document.querySelectorAll(".custom-csv-link-location"));
-      $scope.gridApi.exporter.csvExport( 'all', 'all', myElement );
+	$scope.export = function(index){
+	    switch(index){
+	    	case 1:
+	      		$scope.allApi.exporter.csvExport('all', 'all');
+	      		break;
+	      	case 2:
+	      		$scope.gradedApi.exporter.csvExport('all','all');
+	      		break;
+	      	case 3:
+	      		$scope.notGradedApi.exporter.csvExport('all','all');
+	      		break;
+	      	default:
+	      		$scope.gradingApi.exporter.csvExport('all','all');
+	      		break;
+	  	}
+
     } 
 
-	$scope.gradePaper = function(submission_id){
-		$location.path('/exam/' + exam_id + '/submission/' + submission_id);
-	}
+	// $scope.gradePaper = function(submission_id){
+	// 	$location.path('/exam/' + exam_id + '/submission/' + submission_id);
+	// }
+
+	$scope.gradePaper = function(row) {
+      	$location.path('/exam/' + $scope.examId + '/submission/' + row.entity.submission_id);
+     };
 
 	$scope.saveAndToggle = function(){
 		$scope.isDescriptionCollapsed=!$scope.isDescriptionCollapsed;
@@ -889,13 +910,6 @@ examApp.controller('examDetailsController', ['$scope', '$http', '$routeParams', 
 				}
 			});
 	}
-	// $scope.editExam = function (exam_id){
-	// 	$location.path('/exam/' + exam_id + '/edit');
-	// }
-
-	// $scope.previewExam = function(exam_id){
-	// 	$location.path('/exam/' + exam_id + '/preview');
-	// }
 
 	$scope.getStatusClass = function (submission){
 		if(submission.submissionstate_id == SUBMISSION_STATUS.NOT_GRADED){
@@ -917,12 +931,6 @@ examApp.controller('examDetailsController', ['$scope', '$http', '$routeParams', 
 		$scope.initializeColumns(exam.totalqn);
 	};
 
-
-	$scope.gradePaper = function(row) {
-      	$location.path('/exam/' + $scope.examId + '/submission/' + row.entity.submission_id);
-     };
-
-
 	$scope.initializeColumns = function(qn_count){
 
 		var grid_columnDefs = [{
@@ -937,10 +945,19 @@ examApp.controller('examDetailsController', ['$scope', '$http', '$routeParams', 
 			var column = "Qn " + index;
 			grid_columnDefs.push({
 				field: column,
-				cellClass: 'grid-center-align'
+				cellClass: 'grid-center-align',
+				aggregationType: uiGridConstants.aggregationTypes.avg,
+				footerCellTemplate: '<div class="grid-center-align">Avg: {{col.getAggregationValue()| number:2}}</div>' 
 			});
 			index +=1;
 		}
+		grid_columnDefs.push({
+			field:"total_marks",
+			name:"Total",
+			cellClass:"grid-center-align",
+			aggregationType: uiGridConstants.aggregationTypes.avg,
+			footerCellTemplate: '<div class="grid-center-align">Avg: {{col.getAggregationValue()| number:2}}</div>' 
+		});
 		grid_columnDefs.push({
 			field:"status",
 			name:'Status',
@@ -961,7 +978,8 @@ examApp.controller('examDetailsController', ['$scope', '$http', '$routeParams', 
 		for(var i in exam.submissions){
 			var submission = {
 				"Student": exam.submissions[i].user,
-				"submission_id": exam.submissions[i].id
+				"submission_id": exam.submissions[i].id,
+				"total_marks": exam.submissions[i].total_marks
 			}
 			var index=1;
 			while(index < exam.totalqn+1){
