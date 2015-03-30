@@ -578,19 +578,38 @@ examApp.controller('dashboardController', ['$scope', '$location', '$modal', '$ht
 		$location.path('/course/' + course_id);
 	}
 
+	// $scope.getExamLabel = function(exam){
+	// 	if(exam.status === EXAM_STATUS.DRAFT){
+	// 		// exam.examActionText = "Edit";
+	// 		return "label-warning";
+	// 	}else if (exam.status === EXAM_STATUS.NOT_STARTED){
+	// 		// exam.examActionText = "View";
+	// 		return "label-success";
+	// 	}else if (exam.status === EXAM_STATUS.IN_EXAM){
+	// 		// exam.examActionText = "Start";
+	// 		return "label-danger";
+	// 	}else{
+	// 		// exam.examActionText = "View";
+	// 		return "label-info";
+	// 	}	
+	// }
+
 	$scope.getExamLabel = function(exam){
 		if(exam.status === EXAM_STATUS.DRAFT){
-			// exam.examActionText = "Edit";
+			exam.statusText = "draft";
 			return "label-warning";
-		}else if (exam.status === EXAM_STATUS.NOT_STARTED){
-			// exam.examActionText = "View";
+		}else if(exam.status === EXAM_STATUS.FINISHED){
+			exam.statusText = "grading";
+			return "label-primary";
+		}else if (exam.status === EXAM_STATUS.PUBLISHED){
+			exam.statusText = "published!";
 			return "label-success";
 		}else if (exam.status === EXAM_STATUS.IN_EXAM){
-			// exam.examActionText = "Start";
+			exam.statusText = "in exam";
 			return "label-danger";
-		}else{
-			// exam.examActionText = "View";
-			return "label-info";
+		}else {
+			exam.statusText = "coming soon";
+			return "label-danger";
 		}	
 	}
 
@@ -647,7 +666,7 @@ examApp.controller('viewCourseController', ['$scope', '$http', '$routeParams',
 				if(data.code===200){
 					var modalInstance = $modal.open({
 						templateUrl: 'confirmModal.html',
-						controller: 'ConfirmModalController'
+						controller: 'ConfirmModalController',
 					});
 
 					modalInstance.result.then(function () {
@@ -807,7 +826,7 @@ examApp.controller('viewCourseController', ['$scope', '$http', '$routeParams',
 			return "label-default";
 		}else {
 			exam.statusText = "coming soon";
-			return "label-inverse";
+			return "label-danger";
 		}	
 	}
 
@@ -910,7 +929,7 @@ examApp.controller('examDetailsController', ['$scope', '$http', '$routeParams', 
 						$scope.prepareExams(data.data);
 						$scope.exam = data.data;
 					}else{
-						$scope.error = "Oops! No available submissions/statistics have been found available for this exam."
+						$scope.error = "Oops! No available submissions/statistics have been found for this exam."
 					}
 				}else {
 					$scope.error = data.data;
@@ -1300,13 +1319,16 @@ examApp.controller('viewExamController', ['$scope', '$http', '$routeParams',
 
 		if($scope.canAnswerQuestion){
 			$scope.submitCurrentQuestion();
-			  var modalInstance = $modal.open({
-	                templateUrl: 'views/confirmModal.html',
-	                controller: 'confirmModalController'
-	            });
-				modalInstance.result.then(function(){
-					$location.path('/home');
-	            });			
+	  		var modalInstance = $modal.open({
+				templateUrl: 'confirmModal.html',
+				controller: 'ConfirmModalController',
+				backdrop: 'static'
+			});
+
+			modalInstance.result.then(function () {
+				$location.path('/home');
+			}, function () {
+			});
 			// console.log('time is up');
 		}else{
 			$route.reload();
