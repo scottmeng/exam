@@ -76,7 +76,7 @@
 		      	</tab-heading>
 				<div class="well" style="margin:10px" data-ng-repeat="exam in course.exams">
 					<div>
-						<h4> <a data-ng-click="redirectExam(exam.id)">{{exam.title}} </a>
+						<h4> {{exam.title}}
 							<small><span class="label" ng-class="getExamLabel(exam)">{{exam.statusText}}</span></small>
 								<button data-ng-click="startExam(exam.id);" class="btn btn-primary col-md-1 pull-right" ng-show="exam.status=='in_exam'"><small><i class="fa fa-play-circle" style="color:white"></i></small></button>
 								<button data-ng-click="removeExam(exam);" class="btn btn-default pull-right" ng-show="course.user_role=='admin'&&exam.status=='draft'"><small><i class="fa fa-trash-o" style="color:red"></i></small></button>
@@ -96,7 +96,7 @@
 							<button class='btn btn-primary col-md-1 pull-right' data-ng-show="exam.grading_finished">Publish</button>
 							<button class='btn btn-success col-md-2 pull-right' data-ng-click="randomStart(exam.id)">Random Grade</button>
 							<button class='btn btn-info col-md-2 pull-right'data-ng-hide="exam.grading_finished" data-ng-click="markAllMCQs(exam.id)">Mark All MCQs</button>
-							<button class="btn btn-default col-md-1 pull-right" data-ng-click="showExamStats(exam)"><i class="fa fa-bar-chart-o"></i></button>
+							<button class="btn btn-default col-md-1 pull-right" data-ng-click="showExamStats(exam.id)"><i class="fa fa-bar-chart-o"></i></button>
 						</div>
 						<div class="row">
 							<div class="col-md-offset-5" data-ng-click="areSubmissionsCollapsed=!areSubmissionsCollapsed">

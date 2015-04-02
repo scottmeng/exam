@@ -171,10 +171,6 @@ class HomeController extends BaseController {
 		}
 		$file_name = $this->generateFileName($code, $lang);
 
-		// todo reformat code
-		$code = "#include <stdio.h> \nint main() {\nprintf(" . '"' . 
-				"Hello world" . '"' . ";\nreturn 0; }";
-
 		// 1. create file
 		$file_name = $this->saveCode($file_name, $code, $extension);
 		if ($file_name === false) {

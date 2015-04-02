@@ -12,8 +12,8 @@ class SubmissionController extends BaseController {
 
 	public function getFinish($submission_id){
 		$exam_submission = ExamSubmission::find($submission_id);
-		$grading = SubmissionState::where('name','like','graded')->first();
-		$grading->examsubmissions()->save($exam_submission);
+		$graded= SubmissionState::where('name','like','graded')->first();
+		$graded->examsubmissions()->save($exam_submission);
 		return Response::success($exam_submission);
 	}
 
@@ -53,7 +53,7 @@ class SubmissionController extends BaseController {
 		return Response::success($exam_submission);
 	}
 
-	public function putQnmarking($submssion_id){
+	public function putQnmarking($submission_id){
 		if(Input::has('id')){
 			$graded_status = SubmissionState::where('name','like','graded')->first();
 
@@ -62,7 +62,8 @@ class SubmissionController extends BaseController {
 			$question_submission->comment = Input::get('comment');
 
 			$graded_status->questionsubmissions()->save($question_submission);
-
+			$exam = ExamSubmission::find($submission_id);
+			$exam->updateStatus();
 			return Response::success($question_submission);
 		}
 		else{

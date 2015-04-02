@@ -23,14 +23,15 @@
 					<span class="button-transparent" data-ng-click="isQuestionCollapsed[$index]=!isQuestionCollapsed[$index]" data-ng-hide="isQuestionCollapsed[$index]"><i class="fa fa-chevron-up"></i></span>
 				</div>
 				<div class="panel-body" style="padding-left:50px;padding-right:50px">
-					<div class="question-body" style="text-align:left" collapse="isQuestionCollapsed[$index]" data-ng-bind-html="question.content" >
+					<div class="question-body" style="text-align:left" collapse="isQuestionCollapsed[$index]" data-ng-bind-html="question.content" hljs>
 					</div>
 					<div class="row tab-content">
 						<label><i class="fa fa-warning" style="color:#EF7C00"></i> Marking scheme:</label>
 						<div><textarea class="form-control" style="height:70px;overflow:auto" readonly>{{ question.marking_scheme}}</textarea></div>
 					</div>
-					<div class="row tab-content text-left" style="margin-top:10px">
-						<label>Student's answer:</label>
+					<div class="row tab-content" style="margin-top:10px"> <label class="pull-left">Student's answer:</label> <span class="label label-default pull-right" data-ng-show="isCodingQuestion(question)" data-ng-click="showOriginal(question.submission)">restore original</span></div>
+
+					<div class="row tab-content text-left">
 						<div data-ng-if="isMCQ(question);" style="height:200px;">
 							<div style="height:80px">
 								<span data-ng-repeat="option in question.options">
@@ -65,8 +66,17 @@
 							<textarea class="form-control" data-ng-model="question.submission.answer" rows="4" readonly style="height:200px;overflow:auto"></textarea>
 						</div>
 						<div data-ng-if="isCodingQuestion(question);">
-							<div id="editor" ui-ace data-ng-model="question.submission.answer" style="height:180px"></div>
-							<button class="btn btn-warning pull-right" style="margin-top: 10px;">Compile and Run</button>
+							<div id="editor" ui-ace data-ng-model="question.submission.answer_copy" style="height:180px"></div>
+							<div class="row" style="margin-right:10px">
+								<button class="btn btn-warning pull-right" style="margin-top: 10px;" data-ng-click="CompileRun(question.submission)">Compile and Execute</button>
+							</div>
+							<div name="code output" data-ng-show="question.submission.resultReady">
+								<label>Output:</label>
+								<div class="row" style="margin:10px">
+									<div class="alert alert-danger" data-ng-show="question.submission.compilation_fail">{{question.submission.compilation_error}}</div>
+									<div class="alert alert-success" data-ng-show="question.submission.compilation_fail == false">{{question.submission.output}}</div>	
+								</div>
+							</div>	
 						</div>
 						<div class="well" style="margin-top:20px">
 							<form class="form-horizontal">

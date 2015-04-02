@@ -139,9 +139,11 @@ class ExamController extends BaseController {
 				}else{
 					$submission->marks_obtained = 0;
 				}
-				$submission->save();
+				$submission->comment = "system automatic grading";
+				SubmissionState::find(GRADED)->questionsubmissions()->save($submission);
 			}
 		}
+		
 		return Response::success('marked');
 	}
 
