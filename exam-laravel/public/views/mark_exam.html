@@ -1,10 +1,21 @@
+<script type="text/ng-template" id="confirmModal.html">
+    <div class="modal-header">
+        <h4 class="modal-title" data-ng-model="exam">Automatic Grading</h4>
+    </div>
+    <div class="modal-body alert alert-success">
+    	All papers has been marked!
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-primary" ng-click="OK()">Close</button>
+    </div>
+</script>
 <h3 data-ng-if="error">{{ error }}</h3>
 <div data-ng-if="!error">
 	<div class="well">
 		<div style="margin-top:10px">
 			<h3 class="text-center">
 					Total Marks: {{ submission.total_marks }} / {{ exam.fullmarks }}
-				<span class="button-transparent" data-ng-click="nextSubmission()"><i class="fa fa-random pull-right"></i></span>
+				<span class="button-transparent" data-ng-click="nextSubmission()"><i class="fa fa-long-arrow-right pull-right"></i></span>
 			</h3>
 			<p class="text-center" style="color:grey"><i class="fa fa-user"></i> {{ submission.student }}</p>
 		</div>
@@ -23,7 +34,7 @@
 					<span class="button-transparent" data-ng-click="isQuestionCollapsed[$index]=!isQuestionCollapsed[$index]" data-ng-hide="isQuestionCollapsed[$index]"><i class="fa fa-chevron-up"></i></span>
 				</div>
 				<div class="panel-body" style="padding-left:50px;padding-right:50px">
-					<div class="question-body" style="text-align:left" collapse="isQuestionCollapsed[$index]" data-ng-bind-html="question.content" hljs>
+					<div class="question-body" style="text-align:left" collapse="isQuestionCollapsed[$index]"> 		<codearea raw="question.content" ></codearea>
 					</div>
 					<div class="row tab-content">
 						<label><i class="fa fa-warning" style="color:#EF7C00"></i> Marking scheme:</label>
@@ -66,7 +77,7 @@
 							<textarea class="form-control" data-ng-model="question.submission.answer" rows="4" readonly style="height:200px;overflow:auto"></textarea>
 						</div>
 						<div data-ng-if="isCodingQuestion(question);">
-							<div id="editor" ui-ace data-ng-model="question.submission.answer_copy" style="height:180px"></div>
+							<div id="editor" ui-ace=aceOptions data-ng-model="question.submission.answer_copy" style="height:180px"></div>
 							<div class="row" style="margin-right:10px">
 								<button class="btn btn-warning pull-right" style="margin-top: 10px;" data-ng-click="CompileRun(question.submission)">Compile and Execute</button>
 							</div>

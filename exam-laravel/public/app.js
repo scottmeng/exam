@@ -132,7 +132,7 @@ examApp.controller('CarouselDemoCtrl', function ($scope) {
   }
 });
 
-examApp.directive('kaizhi', ['$interval', '$compile', function($interval, $compile) {
+examApp.directive('codearea', ['$interval', '$compile', function($interval, $compile) {
   return {
   	restrict: 'E',
   	scope: {
@@ -144,6 +144,8 @@ examApp.directive('kaizhi', ['$interval', '$compile', function($interval, $compi
 
     	function generate() {
     		var html = scope.raw;
+    		console.log('========');
+    		console.log(html);
     		if (!html) {
     			return;
     		}
@@ -930,7 +932,7 @@ examApp.controller('examDetailsController', ['$scope', '$http', '$routeParams', 
 			.success(function(data){
 				if(data.code===200){
 					var submissionId = data.data.id;
-					$location.path('/exam/' + exam_id + '/submission/' + submissionId);
+					$location.path('/exam/' + $scope.examId + '/submission/' + submissionId);
 				}
 			});
 	};
@@ -1123,14 +1125,14 @@ examApp.controller('viewExamController', ['$scope', '$http', '$routeParams',
     $scope.aceOptions = {
 	  useWrapMode : true,
 	  theme:'clouds',
-	  mode: 'javascript',
+	  mode: 'c_cpp',
 	  firstLineNumber: 1,
 	  require:['ace/ext/language_tools'],
-	  onload: "aceLoaded",
-	  advanced:{
-	  	enableSnippets: true,
-	  	enableLiveAutocompletion: true
-	  }
+	  // onload: "aceLoaded",
+	  // advanced:{
+	  // 	enableSnippets: true,
+	  // 	enableLiveAutocompletion: true
+	  // }
     };
 
    //   $scope.aceLoaded = function(_editor) {
@@ -1333,14 +1335,28 @@ examApp.controller('viewExamController', ['$scope', '$http', '$routeParams',
 }]);
 
 examApp.controller('markExamController', ['$scope', '$routeParams', '$http', 'QN_TYPES', 'EXAM_STATUS', 
-	'SUBMISSION_STATUS','$timeout','$location',
-	function($scope, $routeParams, $http, QN_TYPES, EXAM_STATUS,SUBMISSION_STATUS,$timeout,$location) {
+	'SUBMISSION_STATUS','$timeout','$location','$modal',
+	function($scope, $routeParams, $http, QN_TYPES, EXAM_STATUS,SUBMISSION_STATUS,$timeout,$location,$modal) {
 
 		$scope.examId = $routeParams.examId;
 		$scope.submissionId = $routeParams.submissionId;
 		$scope.isQuestionCollapsed = [];
 		$scope.isQuestionActive = [];
 		$scope.currentQuestion = null;
+
+		// code editor setting
+	    $scope.aceOptions = {
+		  useWrapMode : true,
+		  theme:'clouds',
+		  mode: 'c_cpp',
+		  firstLineNumber: 1,
+		  require:['ace/ext/language_tools'],
+		  onload: "aceLoaded",
+		  advanced:{
+		  	enableSnippets: true,
+		  	enableLiveAutocompletion: true
+		  }
+		};
 
 		$scope.isMCQ = function(question) {
 			return question.questiontype_id === QN_TYPES.QN_MCQ;
@@ -1363,7 +1379,9 @@ examApp.controller('markExamController', ['$scope', '$routeParams', '$http', 'QN
 
 		$scope.isExamSubmissionGraded = function(){
 			var graded = true;
+			console.log('checking status');
 			for (var i in $scope.exam.questions) {
+				console.log($scope.exam.questions[i].submission.submissionstate_id);
 				if($scope.exam.questions[i].submission &&
 					$scope.exam.questions[i].submission.submissionstate_id != SUBMISSION_STATUS.GRADED){
 					graded = false;
@@ -1379,15 +1397,26 @@ examApp.controller('markExamController', ['$scope', '$routeParams', '$http', 'QN
 
 		$scope.nextSubmission = function(){
 			//check if all questions have been graded
-			if($scope.isExamSubmissionGraded){
-				$http.get('/api/submission/' + $scope.submissionId + '/finish')
-				.success(function(data){});
-			}
+			// if($scope.isExamSubmissionGraded){
+			// 	$http.get('/api/submission/' + $scope.submissionId + '/finish')
+			// 	.success(function(data){});
+			// }
 			$http.get('/api/submission/' + $scope.submissionId + '/nextsubmission')
 				.success(function(data){
 					if(data.code===200){
 						var submissionId = data.data.id;
 						$location.path('/exam/' + $scope.examId + '/submission/' + submissionId);
+					}
+					else{
+						var modalInstance = $modal.open({
+							templateUrl: 'confirmModal.html',
+							controller: 'ConfirmModalController',
+						});
+
+						modalInstance.result.then(function () {
+							$location.path('/exam/'+ $scope.examId + '/submissions');
+						}, function () {
+						});	
 					}
 				});
 		};
@@ -1432,13 +1461,14 @@ examApp.controller('markExamController', ['$scope', '$routeParams', '$http', 'QN
 						$scope.isQuestionActive.push(false);
 					}					
 					$scope.exam = data.data;
-
 					if ($scope.exam.status === EXAM_STATUS.UNAVAILABLE) {
 						$scope.error = 'You are not allowed to view this page';
 					}
 					else{
 						$scope.getSubmission();
 					}	
+				}else{
+					$scope.error = data.data;
 				}
 			});
 		};
@@ -1523,9 +1553,10 @@ examApp.controller('markExamController', ['$scope', '$routeParams', '$http', 'QN
 
 		$scope.CompileRun = function(submission){
 			var student_answer={
-				'code':submission.answer,
+				'code':submission.answer_copy,
 				'lang':'c++'
 			};
+
 			$http.post('/api/test-code',student_answer)
 			.success(function(data){
 				if (data.code === 200) {

@@ -164,8 +164,11 @@ class HomeController extends BaseController {
 
 	public function testCode() {
 		$code = Input::get('code');
+		Log::info($code);
 		$lang = Input::get('lang');
 		$extension = $this->getExtension($lang);
+
+		$code = "#include <stdio.h> \nint main() {\nprintf(" . '"' . "Hello world" . '")' . ";\nreturn 0; }";
 		if ($extension === false) {
 			return Response::error(400, 'language not recognized');
 		}

@@ -114,10 +114,10 @@ class ExamController extends BaseController {
 		}else if ($status == STATUS_DRAFT || $status == STATUS_NOT_STARTED){
 			return Response::error(404,'The requested page is not available!');
 		}else{
-			if($course->isAdmin()){
+					$exam = $exam->getSubmissions($user->id, true, false);
+		if($course->isAdmin()){
 				$exam = $exam->getAllSubmissions(true, false);
 			}else{
-				$exam = $exam->getSubmissions($user->id, true, false);
 			}
 		}
 		$exam->status = $status; 
@@ -245,6 +245,8 @@ class ExamController extends BaseController {
 			foreach($questions as $question){
 				$question['options']=$question->options()->select('id', 'content')->get();
 				unset($question->marking_scheme);
+				unset($question->suggested_answer);
+				unset($question->general_feedback);
 			}
 		}
 		else{

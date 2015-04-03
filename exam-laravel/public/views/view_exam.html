@@ -60,7 +60,9 @@
 			</div>
 		</div>
 		<div class="panel-body">
-			<div data-ng-bind-html="exam.questions[curQnIndex].content" hljs class="question-body"></div>
+<!-- 			<div data-ng-bind-html="exam.questions[curQnIndex].content" hljs class="question-body"></div>
+ -->			
+ 			<codearea raw="exam.questions[curQnIndex].content" class="question-body"></codearea>
 			<div data-ng-if="isMCQ(exam.questions[curQnIndex]);" class="row">
 				<div class="col-md-6" style="margin-bottom: 10px" data-ng-repeat="option in exam.questions[curQnIndex].options">
 					<label class="checkbox-inline">
@@ -80,7 +82,7 @@
 				<textarea class="form-control" data-ng-model="curQnSubmission.answer" rows="10"></textarea>
 			</div>
 			<div data-ng-if="isCodingQuestion(exam.questions[curQnIndex]);" class="row">
-				<div id="coding-area" class="col-md-10 col-md-offset-1">
+				<div id="coding-area" >
 					<div id="editor" ui-ace=aceOptions data-ng-model="curQnSubmission.answer" rows="4"></div>
 				</div>
 			</div>

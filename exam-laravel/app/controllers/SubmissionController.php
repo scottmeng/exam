@@ -30,7 +30,7 @@ class SubmissionController extends BaseController {
 
 			return Response::success($next_submission);
 		}else{
-			return Response::error('no other submissions found');
+			return Response::error('404','no other submissions found');
 		}
 	}
 
