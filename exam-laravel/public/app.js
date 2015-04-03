@@ -134,18 +134,20 @@ examApp.controller('CarouselDemoCtrl', function ($scope) {
 
 examApp.directive('codearea', ['$interval', '$compile', function($interval, $compile) {
   return {
-  	restrict: 'E',
+  	restrict: 'AE',
   	scope: {
-  		raw: '=raw'
+  		raw: '='
   	},
     link: function(scope, elem, attrs) {
+    	scope.$watch('raw', function(newValue, oldValue) {
+    		generate();
+    	}, true);
+
     	var regex = /<pre><code>.*?<\/code><\/pre>/g;
     	scope.code = [];
 
     	function generate() {
     		var html = scope.raw;
-    		console.log('========');
-    		console.log(html);
     		if (!html) {
     			return;
     		}
@@ -153,16 +155,10 @@ examApp.directive('codearea', ['$interval', '$compile', function($interval, $com
     		for (var i in matches) {
     			var code = matches[i].replace(/<pre><code>/g, '')
     								 .replace(/<\/code><\/pre>/g, '');
-    			console.log(code);
     			scope.code.push(escape(code));
     			html = html.replace(matches[i], '<div hljs source="code[' + i + ']"></div>');
     		}
-    		// var html = scope.raw.replace(/<pre><code>/g, '<div hljs>');
-    		// html = html.replace(/<\/code><\/pre>/g, '</div>');
-    		// html = unescapeHTML(html);
-    		console.log(html);
-    		elem.append(html);
-	    	// elem.html(html);
+    		elem.html(html);
 	    	$compile(elem)(scope);
     	}
 
