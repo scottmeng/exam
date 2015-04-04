@@ -1,11 +1,7 @@
 <?php
 
-// return [
-//     'USERS' => [
-//         'ADMIN' => 1,
-//         'FACILITATOR' => 2,
-//         'STUDENT'
-// ]
+define('GRAPH_LEVEL', 6);
+
 define('ADMIN',  1);
 define('FACILITATOR',2);
 define('STUDENT',3);

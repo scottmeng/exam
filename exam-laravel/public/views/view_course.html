@@ -88,13 +88,13 @@
 					</div>
 					<div data-ng-show="isExamFinished(exam.status)" style="margin-top:30px">
 						<div class="row" style="margin:10px" >
-							<small><em>Grading Progress:</em></small>
+							<small><em>Marking Progress:</em></small>
 							<progress><bar ng-repeat="status in exam.status_data track by $index" value="status.value" type="{{status.type}}"><span ng-hide="status.value < 5"><small><em>{{status.text + status.count}}</small></em></span></bar></progress>
 						</div>
 						<div class="row" style="margin:10px">
 							<span data-ng-repeat="group in course.groups"><a>{{group.name}} </a>|</span>
 							<button class='btn btn-primary col-md-1 pull-right' data-ng-show="exam.grading_finished">Publish</button>
-							<button class='btn btn-success col-md-2 pull-right' data-ng-click="randomStart(exam.id)">Random Grade</button>
+							<button class='btn btn-success col-md-2 pull-right' data-ng-click="randomStart(exam.id)">Start Marking</button>
 							<button class='btn btn-info col-md-2 pull-right'data-ng-hide="exam.grading_finished" data-ng-click="markAllMCQs(exam.id)">Mark All MCQs</button>
 							<button class="btn btn-default col-md-1 pull-right" data-ng-click="showExamStats(exam.id)"><i class="fa fa-bar-chart-o"></i></button>
 						</div>

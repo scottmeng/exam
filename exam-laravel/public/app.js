@@ -4,7 +4,7 @@ var examApp = angular
 	.module('examApp', ['ngRoute', 'angularMoment', 'checklist-model','ui.bootstrap.modal','ui.bootstrap.tabs',
 		'ui.ace','textAngular','ui.bootstrap.buttons','ui.bootstrap.collapse', 'ui.bootstrap.progressbar', 'ui.bootstrap.carousel',
 		'mgcrea.ngStrap.datepicker','mgcrea.ngStrap.timepicker','mgcrea.ngStrap.scrollspy','mgcrea.ngStrap.affix',
-		'timer','hljs','ui.grid','ui.grid.selection','ui.grid.exporter'])
+		'timer','hljs','ui.grid','ui.grid.selection','ui.grid.exporter','chart.js'])
 	.constant('QN_TYPES', {
 		'QN_MCQ'	: 1,
 		'QN_MRQ'	: 2,
@@ -888,6 +888,13 @@ examApp.controller('examDetailsController', ['$scope', '$http', '$routeParams', 
 	$scope.notGradedSubmissionData = [];
 	$scope.gradingSubmissionData = [];
 
+
+	$scope.graphLabels = ['2006', '2007', '2008', '2009', '2010', '2011', '2012'];
+
+	$scope.graphData = [
+	  [65, 59, 80, 81, 56, 55, 40]
+	];
+
 	$scope.AllSubmissionsGrid = {
 	    enableFiltering: true,
     	enableRowSelection: true,
@@ -1025,7 +1032,12 @@ examApp.controller('examDetailsController', ['$scope', '$http', '$routeParams', 
 		$scope.updateGradingStatus(exam);
 		$scope.prepareGridData(exam);
 		$scope.initializeColumns(exam.totalqn);
+		$scope.prepareGraphData(exam);
 	};
+
+	$scope.prepareGraphData = function(exam){
+
+	}
 
 	$scope.initializeColumns = function(qn_count){
 
