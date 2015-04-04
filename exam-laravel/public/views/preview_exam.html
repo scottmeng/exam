@@ -1,55 +1,56 @@
-<div class="row" style="margin:5px" >
-	<div class="col-md-6">
-		<h3>{{ exam.title }}</h3>
-	</div>
-</div>
-<div class="panel-body">
-	<div class="row">
-		<label class="col-md-2 text-right">Total Marks:</label>
-		<p class="col-md-1 text-left">{{ exam.fullmarks }}</p>
-		<label class="col-md-2 text-right">Exam Time:</label>
-		<p class="col-md-3">{{ exam.starttime | date:'yyyy-MM-dd HH:mm' }}</p>
-		<label class="col-md-1 text-left">Duration:</label>
-		<p class="col-md-2">{{ exam.duration }} minutes</p>
-	</div>
-	<div class="row well">
-		<div data-ng-bind-html="exam.description"></div>
-	</div>
-</div>
-
-<div class="panel panel-info" data-ng-repeat="question in exam.questions">
-
-		<div class="panel-heading">
-			<div class="row">
-				<div class="col-md-8">Question {{ $index + 1 }}: {{question.title}} ({{ question.full_marks}} marks)</div>
-			</div>
+<div id="printsection">
+	<div class="row" style="margin:5px" >
+		<div class="col-md-6">
+			<h3>{{ exam.title }}</h3>
 		</div>
+	</div>
+	<div class="panel-body">
+		<div class="row">
+			<label class="col-md-2 text-right">Total Marks:</label>
+			<p class="col-md-1 text-left">{{ exam.fullmarks }}</p>
+			<label class="col-md-2 text-right">Exam Time:</label>
+			<p class="col-md-3">{{ exam.starttime | date:'yyyy-MM-dd HH:mm' }}</p>
+			<label class="col-md-1 text-left">Duration:</label>
+			<p class="col-md-2">{{ exam.duration }} minutes</p>
+		</div>
+		<div class="row well">
+			<div data-ng-bind-html="exam.description"></div>
+		</div>
+	</div>
 
-		<div class="panel-body">
-			<codearea raw="question.content"></codearea>
-<!-- 			<div data-ng-if="isCodingQuestion(question);" class="java hljs"><code>{{question.content}}</code></div>
- -->		 	<div data-ng-if="isMCQ(question);" class="row">
-				<div class="col-md-6" style="margin-bottom: 10px" data-ng-repeat="option in question.options">
-					<label class="checkbox-inline">
-						<input type="radio" name="question.id" ng-checked="isChecked(option.id)" value="{{option.id}}" data-ng-model="curQnSubmission.choice">
-						{{ option.content }}
-					</label>
+	<div class="panel panel-info" data-ng-repeat="question in exam.questions">
+
+			<div class="panel-heading">
+				<div class="row">
+					<div class="col-md-8">Question {{ $index + 1 }}: {{question.title}} ({{ question.full_marks}} marks)</div>
 				</div>
 			</div>
-			<div data-ng-if="isMRQ(question);" class="row">
-				<div class="col-md-6" style="margin-bottom: 10px" data-ng-repeat="option in question.options">
-						<input type="checkbox" ng-checked="isChecked(option.id)" checklist-value="option.id" checklist-model="curQnSubmission.choices">
-						{{ option.content }}
-					</label>
-				</div>
-			</div>			
-		</div>
 
+			<div class="panel-body">
+				<codearea raw="question.content"></codearea>
+	<!-- 			<div data-ng-if="isCodingQuestion(question);" class="java hljs"><code>{{question.content}}</code></div>
+	 -->		 	<div data-ng-if="isMCQ(question);" class="row">
+					<div class="col-md-6" style="margin-bottom: 10px" data-ng-repeat="option in question.options">
+						<label class="checkbox-inline">
+							<input type="radio" name="question.id" ng-checked="isChecked(option.id)" value="{{option.id}}" data-ng-model="curQnSubmission.choice">
+							{{ option.content }}
+						</label>
+					</div>
+				</div>
+				<div data-ng-if="isMRQ(question);" class="row">
+					<div class="col-md-6" style="margin-bottom: 10px" data-ng-repeat="option in question.options">
+							<input type="checkbox" ng-checked="isChecked(option.id)" checklist-value="option.id" checklist-model="curQnSubmission.choices">
+							{{ option.content }}
+						</label>
+					</div>
+				</div>			
+			</div>
+	</div>
 </div>
 <div class="pull-right">
 	<button class="btn btn-primary" data-ng-click="cancel()">Back</button>
 	<button class="btn btn-success" data-ng-show="isAdmin && (exam.status == 'not_started' || exam.status == 'draft') " data-ng-click="publishUnpublish()">{{publish}}</button>
-	<button class="btn btn-warning" data-ng-click="generatePDF()">PDF</button>
+	<button class="btn btn-warning" print-div="#printsection">PDF</button>
 </div>
 
 
@@ -77,7 +78,7 @@
 			<br/>
 		</div>
 	</div>
-	<style>
+<!-- 	<style>
 		#disc {
 		  list-style-type: disc;
 		}
@@ -133,5 +134,5 @@
 		#upper-alpha {
 		  list-style-type: upper-alpha;
 		}
-	</style>
+	</style> -->
 </div>

@@ -132,6 +132,59 @@ examApp.controller('CarouselDemoCtrl', function ($scope) {
   }
 });
 
+'use strict';
+
+examApp.directive('printDiv', function () {
+    return {
+        restrict: 'A',
+        link: function(scope, element, attrs) {
+
+            var iframe;
+            var elementToPrint = document.querySelector(attrs.printDiv);
+
+            if (!window.frames["print-frame"]) {
+                var elm = document.createElement('iframe');
+                elm.setAttribute('id', 'print-frame');
+                elm.setAttribute('name', 'print-frame');
+                elm.setAttribute('style', 'display: none;');
+                document.body.appendChild(elm);
+            }
+
+            // function write(value) {
+            //     var doc;
+            //     if (iframe.contentDocument) { // DOM
+            //         doc = iframe.contentDocument;
+            //     } else if (iframe.contentWindow) { // IE win
+            //         doc = iframe.contentWindow.document;
+            //     } else {
+            //         alert('Wonder what browser this is... ' + navigator.userAgent);
+            //     }
+            //     doc.write(value);
+            //     doc.close();
+            // }
+
+            element.bind('click', function(event) {
+                iframe = document.getElementById('print-frame');
+                // write(elementToPrint.innerHTML);
+
+                 iframe.contentWindow.document.write('<html><head><title></title>'+
+                     '<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css" />'
+                          + '</head><body><div>'
+                          + elementToPrint.innerHTML
+                          + '</div></body></html>');
+
+
+                if (window.navigator.userAgent.indexOf ("MSIE") > 0) {
+                    iframe.contentWindow.document.execCommand('print', false, null);
+                } else {
+                    iframe.contentWindow.focus();
+                    iframe.contentWindow.print();
+                }
+            });
+        }
+    };
+});
+
 examApp.directive('codearea', ['$interval', '$compile', function($interval, $compile) {
   return {
   	restrict: 'E',
@@ -197,22 +250,20 @@ examApp.controller('viewPaperController', ['$scope', '$routeParams', '$http', 'Q
 			$http.get('/api/exam/' + $scope.examId + '/examinfo')
 				.success(function(data){
 					if (data.code === 200) {
-						console.log(data.data);
-						$scope.exam = data.data;
-						$scope.getSubmissionInfo();
+						$scope.getSubmissionInfo(data.data);
 					} else {
 						$scope.error = data.data;
 					}
 			});
 		};
 
-		$scope.getSubmissionInfo = function(){
+		$scope.getSubmissionInfo = function(exam){
 			console.log('get submission info');
 			$http.get('/api/exam/' + $scope.examId + '/submission')
 				.success(function(data) {
 					if (data.code === 200) {
 						$scope.submission = data.data;
-						$scope.mergeSubmissionToExam();
+						$scope.mergeSubmissionToExam(exam, data.data);
 					}
 				});
 		};
@@ -242,20 +293,21 @@ examApp.controller('viewPaperController', ['$scope', '$routeParams', '$http', 'Q
 			return question.questiontype_id === QN_TYPES.QN_SHORT;
 		};
 
-		$scope.mergeSubmissionToExam = function() {
-			if (!$scope.submission) {
-				return;
+		$scope.mergeSubmissionToExam = function(exam, submission) {
+			for (var i in exam.questions) {
+				exam.questions[i].submission = 
+					$scope.getQuestionSubmission(exam.questions[i].id);
+				exam.questions[i].submission.answer_copy = '<pre><code>'+exam.questions[i].submission.answer+'</code></pre>';
 			}
-			if (!$scope.exam) {
-				return;
-			}
-
-			for (var i in $scope.exam.questions) {
-				$scope.exam.questions[i].submission = 
-					$scope.getQuestionSubmission($scope.exam.questions[i].id);
-				//$scope.exam.questions[i].answers = [];
-			}
+			$scope.exam = exam;
 		};
+
+		// $scope.generatePDF = function () {
+		// 	console.log('I was here!');
+		//     $scope.printElement(document.getElementById("printsection"));
+		//     window.print();
+		// }
+
 
 		$scope.getExamInfo();
 }]);
@@ -283,39 +335,39 @@ examApp.controller('previewExamController', ['$scope', '$http', '$routeParams', 
 		});
 	};
 
-	function createScript(callback) {
-            if (!document) {
-                return;
-            }
-            var scriptTag = document.createElement("script");
-            scriptTag.type = "text/javascript";
-            scriptTag.async = true;
-            scriptTag.src = 'http://mrrio.github.io/jsPDF/dist/jspdf.debug.js';
-            scriptTag.onload = callback;
-            var s = document.getElementsByTagName("head")[0];
-            s.appendChild(scriptTag);
-        }
+	// function createScript(callback) {
+ //            if (!document) {
+ //                return;
+ //            }
+ //            var scriptTag = document.createElement("script");
+ //            scriptTag.type = "text/javascript";
+ //            scriptTag.async = true;
+ //            scriptTag.src = 'http://mrrio.github.io/jsPDF/dist/jspdf.debug.js';
+ //            scriptTag.onload = callback;
+ //            var s = document.getElementsByTagName("head")[0];
+ //            s.appendChild(scriptTag);
+ //        }
 
-	$scope.generatePDF = function(){
-		console.log('I was here!');
-		createScript(function() {
-			var doc = new jsPDF();
-			var source = document.getElementById('pdf-template');
-			var specialElementHandlers = {
-				'#editor': function(element, renderer) {
-					return true;
-				}
-			};
-			doc.fromHTML(document.getElementById('pdf-template'), 15, 15, {
-				'width': 160,
-				'elementHandlers': specialElementHandlers
-			});
-			doc.setFont("courier");
-			doc.setFontType("normal");
+	// $scope.generatePDF = function(){
+	// 	console.log('I was here!');
+	// 	createScript(function() {
+	// 		var doc = new jsPDF();
+	// 		var source = document.getElementById('pdf-template');
+	// 		var specialElementHandlers = {
+	// 			'#editor': function(element, renderer) {
+	// 				return true;
+	// 			}
+	// 		};
+	// 		doc.fromHTML(document.getElementById('pdf-template'), 15, 15, {
+	// 			'width': 160,
+	// 			'elementHandlers': specialElementHandlers
+	// 		});
+	// 		doc.setFont("courier");
+	// 		doc.setFontType("normal");
 
-			doc.output('dataurlnewwindow');
-		});
-	}
+	// 		doc.output('dataurlnewwindow');
+	// 	});
+	// }
 
 	$scope.isMCQ = function(question) {
 		return question.questiontype_id === QN_TYPES.QN_MCQ;
