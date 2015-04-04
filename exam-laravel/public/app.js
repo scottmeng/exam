@@ -25,6 +25,39 @@ var examApp = angular
 		'GRADED'		: 	3
 	});
 
+examApp.run(function($http, AuthService, $rootScope) {
+	if (!AuthService.isAuthenticated()) {
+		AuthService.checkLogin().then(function(res) {
+			$rootScope.$broadcast('auth_event');
+		});
+	}
+});
+
+examApp.config(function ($httpProvider) {
+	$httpProvider.interceptors.push([
+		'$injector',
+		function ($injector) {
+			return $injector.get('AuthInterceptor');
+		}
+	]);
+});
+
+examApp.factory('AuthInterceptor', function ($rootScope, $q, $location, sessionService) {
+	return {
+		responseError: function (response) { 
+			if (response.status === 401) {
+				var current = $location.path();
+				sessionService.clear();
+				if (current !== '/') {
+					$location.search().redirect = current;
+				}
+				$location.path('/');
+				return $q.reject(response);
+			}
+		}
+	};
+})
+
 examApp.config(['$routeProvider', '$locationProvider', 
 	function($routeProvider, $locationProvider) {
 		$routeProvider
@@ -34,35 +67,75 @@ examApp.config(['$routeProvider', '$locationProvider',
 			})
 			.when('/home', {
 				templateUrl: 'views/dashboard.html',
-				controller: 'dashboardController'
+				controller: 'dashboardController',
+				resolve: {
+					auth: function resolveAuthentication(AuthResolver) {
+						return AuthResolver.resolve();
+					}
+				}
 			})
 			.when('/exam/:examId/view_paper', {
 				templateUrl: 'views/view_graded_paper.html',
-				controller: 'viewPaperController'
+				controller: 'viewPaperController',
+				resolve: {
+					auth: function resolveAuthentication(AuthResolver) {
+						return AuthResolver.resolve();
+					}
+				}
 			})
 			.when('/exam/:examId/edit', {
 				templateUrl: 'views/create_exam.html',
-				controller: 'newExamController'
+				controller: 'newExamController',
+				resolve: {
+					auth: function resolveAuthentication(AuthResolver) {
+						return AuthResolver.resolve();
+					}
+				}
 			})
 			.when('/exam/:examId', {
 				templateUrl: 'views/view_exam.html',
-				controller: 'viewExamController'
+				controller: 'viewExamController',
+				resolve: {
+					auth: function resolveAuthentication(AuthResolver) {
+						return AuthResolver.resolve();
+					}
+				}
 			})
 			.when('/course/:courseId', {
 				templateUrl: 'views/view_course.html',
-				controller: 'viewCourseController'
+				controller: 'viewCourseController',
+				resolve: {
+					auth: function resolveAuthentication(AuthResolver) {
+						return AuthResolver.resolve();
+					}
+				}
 			})
 			.when('/exam/:examId/preview',{
 				templateUrl: 'views/preview_exam.html',
-				controller: 'previewExamController'
+				controller: 'previewExamController',
+				resolve: {
+					auth: function resolveAuthentication(AuthResolver) {
+						return AuthResolver.resolve();
+					}
+				}
 			})
 			.when('/exam/:examId/submission/:submissionId', {
 				templateUrl: 'views/mark_exam.html',
-				controller: 'markExamController'
+				controller: 'markExamController',
+				resolve: {
+					auth: function resolveAuthentication(AuthResolver) {
+						return AuthResolver.resolve();
+					}
+				}
 			})
 			.when('/exam/:examId/submissions',{
 				templateUrl: 'views/exam_details.html',
-				controller: 'examDetailsController' 
+				controller: 'examDetailsController',
+				resolve: {
+					auth: function resolveAuthentication(AuthResolver) {
+						return AuthResolver.resolve();
+					}
+				}
 			})
 			.otherwise({
 				templateUrl: 'views/not_found.html'
@@ -94,14 +167,64 @@ examApp.config(function($provide){
                     promise.resolve();
 	            });
 	            return false;
-
-                // this.$editor().wrapSelection('inserthtml', '<pre><code>for i in test: dsda dasdas</code></pre>');
             }
         });
         // add the button to the default toolbar definition
         taOptions.toolbar[1].push('code');
         return taOptions;
     }]);
+});
+
+examApp.factory('AuthResolver', function($q, $rootScope, $location, AuthService, $timeout) {
+	return {
+		resolve: function() {
+			var deferred = $q.defer();
+			$timeout(function() {
+				if (AuthService.isAuthenticated()) {
+					deferred.resolve();
+				} else {
+					deferred.reject();
+				}
+			}, 200);
+			
+			return deferred.promise;
+		}
+	};
+});
+
+examApp.factory('AuthService', function($http, sessionService) {
+	var authService = {};
+
+	authService.checkLogin = function() {
+		return $http.get('/api/profile')
+			.then(function(res) {
+				console.log(res);
+				sessionService.create('user_id', res.data.data.name);
+				return res.data.data;
+			});
+	};
+
+	authService.login = function(credentials) {
+		return $http.post('/login', credentials)
+			.then(function(res) {
+				sessionService.create('user_id', res.data.data);
+				return res.data.data;
+			});
+	};
+
+	authService.logout = function() {
+		return $http.get('/logout')
+			.then(function(res) {
+				sessionService.clear();
+				return res.data.data;
+			});
+	};
+
+	authService.isAuthenticated = function() {
+		return !!sessionService.userId;
+	};
+
+	return authService;
 });
 
 examApp.service('sessionService', function() {
@@ -357,13 +480,11 @@ examApp.controller('previewExamController', ['$scope', '$http', '$routeParams', 
 
 	}
 
-
 	$scope.getExamInfo();
-
 }]);
 
-examApp.controller('headerController', ['$scope', 'sessionService', '$location',
-	function($scope, sessionService, $location) {
+examApp.controller('headerController', ['$scope', 'sessionService', '$location', 'AuthService',
+	function($scope, sessionService, $location, AuthService) {
 
 		$scope.isLogin = false;
 		$scope.userName = '';
@@ -387,9 +508,10 @@ examApp.controller('headerController', ['$scope', 'sessionService', '$location',
 			if ($scope.isLogin) {
 				// logout
 				// todo: send logout request
-				sessionService.clear();
-				$scope.updateLoginStatus();
-				$location.path('/');
+				AuthService.logout().then(function(res) {
+					$scope.updateLoginStatus();
+					$location.path('/');
+				});
 			} else {
 				// login
 				$location.path('/');
@@ -399,32 +521,57 @@ examApp.controller('headerController', ['$scope', 'sessionService', '$location',
 		$scope.updateLoginStatus();
 }]);
 
-examApp.controller('loginController', ['$scope', '$rootScope','$location', '$window', '$http', 'sessionService',
-	function($scope, $rootScope, $location, $window, $http, sessionService) {
+examApp.controller('appController', ['$scope', '$rootScope', 'AuthService', 
+	function($scope, $rootScope, AuthService) {
+		$rootScope.currentUser = null;
+	  	$rootScope.isAuthorized = AuthService.isAuthorized;
+
+	  	$scope.setCurrentUser = function (user) {
+		    $rootScope.currentUser = user;
+		};
+}]);
+
+examApp.controller('loginController', ['$scope', '$rootScope','$location', '$window', '$http', 'AuthService',
+	function($scope, $rootScope, $location, $window, $http, AuthService) {
+		
+		var init = function() {
+			var redirect = $location.search().redirect;
+
+			if (redirect) {
+				$scope.loginError = 'You are not logged in yet. Please log in to continue...';
+			}
+			if (AuthService.isAuthenticated()) {
+				if (redirect) {
+					$location.url(redirect);
+				} else {
+					$location.path('/home');
+				}
+			}
+		}
 
 		$scope.signin = function() {
-
 			var loginVar = {
 				'username': $scope.user.userId,
 				'password': $scope.user.password
 			};	
 
 			$scope.loginError = null;	
-			$http.post('/login', loginVar)
-				.success(function(data, status, header, config) {
-					console.log(data);
-					if(data.code === 200){
-						sessionService.create('user_id', data.data);
-						$rootScope.$broadcast('auth_event');
-						$location.path('/home');
-					}else {
-						$scope.loginError = 'Incorrect user id or password. Login failed!';
-					}
-				})
-				.error(function(data, status, header, config) {
-				});			
+			AuthService.login(loginVar).then(function(user) {
+				$rootScope.$broadcast('auth_event');
+				$scope.setCurrentUser(user);
+
+				var redirect = $location.search().redirect;
+				if (redirect) {
+					$location.url(redirect);
+				} else {
+					$location.path('/home');
+				}
+			}, function() {
+				$scope.loginError = 'Incorrect user id or password. Login failed';
+			});		
 		};
 
+		init();
 	}
 ]);
 

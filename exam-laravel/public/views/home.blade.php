@@ -49,7 +49,7 @@
 
     <script src="{{ URL::to('app.js') }}"></script>
 </head>
-<body>
+<body data-ng-controller="appController">
 
     <!-- HEADER AND NAVBAR -->
     <header data-ng-controller="headerController">
@@ -60,7 +60,6 @@
             </div>
 
             <ul class="nav navbar-nav navbar-right">
-                <li><a href="#about" style="color:#E5E6EB"><i class="fa fa-shield"></i> About</a></li>
                 <li data-ng-show="isLogin"><b style="padding:15px; display: block; color:#E5E6EB">@{{ userName }}</b></li>
                 <li><a href="" data-ng-click="onAuthClicked();" style="color:#E5E6EB">@{{ option }}</a></li>
             </ul>
