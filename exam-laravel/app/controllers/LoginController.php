@@ -34,12 +34,19 @@ class LoginController extends BaseController {
 		}
     }
 
+    public function getProfile()
+	{
+		$user = User::find(Session::get('userid'));
+		if(!$user){
+			return Response::error(401, 'unauthorized');
+		}
+		return Response::success($user);
+	}
+
 	public function logout()
 	{
 		Session::flush();
 
 		return Response::success('logout sucessful');
 	}
-
-
 }
