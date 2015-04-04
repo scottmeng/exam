@@ -94,10 +94,7 @@ Response::macro('success', function($data)
 
 Response::macro('error', function($code, $message)
 {
-    return Response::json(array(
-    	'code'=>$code,
-    	'data'=>$message
-    ));
+    return App::abort($code, $message);
 });
 
 

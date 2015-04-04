@@ -7,11 +7,14 @@ require_once(realpath(__DIR__ . "/../vendor/adldap/adldap/lib/adLDAP/adLDAP.php"
 
 Route::get('/', 'LoginController@init');
 Route::post('/login', 'LoginController@validateLogin');
+Route::get('/logout', 'LoginController@logout');
 
 //send default page back when 404
 App::missing(function($exception) {
     return View::make('home');
 });
+
+Route::get('/api/profile', 'LoginController@getProfile');
 
 Route::get('/api/get-courses','HomeController@getCourses');
 Route::get('/api/get-admin-courses','HomeController@getAdminCourses');
