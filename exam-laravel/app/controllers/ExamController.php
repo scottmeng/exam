@@ -78,7 +78,7 @@ class ExamController extends BaseController {
 
 		// stop user from receiving any information about this exam
 		if ($status == 'unavailable') {
-			return Response::error(401, 'You are unauthorized to view this page!');
+			return Response::error(403, 'You are unauthorized to view this page!');
 		}
 
 		if($course->pivot->role_id != ADMIN && $course->pivot->role_id != FACILITATOR && $status == 'in_exam'){
@@ -110,7 +110,7 @@ class ExamController extends BaseController {
 
 		// stop user from receiving any information about this exam
 		if ($status == STATUS_UNAVAILABLE) {
-			return Response::error(401, 'You are unauthorized to view this page!');
+			return Response::error(403, 'You are unauthorized to view this page!');
 		}else if ($status == STATUS_DRAFT || $status == STATUS_NOT_STARTED){
 			return Response::error(404,'The requested page is not available!');
 		}else{

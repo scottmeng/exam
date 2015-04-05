@@ -56,7 +56,7 @@
         <nav class="navbar navbar-default navbar-fixed-top">
         <div class="container">
             <div class="navbar-header">
-                <a class="navbar-brand" href="/home" style="color:white">Paperless Test</a>
+                <a class="navbar-brand" href="@{{ if (userName) ? '/home' : '/'}}" style="color:white">Paperless Test</a>
             </div>
 
             <ul class="nav navbar-nav navbar-right">

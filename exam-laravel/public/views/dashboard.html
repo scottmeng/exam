@@ -52,7 +52,7 @@
 			<tab-heading>Courses</tab-heading> -->
 			<div class="tab-content" style="padding-top: 20px">
 				<div class="panel panel-default" data-ng-repeat="course in courses">
-					<div class="panel-heading dashboard-heading"><h4><a data-ng-click="viewCourse(course.id)" ng-class="{'not-active':course.user_role=='student'}" style="color:#4D5360">{{ course.nus_id + " " + course.name }}</a></h4></div>
+					<div class="panel-heading dashboard-heading"><h4><a data-ng-click="viewCourse(course.id)"  class="dashboard-title" ng-class="{'not-active':course.user_role=='student'}">{{ course.nus_id + " " + course.name }}</a></h4></div>
 					<div class="panel-body" data-ng-bind-html="course.description"></div>
 					<div class="list-group">
 						<div class="list-group-item" data-ng-repeat="exam in course.exams">

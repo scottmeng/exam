@@ -26,14 +26,6 @@ var examApp = angular
 	})
 	.constant('GRAPH_LEVEL',6);
 
-examApp.run(function($http, AuthService, $rootScope) {
-	if (!AuthService.isAuthenticated()) {
-		AuthService.checkLogin().then(function(res) {
-			$rootScope.$broadcast('auth_event');
-		});
-	}
-});
-
 examApp.config(function ($httpProvider) {
 	$httpProvider.interceptors.push([
 		'$injector',
@@ -49,10 +41,14 @@ examApp.factory('AuthInterceptor', function ($rootScope, $q, $location, sessionS
 			if (response.status === 401) {
 				var current = $location.path();
 				sessionService.clear();
-				if (current !== '/') {
-					$location.search().redirect = current;
+				if (current === '/') {
+					return $q.reject(response);
 				}
+				$location.search().redirect = current;
 				$location.path('/');
+				return $q.reject(response);
+			}else if(response.status === 403){
+				$location.path('/unauthorized');
 				return $q.reject(response);
 			}
 		}
@@ -64,14 +60,19 @@ examApp.config(['$routeProvider', '$locationProvider',
 		$routeProvider
 			.when('/', {
 				templateUrl: 'views/login.html',
-				controller: 'loginController'
+				controller: 'loginController',
+				resolve: {
+					auth: function resolveAuthentication(AuthResolver) {
+						return AuthResolver.resolve(false);
+					}
+				}
 			})
 			.when('/home', {
 				templateUrl: 'views/dashboard.html',
 				controller: 'dashboardController',
 				resolve: {
 					auth: function resolveAuthentication(AuthResolver) {
-						return AuthResolver.resolve();
+						return AuthResolver.resolve(true);
 					}
 				}
 			})
@@ -80,7 +81,7 @@ examApp.config(['$routeProvider', '$locationProvider',
 				controller: 'viewPaperController',
 				resolve: {
 					auth: function resolveAuthentication(AuthResolver) {
-						return AuthResolver.resolve();
+						return AuthResolver.resolve(true);
 					}
 				}
 			})
@@ -89,7 +90,7 @@ examApp.config(['$routeProvider', '$locationProvider',
 				controller: 'newExamController',
 				resolve: {
 					auth: function resolveAuthentication(AuthResolver) {
-						return AuthResolver.resolve();
+						return AuthResolver.resolve(true);
 					}
 				}
 			})
@@ -98,7 +99,7 @@ examApp.config(['$routeProvider', '$locationProvider',
 				controller: 'viewExamController',
 				resolve: {
 					auth: function resolveAuthentication(AuthResolver) {
-						return AuthResolver.resolve();
+						return AuthResolver.resolve(true);
 					}
 				}
 			})
@@ -107,7 +108,7 @@ examApp.config(['$routeProvider', '$locationProvider',
 				controller: 'viewCourseController',
 				resolve: {
 					auth: function resolveAuthentication(AuthResolver) {
-						return AuthResolver.resolve();
+						return AuthResolver.resolve(true);
 					}
 				}
 			})
@@ -116,7 +117,7 @@ examApp.config(['$routeProvider', '$locationProvider',
 				controller: 'previewExamController',
 				resolve: {
 					auth: function resolveAuthentication(AuthResolver) {
-						return AuthResolver.resolve();
+						return AuthResolver.resolve(true);
 					}
 				}
 			})
@@ -125,7 +126,7 @@ examApp.config(['$routeProvider', '$locationProvider',
 				controller: 'markExamController',
 				resolve: {
 					auth: function resolveAuthentication(AuthResolver) {
-						return AuthResolver.resolve();
+						return AuthResolver.resolve(true);
 					}
 				}
 			})
@@ -134,12 +135,25 @@ examApp.config(['$routeProvider', '$locationProvider',
 				controller: 'examDetailsController',
 				resolve: {
 					auth: function resolveAuthentication(AuthResolver) {
-						return AuthResolver.resolve();
+						return AuthResolver.resolve(true);
+					}
+				}
+			})
+			.when('/unauthorized',{
+				templateUrl: 'views/unauthorized.html',
+				resolve: {
+					auth: function resolveAuthentication(AuthResolver) {
+						return AuthResolver.resolve(false);
 					}
 				}
 			})
 			.otherwise({
-				templateUrl: 'views/not_found.html'
+				templateUrl: 'views/not_found.html',
+				resolve: {
+					auth: function resolveAuthentication(AuthResolver) {
+						return AuthResolver.resolve(false);
+					}
+				}
 			});
 
 		$locationProvider.html5Mode(true);
@@ -178,15 +192,24 @@ examApp.config(function($provide){
 
 examApp.factory('AuthResolver', function($q, $rootScope, $location, AuthService, $timeout) {
 	return {
-		resolve: function() {
+		resolve: function(needLogin) {
 			var deferred = $q.defer();
 			$timeout(function() {
+				if (needLogin === false) {
+					deferred.resolve();
+					return;
+				}
 				if (AuthService.isAuthenticated()) {
 					deferred.resolve();
 				} else {
-					deferred.reject();
+					AuthService.checkLogin().then(function(res) {
+						$rootScope.$broadcast('auth_event');
+						deferred.resolve();
+					}, function() {
+						deferred.reject();
+					});	
 				}
-			}, 200);
+			}, 10);
 			
 			return deferred.promise;
 		}
@@ -199,7 +222,6 @@ examApp.factory('AuthService', function($http, sessionService) {
 	authService.checkLogin = function() {
 		return $http.get('/api/profile')
 			.then(function(res) {
-				console.log(res);
 				sessionService.create('user_id', res.data.data.name);
 				return res.data.data;
 			});

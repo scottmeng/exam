@@ -7,7 +7,8 @@
 	"require": {
 		"laravel/framework": "4.2.*",
 		"adldap/adldap": "4.0.*",
-		"nesbot/carbon": "~1.16"
+		"nesbot/carbon": "~1.16",
+		"doctrine/dbal": "2.5.1"
 	},
 	"autoload": {
 		"classmap": [

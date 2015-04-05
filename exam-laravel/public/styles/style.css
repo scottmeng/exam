@@ -6,6 +6,16 @@ body {
   background-color: #DCDCDC !important;
 }
 
+.graph-label{
+  font-weight: light;
+  color:grey;
+  padding-top:10px;
+}
+
+.dashboard-title{
+    color:#5B6375 !important;
+}
+
 .nav-tabs > li, .nav-pills > li {
     float:none;
     display:inline-block;
