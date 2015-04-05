@@ -8,6 +8,11 @@
     border-radius: 0;
 }
 
+/*.exam-chart{
+  width: 500px  !important;
+  height:300px  !important;
+}*/
+
 @media screen {
     #printSection {
         display: none;

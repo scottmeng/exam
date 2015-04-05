@@ -23,7 +23,8 @@ var examApp = angular
 		'NOT_GRADED'	:	1,
 		'GRADING'		: 	2, 
 		'GRADED'		: 	3
-	});
+	})
+	.constant('GRAPH_LEVEL',6);
 
 examApp.run(function($http, AuthService, $rootScope) {
 	if (!AuthService.isAuthenticated()) {
@@ -1020,8 +1021,8 @@ examApp.controller('viewCourseController', ['$scope', '$http', '$routeParams',
 
 
 examApp.controller('examDetailsController', ['$scope', '$http', '$routeParams', 'EXAM_STATUS',
-	'SUBMISSION_STATUS', '$location','$modal','uiGridConstants','$route',
-	function($scope, $http, $routeParams, EXAM_STATUS,SUBMISSION_STATUS,$location,$modal,uiGridConstants,$route) {
+	'SUBMISSION_STATUS', '$location','$modal','uiGridConstants','$route', 'GRAPH_LEVEL',
+	function($scope, $http, $routeParams, EXAM_STATUS,SUBMISSION_STATUS,$location,$modal,uiGridConstants,$route,GRAPH_LEVEL) {
 
 	$scope.examId = $routeParams.examId;
 	$scope.isDescriptionCollapsed = true;
@@ -1030,20 +1031,14 @@ examApp.controller('examDetailsController', ['$scope', '$http', '$routeParams', 
 	$scope.gradedSubmissionData = [];
 	$scope.notGradedSubmissionData = [];
 	$scope.gradingSubmissionData = [];
-
-
-	$scope.graphLabels = ['2006', '2007', '2008', '2009', '2010', '2011', '2012'];
-
-	$scope.graphData = [
-	  [65, 59, 80, 81, 56, 55, 40]
-	];
+	$scope.graph = {};
 
 	$scope.AllSubmissionsGrid = {
 	    enableFiltering: true,
     	enableRowSelection: true,
     	showGridFooter: true,
     	showColumnFooter: true,
-	    data: $scope.allSubmissionData,
+	    // data: $scope.allSubmissionData,
 	     onRegisterApi: function(gridApi){ 
 		     $scope.allApi = gridApi;
 		   }
@@ -1104,11 +1099,6 @@ examApp.controller('examDetailsController', ['$scope', '$http', '$routeParams', 
       	$location.path('/exam/' + $scope.examId + '/submission/' + row.entity.submission_id);
      };
 
-	$scope.saveAndToggle = function(){
-		$scope.isDescriptionCollapsed=!$scope.isDescriptionCollapsed;
-		$scope.saveDescription();
-	}
-
 	$scope.getExamInfo = function() {
 		$http.get('/api/exam/' + $scope.examId + '/examsubmissions')
 			.success(function(data) {
@@ -1123,10 +1113,6 @@ examApp.controller('examDetailsController', ['$scope', '$http', '$routeParams', 
 					$scope.error = data.data;
 				}
 			});
-	};
-
-	$scope.showExamStats = function(exam){
-
 	};
 
 	$scope.randomStart = function(){
@@ -1173,29 +1159,25 @@ examApp.controller('examDetailsController', ['$scope', '$http', '$routeParams', 
 	$scope.prepareExams = function(exam){
 		$scope.updateStartTime(exam);
 		$scope.updateGradingStatus(exam);
-		$scope.prepareGridData(exam);
+		$scope.prepareData(exam);
 		$scope.initializeColumns(exam.totalqn);
-		$scope.prepareGraphData(exam);
 	};
 
-	$scope.prepareGraphData = function(exam){
-
-	}
 
 	$scope.initializeColumns = function(qn_count){
 
 		var grid_columnDefs = [{
-			field: "Student" ,
+			field: "student" ,
 			 cellTemplate:'<div>' +
-                   '<a ng-click="grid.appScope.gradePaper(row)">{{row.entity.Student}}</a>' +
+                   '<a ng-click="grid.appScope.gradePaper(row)">{{row.entity.student}}</a>' +
                    '</div>' ,
               cellClass: 'grid-center-align'
 		}];
 		var index=1;
 		while(index < qn_count+1){
-			var column = "Qn " + index;
 			grid_columnDefs.push({
-				field: column,
+				field: index.toString(),
+				name:"Qn " + index,
 				cellClass: 'grid-center-align',
 				aggregationType: uiGridConstants.aggregationTypes.avg,
 				footerCellTemplate: '<div class="grid-center-align">Avg: {{col.getAggregationValue()| number:2}}</div>' 
@@ -1224,43 +1206,29 @@ examApp.controller('examDetailsController', ['$scope', '$http', '$routeParams', 
 
 	};
 
-	$scope.prepareGridData = function(exam){
+	$scope.prepareData = function(exam){
 
-		for(var i in exam.submissions){
-			var submission = {
-				"Student": exam.submissions[i].user,
-				"submission_id": exam.submissions[i].id,
-				"total_marks": exam.submissions[i].total_marks
-			}
-			var index=1;
-			while(index < exam.totalqn+1){
-				var column = "Qn " + index;
-				var found = false;
-				for( var j in exam.submissions[i].questions){
-					if(exam.submissions[i].questions[j].question.index === index){
-						found = true;
-						submission[column] = exam.submissions[i].questions[j].marks_obtained;
-						break;
-					}
+		$http.get('/api/exam/' + $scope.examId + '/griddata')
+			.success(function(data) {
+				if (data.code === 200) {
+					$scope.AllSubmissionsGrid.data = data.data.all;
+					$scope.gradedSubmissionsGrid.data = data.data.graded;
+					$scope.gradingSubmissionsGrid.data = data.data.grading;
+					$scope.notGradedSubmissionsGrid.data = data.data.notGraded;
+				}else {
+					$scope.error = data.data;
 				}
-				if(found==false){
-					submission[column] = 0;
-				}
-				index +=1;
-			}
+			});
 
-			if(exam.submissions[i].submissionstate_id === SUBMISSION_STATUS.GRADED){
-				submission.status = "Graded";
-				$scope.gradedSubmissionData.push(submission);
-			}else if(exam.submissions[i].submissionstate_id === SUBMISSION_STATUS.GRADING){
-				submission.status = "Grading";
-				$scope.gradingSubmissionData.push(submission);
-			}else{
-				submission.status = "Not Graded";
-				$scope.notGradedSubmissionData.push(submission);
-			}
-			$scope.allSubmissionData.push(submission);
-		}
+		$http.get('/api/exam/' + $scope.examId + '/graphdata')
+			.success(function(data) {
+				if (data.code === 200) {
+					$scope.graph = data.data;
+				}else {
+					$scope.error = data.data;
+				}
+			});
+
 	};
 
 	$scope.updateGradingStatus = function(exam){

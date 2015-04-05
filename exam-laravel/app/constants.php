@@ -1,6 +1,5 @@
 <?php
-
-define('GRAPH_LEVEL', 6);
+define('GRAPH_LEVEL', 5);
 
 define('ADMIN',  1);
 define('FACILITATOR',2);

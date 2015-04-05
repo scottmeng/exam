@@ -12,18 +12,20 @@
 
 <h3 data-ng-if="error">{{ error }}</h3>
 <div data-ng-if="!error">
-	<div class="well" style="margin:10px" data-ng-model="exam">
-		<div>
-			<h4> {{exam.title}} 
-				<!-- <small><span class="label" ng-class="getExamLabel(exam)">{{exam.statusText}}</span></small>
-					<button data-ng-click="removeExam(exam);" class="btn btn-danger pull-right" ng-show="course.user_role=='admin'&&exam.status=='draft'"><small><i class="fa fa-trash-o" style="color:white"></i></small></button>
-					<button data-ng-click="editExam(exam.id);" class="btn btn-default pull-right" ng-show="course.user_role=='admin'&&exam.status=='draft'"><small><i class="fa fa-pencil"></i></small></button>
-					<button data-ng-click="previewExam(exam.id);" class="btn btn-default pull-right" ng-show="isAdmin"><small><i class="fa fa-eye"></i></small></button> -->
-					<canvas id="bar" class="chart chart-bar" data="graphData" labels="graphLabels"></canvas> 
-			</h4>
-			<small><i class="fa fa-clock-o" style="color:grey"></i><span am-time-ago="exam.starttime" style="font-weight:light;color:grey;margin-left:5px"></span></small>
+	<!-- <div class="well" style="margin:10px" data-ng-model="exam"> -->
+	<div class="row">
+		<div class="col-md-6">
+			<h2> {{exam.title}}</h2> 
+		</div>
+		<div class="col-md-6">
 
 		</div>
+	</div>
+	<div class="row" style="margin-top:20px">
+		<div class="col-md-8 col-md-offset-2">
+			<canvas id="bar" class="chart chart-bar exam-chart" data="graph.graphData" labels="graph.graphLabels"></canvas> 
+		</div>
+	</div>
 		<div style="margin-top:30px">
 			<div class="row" style="margin:10px" >
 				<small><em>Marking Progress:</em></small>
@@ -35,7 +37,7 @@
 				<button class='btn btn-info col-md-2 pull-right'data-ng-hide="exam.grading_finished" data-ng-click="markAllMCQs()">Mark All MCQs</button>
 			</div>
 		</div>
-	</div>
+	<!-- </div> -->
 	<div class="tab-content">
 		<tabset>
 			<tab>

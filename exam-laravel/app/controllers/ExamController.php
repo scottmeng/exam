@@ -114,11 +114,11 @@ class ExamController extends BaseController {
 		}else if ($status == STATUS_DRAFT || $status == STATUS_NOT_STARTED){
 			return Response::error(404,'The requested page is not available!');
 		}else{
-					$exam = $exam->getSubmissions($user->id, true, false);
-		if($course->isAdmin()){
+			if($course->isAdmin()){
 				$exam = $exam->getAllSubmissions(true, false);
 			}else{
-			}
+				$exam = $exam->getSubmissions($user->id, true, false);
+			}	
 		}
 		$exam->status = $status; 
 		return Response::success($exam);
@@ -236,6 +236,105 @@ class ExamController extends BaseController {
 		$question->deleteQuestion();
 
 		return Response::success('deleted');
+	}
+
+	public function getGriddata($exam_id){
+
+		$exam = Exam::find($exam_id);
+		if(!$exam){
+			Response::error('404','Exam Not Found');
+		}
+
+		$allSubmissionData = array();
+		$gradedSubmissionData = array();
+		$gradingSubmissionData = array();
+		$notGradedSubmissionData = array();
+
+		$submissions = $exam->submissions()->get();
+
+		foreach($submissions as $submission){
+			$submission_entry = array(
+				"student"=> $submission->user->nus_id,
+				"submission_id"=> $submission->id,
+				"total_marks"=>$submission->total_marks,
+				"status"=>$submission->status->description
+			);
+			for($index = 1; $index < $exam->totalqn + 1; $index++ ){
+				// $column = "Qn " + $index;
+				$marks = $submission->questionsubmissions()->whereIn('question_id',
+					$exam->questions()->where('index','=',$index)->select('id')
+					->get()->toArray())->select('marks_obtained')->first();
+			    if(!$marks || !$marks->marks_obtained){
+			    	$submission_entry[$index] = 0;
+			    }else{
+			    	$submission_entry[$index] = $marks->marks_obtained;
+			    }
+			}
+
+			if($submission->status->id === GRADED){
+                array_push($gradedSubmissionData, $submission_entry);
+			}else if($submission->status->id === GRADING){
+                array_push($gradingSubmissionData, $submission_entry);
+			}else{
+				array_push($notGradedSubmissionData, $submission_entry);
+			}
+            array_push($allSubmissionData, $submission_entry);
+		}
+
+		$gridData = array(
+            	'all'=>$allSubmissionData,
+            	'graded'=>$gradedSubmissionData,
+            	'grading'=>$gradingSubmissionData,
+            	'notGraded'=>$notGradedSubmissionData
+        );
+
+        return Response::success($gridData);
+	}
+
+	public function getGraphdata($exam_id){
+
+		$exam = Exam::find($exam_id);
+		if(!$exam){
+			Response::error('404','Exam Not Found');
+		}
+		$graphLabels=array();
+		$dataWrapper=array();
+		$graphData=array();
+		$lowest_mark = $exam->submissions()->min('total_marks');
+		$highest_mark = $exam->submissions()->max('total_marks');
+
+		$graph_step =ceil(floatval($highest_mark - $lowest_mark)/GRAPH_LEVEL);
+		$starting_range = $exam->fullmarks-$graph_step*GRAPH_LEVEL;
+		if($starting_range>0){
+			array_push($graphLabels,'[0,'.$starting_range.')');
+			array_push($graphData, ExamSubmission::whereRaw('total_marks >= ? and total_marks < ?',
+											array(0,$starting_range))->count());	
+		}else{$starting_range=0;}
+
+
+		for($index=0; $index<GRAPH_LEVEL; $index++){
+			if($starting_range+$graph_step<$highest_mark){
+				array_push($graphLabels,'['.$starting_range.', '.($starting_range+$graph_step).')');
+				array_push($graphData, ExamSubmission::whereRaw('total_marks >= ? and total_marks < ?',
+										array($starting_range,$starting_range+$graph_step))->count());
+
+			}else{
+				array_push($graphLabels,'['.$starting_range.', '.$highest_mark.')');
+				array_push($graphData, ExamSubmission::whereRaw('total_marks >= ? and total_marks < ?',
+										array($starting_range,$highest_mark))->count());
+				array_push($graphLabels,strval($highest_mark));	
+				array_push($graphData, ExamSubmission::where('total_marks','=',$highest_mark)->count());
+				break;			
+			}
+			$starting_range += $graph_step;
+		}
+		array_push($dataWrapper, $graphData);
+		$graphStats = array(
+			'graphLabels'=>$graphLabels,
+			'graphData'=>$dataWrapper
+		);
+
+		return Response::success($graphStats);
 	}
 
 	private function retrieveQuestions($exam,$isEditing)
