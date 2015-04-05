@@ -1232,7 +1232,13 @@ examApp.controller('examDetailsController', ['$scope', '$http', '$routeParams', 
 	};
 
 	$scope.updateGradingStatus = function(exam){
+
 		if(exam.status === EXAM_STATUS.FINISHED){
+			$scope.progress={};
+			$scope.progress.data=[exam.submission_status.graded,exam.submission_status.grading,exam.submission_status.not_graded];
+			$scope.progress.labels=['Graded','Grading','Submitted'];
+		
+
 			exam.status_data = [];
 		  	exam.status_data.push({
 	          value: (exam.submission_status.graded*100)/exam.submission_status.total,

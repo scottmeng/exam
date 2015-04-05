@@ -63,7 +63,7 @@ class Course extends Eloquent {
 
 
 	public function getExams(){
-		$exams = $this->exams()->get();
+		$exams = $this->exams()->orderBy('updated_at','desc')->get();
 		foreach($exams as $key => $exam){
 			$status = $this->getExamStatus($exam);
 			if ($status == STATUS_UNAVAILABLE){
@@ -84,7 +84,7 @@ class Course extends Eloquent {
 	}
 
 	public function getExamsWithSubmissions($user){
-		$exams = $this->exams()->get();
+		$exams = $this->exams()->orderBy('updated_at','desc')->get();
 		foreach($exams as $key => $exam){
 			$status = $this->getExamStatus($exam);
 			if ($status == STATUS_UNAVAILABLE){

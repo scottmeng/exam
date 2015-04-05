@@ -58,69 +58,81 @@
 
 <h3 data-ng-if="error">{{ error }}</h3>
 <div data-ng-if="!error">
-	<div style="padding-top: 20px">
-		<div>
-			<h3>{{ course.nus_id + " " + course.name }}
-				<button data-ng-click="saveAndToggle();" class="btn btn-default pull-right" ng-show="isAdmin"><small><i class="fa fa-pencil fa-lg"></i></small></button>
-				<button data-ng-click="addExam();" class="btn btn-default pull-right" ng-show="isAdmin"><small><i class="fa fa-plus fa-lg"></i></small></button>
-			</h3>
-		</div>
-		<div class=" row panel-body" collapse="isDescriptionCollapsed">
-				<button type="button" style="margin-right: 20px" class="close" data-ng-click="isDescriptionCollapsed=!isDescriptionCollapsed"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-				<div class="col-md-12" text-angular ta-toolbar="[['h3','h4','h5'],['pre','quote'],['bold','italics','underline'],['ul','ol'],['justifyLeft','justifyCenter','justifyRight'],['undo','redo','html']]" ng-model="course.description"></div>
-		</div>
-		<tabset style="padding-top:30px">
-			<tab>
-				<tab-heading>
-		        	Exams
-		      	</tab-heading>
-				<div class="well" style="margin:10px" data-ng-repeat="exam in course.exams">
-					<div>
-						<h4> {{exam.title}}
-							<small><span class="label" ng-class="getExamLabel(exam)">{{exam.statusText}}</span></small>
-								<button data-ng-click="startExam(exam.id);" class="btn btn-primary col-md-1 pull-right" ng-show="exam.status=='in_exam'"><small><i class="fa fa-play-circle" style="color:white"></i></small></button>
-								<button data-ng-click="removeExam(exam);" class="btn btn-danger pull-right" ng-show="course.user_role=='admin'&&exam.status=='draft'"><small><i class="fa fa-trash-o" style="color:white"></i></small></button>
-								<button data-ng-click="editExam(exam.id);" class="btn btn-default pull-right" ng-show="course.user_role=='admin'&&exam.status=='draft'"><small><i class="fa fa-pencil"></i></small></button>
-								<button data-ng-click="previewExam(exam.id);" class="btn btn-default pull-right" ng-show="(course.user_role!='student'&&exam.status!='draft')||isAdmin"><small><i class="fa fa-eye"></i></small></button>
-						</h4>
-						<small ng-show="isExamFinished(exam.status)"><i class="fa fa-clock-o" style="color:grey"></i><span am-time-ago="exam.starttime" style="font-weight:light;color:grey;margin-left:5px"></span></small>
+	<div>
+		<h2>{{ course.nus_id + " " + course.name }}
+			<div class="button-group pull-right">
+				<button data-ng-click="saveAndToggle();" class="btn btn-default" ng-show="isAdmin"><i class="fa fa-pencil fa-lg"></i></button>
+				<button data-ng-click="addExam();" class="btn btn-default" ng-show="isAdmin"><i class="fa fa-plus fa-lg"></i></button>
+			</div>
+		</h2>
+	</div>
+	<div class=" row panel-body" collapse="isDescriptionCollapsed">
+			<button type="button" style="margin-right: 20px" class="close" data-ng-click="isDescriptionCollapsed=!isDescriptionCollapsed"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+			<div class="col-md-12" text-angular ta-toolbar="[['h3','h4','h5'],['pre','quote'],['bold','italics','underline'],['ul','ol'],['justifyLeft','justifyCenter','justifyRight'],['undo','redo','html']]" ng-model="course.description"></div>
+	</div>
+	<tabset style="padding-top:30px">
+		<tab>
+			<tab-heading>
+	        	Exams
+	      	</tab-heading>
+			<div class="well" style="margin:10px;" data-ng-repeat="exam in course.exams">
+				<div>
+					<h4>{{exam.title}}</a>
+						<small><span class="label" ng-class="getExamLabel(exam)">{{exam.statusText}}</span></small>
+						<div class="button-group pull-right">
+							<button data-ng-click="previewExam(exam.id);" class="btn btn-default" ng-show="(course.user_role!='student'&&exam.status!='draft')||isAdmin"><small><i class="fa fa-eye"></i></small></button>
+							<button data-ng-click="editExam(exam.id);" class="btn btn-default" ng-show="course.user_role=='admin'&&exam.status=='draft'"><small><i class="fa fa-pencil"></i></small></button>
+							<button data-ng-click="removeExam(exam);" class="btn btn-danger" ng-show="course.user_role=='admin'&&exam.status=='draft'"><small><i class="fa fa-trash-o" style="color:white"></i></small></button>
+							<button data-ng-click="startExam(exam.id);" class="btn btn-primary" ng-show="exam.status=='in_exam'"><small><i class="fa fa-play-circle" style="color:white"></i></small></button>
+							<button class="btn btn-primary" data-ng-click="showExamStats(exam.id)" data-ng-show="isExamFinished(exam.status)"><small><i class="fa fa-bar-chart-o" style="color:white"></i></small></button>
+						</div>
+					</h4>
+					<small ng-show="isExamFinished(exam.status)"><i class="fa fa-clock-o" style="color:grey"></i><span am-time-ago="exam.starttime" style="font-weight:light;color:grey;margin-left:5px"></span></small>
 
+				</div>
+				<div data-ng-show="isExamFinished(exam.status)" style="margin-top:30px">
+					<div class="row" style="margin:10px" >
+						<small><em>Marking Progress:</em></small>
+						<progress><bar ng-repeat="status in exam.status_data track by $index" value="status.value" type="{{status.type}}"><span ng-hide="status.value < 5"><small><em>{{status.text + status.count}}</small></em></span></bar></progress>
 					</div>
-					<div data-ng-show="isExamFinished(exam.status)" style="margin-top:30px">
-						<div class="row" style="margin:10px" >
-							<small><em>Marking Progress:</em></small>
-							<progress><bar ng-repeat="status in exam.status_data track by $index" value="status.value" type="{{status.type}}"><span ng-hide="status.value < 5"><small><em>{{status.text + status.count}}</small></em></span></bar></progress>
+					<div class="row" style="margin:10px">
+<!-- 						<span data-ng-repeat="group in course.groups"><a>{{group.name}} </a>|</span>
+ -->						
+ 						<div class="button-group pull-right">
+							<button class='btn btn-primary' data-ng-click="randomStart(exam.id)">Start Marking</button>
+							<button class='btn btn-info'data-ng-hide="exam.grading_finished" data-ng-click="markAllMCQs(exam.id)">Mark All MCQs</button>
+							<button class='btn btn-warning' data-ng-show="exam.grading_finished">Publish</button>
 						</div>
-						<div class="row" style="margin:10px">
-							<span data-ng-repeat="group in course.groups"><a>{{group.name}} </a>|</span>
-							<button class='btn btn-primary col-md-1 pull-right' data-ng-show="exam.grading_finished">Publish</button>
-							<button class='btn btn-success col-md-2 pull-right' data-ng-click="randomStart(exam.id)">Start Marking</button>
-							<button class='btn btn-info col-md-2 pull-right'data-ng-hide="exam.grading_finished" data-ng-click="markAllMCQs(exam.id)">Mark All MCQs</button>
-							<button class="btn btn-default col-md-1 pull-right" data-ng-click="showExamStats(exam.id)"><i class="fa fa-bar-chart-o"></i></button>
+					</div>
+					<div class="row">
+						<div class="col-md-offset-5" data-ng-click="areSubmissionsCollapsed=!areSubmissionsCollapsed">
+							<a>Show All Submissions.. </a>
+							<span class="button-transparent"><i class="fa fa-chevron-down"></i></span>
 						</div>
-						<div class="row">
-							<div class="col-md-offset-5" data-ng-click="areSubmissionsCollapsed=!areSubmissionsCollapsed">
-								<a>Show All Submissions.. </a>
-								<span class="button-transparent"><i class="fa fa-chevron-down"></i></span>
-							</div>
-						</div>
-						<div name="submissions" style="overflow:auto" collapse="areSubmissionsCollapsed">
-							<div class="list-group">
-								<div class="list-group-item" data-ng-repeat="submission in exam.submissions" data-ng-click="gradePaper(exam.id,submission.id);">
-									{{($index+1) + ".  " }} <a>{{submission.user}}</a>
-									<span class="label {{getStatusClass(submission)}} pull-right">{{submission.statusText}}</span>
-								</div>
+					</div>
+					<div name="submissions" style="overflow:auto" collapse="areSubmissionsCollapsed">
+						<div class="list-group">
+							<div class="list-group-item" data-ng-repeat="submission in exam.submissions" data-ng-click="gradePaper(exam.id,submission.id);">
+								{{($index+1) + ".  " }} <a>{{submission.user}}</a>
+								<span class="label {{getStatusClass(submission)}} pull-right">{{submission.statusText}}</span>
 							</div>
 						</div>
 					</div>
 				</div>
-			</tab>
-			<tab>
-				<tab-heading>
-		        	Groups
-		      	</tab-heading>
-			</tab>
-		</tabset>
-
-	</div>
+			</div>
+		</tab>
+		<tab>
+			<tab-heading>
+	        	Questions
+	      	</tab-heading>
+	      	<div name="submissions" style="overflow:auto" collapse="areSubmissionsCollapsed">
+				<div class="list-group">
+					<div class="list-group-item" data-ng-repeat="submission in exam.submissions" data-ng-click="gradePaper(exam.id,submission.id);">
+						{{($index+1) + ".  " }} <a>{{submission.user}}</a>
+						<span class="label {{getStatusClass(submission)}} pull-right">{{submission.statusText}}</span>
+					</div>
+				</div>
+			</div>
+		</tab>
+	</tabset>
 </div>
