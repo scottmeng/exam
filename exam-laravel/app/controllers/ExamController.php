@@ -300,32 +300,37 @@ class ExamController extends BaseController {
 		$graphLabels=array();
 		$dataWrapper=array();
 		$graphData=array();
+
 		$lowest_mark = $exam->submissions()->where('submissionstate_id','=',GRADED)->min('total_marks');
 		$highest_mark = $exam->submissions()->where('submissionstate_id','=',GRADED)->max('total_marks');
 		$graph_step =ceil(floatval($highest_mark - $lowest_mark)/GRAPH_LEVEL);
 		$starting_range = $highest_mark-$graph_step*GRAPH_LEVEL;
 		if($starting_range>0){
 			array_push($graphLabels,'[0,'.$starting_range.')');
-			array_push($graphData, ExamSubmission::where('submissionstate_id','=',GRADED)->whereRaw('total_marks >= ? and total_marks < ?',
+			array_push($graphData, $exam->submissions()->where('submissionstate_id','=',GRADED)->whereRaw('total_marks >= ? and total_marks < ?',
 											array(0,$starting_range))->count());	
 		}else{$starting_range=0;}
 
+		if($graph_step!=0){
+			for($index=0; $index<GRAPH_LEVEL; $index++){
+				if($starting_range+$graph_step<$highest_mark){
+					array_push($graphLabels,'['.$starting_range.', '.($starting_range+$graph_step).')');
+					array_push($graphData, $exam->submissions()->where('submissionstate_id','=',GRADED)->whereRaw('total_marks >= ? and total_marks < ?',
+											array($starting_range,$starting_range+$graph_step))->count());
 
-		for($index=0; $index<GRAPH_LEVEL; $index++){
-			if($starting_range+$graph_step<$highest_mark){
-				array_push($graphLabels,'['.$starting_range.', '.($starting_range+$graph_step).')');
-				array_push($graphData, ExamSubmission::where('submissionstate_id','=',GRADED)->whereRaw('total_marks >= ? and total_marks < ?',
-										array($starting_range,$starting_range+$graph_step))->count());
-
-			}else{
-				array_push($graphLabels,'['.$starting_range.', '.$highest_mark.')');
-				array_push($graphData, ExamSubmission::where('submissionstate_id','=',GRADED)->whereRaw('total_marks >= ? and total_marks < ?',
-										array($starting_range,$highest_mark))->count());
-				array_push($graphLabels,strval($highest_mark));	
-				array_push($graphData, ExamSubmission::where('submissionstate_id','=',GRADED)->where('total_marks','=',$highest_mark)->count());
-				break;			
+				}else{
+					array_push($graphLabels,'['.$starting_range.', '.$highest_mark.')');
+					array_push($graphData, $exam->submissions()->where('submissionstate_id','=',GRADED)->whereRaw('total_marks >= ? and total_marks < ?',
+											array($starting_range,$highest_mark))->count());
+					array_push($graphLabels,strval($highest_mark));	
+					array_push($graphData, $exam->submissions()->where('submissionstate_id','=',GRADED)->where('total_marks','=',$highest_mark)->count());
+					break;			
+				}
+				$starting_range += $graph_step;
 			}
-			$starting_range += $graph_step;
+		}else{
+			array_push($graphLabels,strval($highest_mark));	
+			array_push($graphData, ExamSubmission::where('submissionstate_id','=',GRADED)->where('total_marks','=',$highest_mark)->count());
 		}
 		array_push($dataWrapper, $graphData);
 		$graphStats = array(

@@ -16,8 +16,8 @@
 		<h2> {{exam.title}}
 		<div class="button-group pull-right">
 			<button class='btn btn-primary' data-ng-show="exam.grading_finished">Publish</button>
-			<button class='btn btn-primary'data-ng-hide="exam.grading_finished" data-ng-click="randomStart()">Start Marking</button>
-			<button class='btn btn-info'data-ng-hide="exam.grading_finished" data-ng-click="markAllMCQs()">Mark All MCQs</button>
+			<button class='btn btn-primary'data-ng-show="exam.grading_finished==false" data-ng-click="randomStart()">Start Marking</button>
+			<button class='btn btn-info'data-ng-show="exam.grading_finished==false" data-ng-click="markAllMCQs()">Mark All MCQs</button>
 		</div>
 		</h2>
 	</div>

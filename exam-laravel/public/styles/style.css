@@ -12,8 +12,15 @@ body {
   padding-top:10px;
 }
 
+input.empty {
+    font-family: FontAwesome;
+    font-style: normal;
+    font-weight: normal;
+    text-decoration: inherit;
+}
+
 .dashboard-title{
-    color:#5B6375 !important;
+    color:#585858 !important;
 }
 
 .nav-tabs > li, .nav-pills > li {

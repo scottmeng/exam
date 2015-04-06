@@ -296,19 +296,6 @@ examApp.directive('printDiv', function () {
                 document.body.appendChild(elm);
             }
 
-            // function write(value) {
-            //     var doc;
-            //     if (iframe.contentDocument) { // DOM
-            //         doc = iframe.contentDocument;
-            //     } else if (iframe.contentWindow) { // IE win
-            //         doc = iframe.contentWindow.document;
-            //     } else {
-            //         alert('Wonder what browser this is... ' + navigator.userAgent);
-            //     }
-            //     doc.write(value);
-            //     doc.close();
-            // }
-
             element.bind('click', function(event) {
                 iframe = document.getElementById('print-frame');
                 // write(elementToPrint.innerHTML);
@@ -572,7 +559,7 @@ examApp.controller('headerController', ['$scope', 'sessionService', '$location',
 				$scope.isLogin = false;
 				$scope.userName = '';
 			}
-			$scope.option = ($scope.isLogin === true) ? 'logout' : 'login';
+			$scope.option = ($scope.isLogin === true) ? 'Logout' : 'Login';
 		};
 
 		$scope.onAuthClicked = function() {
@@ -1245,6 +1232,7 @@ examApp.controller('examDetailsController', ['$scope', '$http', '$routeParams', 
 		$http.get('/api/exam/' + $scope.examId + '/graphdata')
 			.success(function(data) {
 				if (data.code === 200) {
+					console.log(data.data);
 					$scope.graph = data.data;
 				}else {
 					$scope.error = data.data;
@@ -1625,15 +1613,12 @@ examApp.controller('markExamController', ['$scope', '$routeParams', '$http', 'QN
 		};
 
 		$scope.markQuestion = function(index) {
-
 			$http.put('/api/submission/' + $scope.submissionId + '/qnmarking', 
 				$scope.exam.questions[index].submission).success(function(data){
 					if(data.code===200){
-						$scope.exam.questions[index].submission = data.data;
+						$scope.exam.questions[index].submission.submissionstate_id = SUBMISSION_STATUS.GRADED;
 					}
 				});
-			console.log($scope.exam.questions[index].submission.marks_obtained);
-			// update total mark calculation
 			$scope.updateTotalMarks();
 		};
 
@@ -1707,8 +1692,8 @@ examApp.controller('markExamController', ['$scope', '$routeParams', '$http', 'QN
 			}
 
 			for (var i in $scope.exam.questions) {
-				$scope.exam.questions[i].submission = 
-					$scope.getQuestionSubmission($scope.exam.questions[i].id);
+				$scope.exam.questions[i].submission = $scope.getQuestionSubmission($scope.exam.questions[i].id);
+				// $scope.exam.questions[i].submission.invalidmark=false;
 				if($scope.isCodingQuestion($scope.exam.questions[i])){
 					$scope.exam.questions[i].submission.answer_copy = $scope.exam.questions[i].submission.answer;
 				}
@@ -1747,11 +1732,13 @@ examApp.controller('markExamController', ['$scope', '$routeParams', '$http', 'QN
 
 			$total=0;
 			for (var i in $scope.exam.questions) {
-				if($scope.exam.questions[i].submission.marks_obtained){
+				if($scope.exam.questions[i].submission && $scope.exam.questions[i].submission.marks_obtained){
 					$total += $scope.exam.questions[i].submission.marks_obtained;
 				}
 			}
-			$scope.submission['total_marks'] = $total;
+			$scope.submission.total_marks = $total;
+			
+			console.log($scope.submission.total_marks);
 		};
 
 		$scope.CompileRun = function(submission){

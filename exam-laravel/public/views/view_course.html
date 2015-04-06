@@ -111,8 +111,10 @@
 						</div>
 					</div>
 					<div name="submissions" style="overflow:auto" collapse="areSubmissionsCollapsed">
+						<input id="submission_filter" class="form-control empty" type="search" ng-model="q" placeholder="&#xF002; filter submissions..." />
+
 						<div class="list-group">
-							<div class="list-group-item" data-ng-repeat="submission in exam.submissions" data-ng-click="gradePaper(exam.id,submission.id);">
+							<div class="list-group-item" data-ng-repeat="submission in exam.submissions | filter:q as results" data-ng-click="gradePaper(exam.id,submission.id);">
 								{{($index+1) + ".  " }} <a>{{submission.user}}</a>
 								<span class="label {{getStatusClass(submission)}} pull-right">{{submission.statusText}}</span>
 							</div>

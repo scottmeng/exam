@@ -81,7 +81,7 @@
 							<div class="row" style="margin-right:10px">
 								<button class="btn btn-warning pull-right" style="margin-top: 10px;" data-ng-click="CompileRun(question.submission)">Compile and Execute</button>
 							</div>
-							<div name="code output" data-ng-show="question.submission.resultReady">
+							<div name="code_output" data-ng-show="question.submission.resultReady">
 								<label>Output:</label>
 								<div class="row" style="margin:10px">
 									<div class="alert alert-danger" data-ng-show="question.submission.compilation_fail">{{question.submission.compilation_error}}</div>
@@ -90,11 +90,11 @@
 							</div>	
 						</div>
 						<div class="well" style="margin-top:20px">
-							<form class="form-horizontal">
-								<div class="form-group">
+							<form class="form-horizontal" name="feedbackForm">
+								<div class="form-group" ng-class="{'has-error':feedbackForm.marks.$invalid && feedbackForm.marks.$dirty}">
 									<label class="col-md-2 control-label text-right">Marks:</label>
 									<div class="col-md-9 text-left">
-										<input type="number" max="{{question.full_marks}}" data-ng-model="question.submission.marks_obtained" placeholder="{{ question.full_marks }}"/> / {{ question.full_marks }}
+										<input class="form-control" type="number" name="marks" max="{{question.full_marks}}" data-ng-model="question.submission.marks_obtained" placeholder="{{question.full_marks}}/{{ question.full_marks }}"> 
 									</div>
 								</div>
 								<div class="form-group">
@@ -106,7 +106,7 @@
 							</form>
 						</div>
 						<div class="row">
-							<button class="btn btn-success col-md-offset-5 col-md-2 text-right" style="padding:10px" ng-click="markQuestion($index)">OK</button>
+							<button class="btn btn-success col-md-offset-5 col-md-2 text-right" style="padding:10px" ng-click="markQuestion($index)" data-ng-disabled="feedbackForm.$dirty==false||feedbackForm.$invalid" >OK</button>
 						</div>
 					</div>
 				</div>
