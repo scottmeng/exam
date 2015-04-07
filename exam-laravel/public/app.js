@@ -262,21 +262,21 @@ examApp.service('sessionService', function() {
 	};
 });
 
-examApp.controller('CarouselDemoCtrl', function ($scope) {
-  $scope.myInterval = 0;
-  var slides = $scope.slides = [];
-  $scope.addSlide = function() {
-    var newWidth = 600 + slides.length + 1;
-    slides.push({
-      image: 'http://placekitten.com/' + newWidth + '/300',
-      text: ['More','Extra','Lots of','Surplus'][slides.length % 4] + ' ' +
-        ['Cats', 'Kittys', 'Felines', 'Cutes'][slides.length % 4]
-    });
-  };
-  for (var i=0; i<4; i++) {
-    $scope.addSlide();
-  }
-});
+// examApp.controller('CarouselDemoCtrl', function ($scope) {
+//   $scope.myInterval = 0;
+//   var slides = $scope.slides = [];
+//   $scope.addSlide = function() {
+//     var newWidth = 600 + slides.length + 1;
+//     slides.push({
+//       image: 'http://placekitten.com/' + newWidth + '/300',
+//       text: ['More','Extra','Lots of','Surplus'][slides.length % 4] + ' ' +
+//         ['Cats', 'Kittys', 'Felines', 'Cutes'][slides.length % 4]
+//     });
+//   };
+//   for (var i=0; i<4; i++) {
+//     $scope.addSlide();
+//   }
+// });
 
 'use strict';
 
@@ -464,40 +464,6 @@ examApp.controller('previewExamController', ['$scope', '$http', '$routeParams', 
 		});
 	};
 
-	// function createScript(callback) {
- //            if (!document) {
- //                return;
- //            }
- //            var scriptTag = document.createElement("script");
- //            scriptTag.type = "text/javascript";
- //            scriptTag.async = true;
- //            scriptTag.src = 'http://mrrio.github.io/jsPDF/dist/jspdf.debug.js';
- //            scriptTag.onload = callback;
- //            var s = document.getElementsByTagName("head")[0];
- //            s.appendChild(scriptTag);
- //        }
-
-	// $scope.generatePDF = function(){
-	// 	console.log('I was here!');
-	// 	createScript(function() {
-	// 		var doc = new jsPDF();
-	// 		var source = document.getElementById('pdf-template');
-	// 		var specialElementHandlers = {
-	// 			'#editor': function(element, renderer) {
-	// 				return true;
-	// 			}
-	// 		};
-	// 		doc.fromHTML(document.getElementById('pdf-template'), 15, 15, {
-	// 			'width': 160,
-	// 			'elementHandlers': specialElementHandlers
-	// 		});
-	// 		doc.setFont("courier");
-	// 		doc.setFontType("normal");
-
-	// 		doc.output('dataurlnewwindow');
-	// 	});
-	// }
-
 	$scope.isMCQ = function(question) {
 		return question.questiontype_id === QN_TYPES.QN_MCQ;
 	};
@@ -664,7 +630,9 @@ examApp.controller('DeleteModalController',function($scope,$modalInstance,$http,
 	};
 });
 
-examApp.controller('ConfirmModalController',function($scope,$modalInstance){
+examApp.controller('ConfirmModalController',function($scope,$modalInstance,data){
+	$scope.modalData = data;
+
 	$scope.goToHome = function(){
 		$modalInstance.close();
 	};
@@ -785,6 +753,10 @@ examApp.controller('dashboardController', ['$scope', '$location', '$modal', '$ht
 		$location.path('/course/' + course_id);
 	}
 
+	$scope.viewGradedPaper = function(exam_id){
+		$location.path('/exam/' + exam_id + '/view_paper');
+	}
+
 	$scope.getExamLabel = function(exam){
 		if(exam.status === EXAM_STATUS.DRAFT){
 			exam.statusText = "draft";
@@ -855,9 +827,18 @@ examApp.controller('viewCourseController', ['$scope', '$http', '$routeParams',
 		$http.get('/api/exam/' + exam_id + '/markmcq')
 			.success(function(data){
 				if(data.code===200){
+					var modalData = {
+										"message":"All MCQs has been graded!",
+										"header": "Automatic Grading"
+									};
 					var modalInstance = $modal.open({
 						templateUrl: 'confirmModal.html',
 						controller: 'ConfirmModalController',
+						resolve:{
+							data:function(){
+								return modalData;
+							}
+						}
 					});
 
 					modalInstance.result.then(function () {
@@ -970,7 +951,7 @@ examApp.controller('viewCourseController', ['$scope', '$http', '$routeParams',
 	$scope.updateGradingStatus = function(exams){
 		for(var i in exams){
 			var exam = exams[i];
-			if(exam.status === EXAM_STATUS.FINISHED){
+			if(exam.submission_status){
 				exam.status_data = [];
 			  	exam.status_data.push({
 		          value: (exam.submission_status.graded*100)/exam.submission_status.total,
@@ -980,7 +961,7 @@ examApp.controller('viewCourseController', ['$scope', '$http', '$routeParams',
 		        });
 		        exam.status_data.push({
 		          value: (exam.submission_status.grading*100)/exam.submission_status.total,
-  		          count:exam.submission_status.grading,
+			          count:exam.submission_status.grading,
 		          text:'Grading:',
 		          type: 'warning'
 		        });
@@ -1114,6 +1095,9 @@ examApp.controller('examDetailsController', ['$scope', '$http', '$routeParams', 
 				if (data.code === 200) {
 					if(data.data.submissions.length>0){
 						$scope.prepareExams(data.data);
+						data.data.isPublished = data.data.status === EXAM_STATUS.PUBLISHED;
+						data.data.publishText = data.data.isPublished? "Published!":"Publish";
+						console.log(data.data);
 						$scope.exam = data.data;
 					}else{
 						$scope.error = "Oops! No available submissions/statistics have been found for this exam."
@@ -1138,10 +1122,18 @@ examApp.controller('examDetailsController', ['$scope', '$http', '$routeParams', 
 		$http.get('/api/exam/' + $scope.examId + '/markmcq')
 			.success(function(data){
 				if(data.code===200){
-					console.log(data);
+					var modalData = {
+										message:"All MCQs has been graded!",
+										header: "Automatic Grading"
+									};
 					var modalInstance = $modal.open({
 						templateUrl: 'confirmModal.html',
 						controller: 'ConfirmModalController',
+						resolve:{
+							data:function(){
+								return modalData;	
+							}
+						}
 					});
 
 					modalInstance.result.then(function () {
@@ -1151,6 +1143,34 @@ examApp.controller('examDetailsController', ['$scope', '$http', '$routeParams', 
 				}
 			});
 	};
+
+	$scope.publishResult = function(){
+		//TODO: popup window to collect feedback
+		$http.get('/api/exam/' + $scope.examId + '/publish')
+			.success(function(data){
+				if(data.code===200){
+					var modalData = {
+										message:"Result has been published!",
+										header:"Publish Result"
+									};
+					var modalInstance = $modal.open({
+						templateUrl: 'confirmModal.html',
+						controller: 'ConfirmModalController',										
+						backdrop: 'static',
+						resolve:{
+							data:function(){
+								return modalData;		
+							}
+						}
+					});
+
+					modalInstance.result.then(function () {
+						$route.reload();
+					}, function () {
+					});	
+				}
+			});
+	}
 
 	$scope.getStatusClass = function (submission){
 		if(submission.submissionstate_id == SUBMISSION_STATUS.NOT_GRADED){
@@ -1243,37 +1263,34 @@ examApp.controller('examDetailsController', ['$scope', '$http', '$routeParams', 
 
 	$scope.updateGradingStatus = function(exam){
 
-		if(exam.status === EXAM_STATUS.FINISHED){
-			$scope.progress={};
-			$scope.progress.data=[exam.submission_status.graded,exam.submission_status.grading,exam.submission_status.not_graded];
-			$scope.progress.labels=['Graded','Grading','Submitted'];
+		$scope.progress={};
+		$scope.progress.data=[exam.submission_status.graded,exam.submission_status.grading,exam.submission_status.not_graded];
+		$scope.progress.labels=['Graded','Grading','Submitted'];
 		
-
-			exam.status_data = [];
-		  	exam.status_data.push({
-	          value: (exam.submission_status.graded*100)/exam.submission_status.total,
-	          count:exam.submission_status.graded,
-	          text:'Finished:',
-	          type: 'success'
-	        });
-	        exam.status_data.push({
-	          value: (exam.submission_status.grading*100)/exam.submission_status.total,
-		          count:exam.submission_status.grading,
-	          text:'Grading:',
-	          type: 'warning'
-	        });
-	        exam.status_data.push({
-	          value: (exam.submission_status.not_graded*100)/exam.submission_status.total,
-	          count:exam.submission_status.not_graded,
-	          text:'Left:',
-	          type: 'danger'
-	        });
-	        if(exam.submission_status.graded == exam.submission_status.total){
-	        	exam.grading_finished = true;
-	        }else{
-	        	exam.grading_finished = false;
-	        }
-		}
+		exam.status_data = [];
+	  	exam.status_data.push({
+          value: (exam.submission_status.graded*100)/exam.submission_status.total,
+          count:exam.submission_status.graded,
+          text:'Finished:',
+          type: 'success'
+        });
+        exam.status_data.push({
+          value: (exam.submission_status.grading*100)/exam.submission_status.total,
+	          count:exam.submission_status.grading,
+          text:'Grading:',
+          type: 'warning'
+        });
+        exam.status_data.push({
+          value: (exam.submission_status.not_graded*100)/exam.submission_status.total,
+          count:exam.submission_status.not_graded,
+          text:'Left:',
+          type: 'danger'
+        });
+        if(exam.submission_status.graded == exam.submission_status.total){
+        	exam.grading_finished = true;
+        }else{
+        	exam.grading_finished = false;
+        }
 	};
 
 	$scope.updateStartTime = function(exam){
@@ -1286,7 +1303,7 @@ examApp.controller('examDetailsController', ['$scope', '$http', '$routeParams', 
 				exam.statusText = "grading";
 				return "label-primary";
 			}else if (exam.status === EXAM_STATUS.PUBLISHED){
-				exam.statusText = "published!";
+				exam.statusText = "published";
 				return "label-success";
 			}else if(exam.status === EXAM_STATUS.DRAFT){
 				exam.statusText = "draft";
@@ -1505,10 +1522,19 @@ examApp.controller('viewExamController', ['$scope', '$http', '$routeParams',
 
 		if($scope.canAnswerQuestion){
 			$scope.submitCurrentQuestion();
+			var modalData = {
+								message:"All changes has been saved. Good luck!",
+								header: "Exam Finished"
+							};
 	  		var modalInstance = $modal.open({
 				templateUrl: 'confirmModal.html',
 				controller: 'ConfirmModalController',
-				backdrop: 'static'
+				backdrop: 'static',
+				resolve:{
+					data:function(){
+						return modalData;
+					}
+				}
 			});
 
 			modalInstance.result.then(function () {
@@ -1599,9 +1625,18 @@ examApp.controller('markExamController', ['$scope', '$routeParams', '$http', 'QN
 						$location.path('/exam/' + $scope.examId + '/submission/' + submissionId);
 					}
 					else{
+						var modalData = {
+											message:"There are no more unmarked papers!",
+											header:"No More Paper Found"
+										};
 						var modalInstance = $modal.open({
 							templateUrl: 'confirmModal.html',
 							controller: 'ConfirmModalController',
+							resolve:{
+								data:function(){
+								return modalData;
+								}
+							}
 						});
 
 						modalInstance.result.then(function () {
@@ -1737,7 +1772,7 @@ examApp.controller('markExamController', ['$scope', '$routeParams', '$http', 'QN
 				}
 			}
 			$scope.submission.total_marks = $total;
-			
+
 			console.log($scope.submission.total_marks);
 		};
 

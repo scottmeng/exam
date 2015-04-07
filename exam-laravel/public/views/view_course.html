@@ -46,10 +46,10 @@
 
 <script type="text/ng-template" id="confirmModal.html">
     <div class="modal-header">
-        <h4 class="modal-title" data-ng-model="exam">Automatic Grading</h4>
+        <h4 class="modal-title" data-ng-model="exam">{{modalData.header}}</h4>
     </div>
     <div class="modal-body alert alert-success">
-    	All MCQs has been graded!
+    	{{modalData.message}}
     </div>
     <div class="modal-footer">
         <button class="btn btn-primary" ng-click="OK()">Close</button>
@@ -99,9 +99,9 @@
 <!-- 						<span data-ng-repeat="group in course.groups"><a>{{group.name}} </a>|</span>
  -->						
  						<div class="button-group pull-right">
-							<button class='btn btn-primary' data-ng-click="randomStart(exam.id)">Start Marking</button>
+							<button class='btn btn-primary' data-ng-click="randomStart(exam.id)" data-ng-hide="exam.status=='published'">Start Marking</button>
 							<button class='btn btn-info'data-ng-hide="exam.grading_finished" data-ng-click="markAllMCQs(exam.id)">Mark All MCQs</button>
-							<button class='btn btn-warning' data-ng-show="exam.grading_finished">Publish</button>
+							<button class='btn btn-warning' data-ng-show="exam.grading_finished && exam.status!='published'">Publish</button>
 						</div>
 					</div>
 					<div class="row">

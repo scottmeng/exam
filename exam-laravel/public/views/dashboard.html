@@ -66,9 +66,10 @@
 									<div class="button-group pull-right">
 											<button data-ng-click="editExam(exam.id);" class="btn btn-default" ng-show="course.user_role=='admin'&&exam.status=='draft'"><small><i class="fa fa-pencil"></i></small></button>
 											<button data-ng-click="previewExam(exam.id);" class="btn btn-default" ng-show="(course.user_role!='student'&&exam.status!='draft')||isAdmin"><small><i class="fa fa-eye"></i></small></button>
-											<button data-ng-click="viewSubmissions(exam.id);" class="btn btn-primary" ng-show="course.user_role!='student'&&exam.status=='finished'"><small><i class="fa fa-bar-chart-o" style="color:white"></i></small></button>
+											<button data-ng-click="viewSubmissions(exam.id);" class="btn btn-primary" ng-show="course.user_role!='student'&&(exam.status=='finished'||exam.status=='published')"><small><i class="fa fa-bar-chart-o" style="color:white"></i></small></button>
 											<button data-ng-click="startExam(exam.id);" class="btn btn-success" ng-show="exam.status=='in_exam'"><small> START  <i class="fa fa-play-circle"></i></small></button>
 											<button data-ng-click="removeExam(exam);" class="btn btn-danger" ng-show="course.user_role=='admin'&&exam.status=='draft'"><small><i class="fa fa-trash-o" style="color:white"></i></small></button>
+											<button data-ng-click="viewGradedPaper(exam.id);" class="btn btn-default" ng-show="course.user_role=='student'&&exam.status=='published'"><small><i class="fa fa-eye"></i></small></button>
 										</div>
 								</div>
 							</div>
