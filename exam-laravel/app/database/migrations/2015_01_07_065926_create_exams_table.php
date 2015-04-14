@@ -17,15 +17,16 @@ class CreateExamsTable extends Migration {
 			$table->increments('id');
 			$table->string('title');
 			$table->integer('course_id')->unsigned();
+			$table->foreign('course_id')->references('id')->on('courses');
 			$table->text('description')->nullable();
 			$table->integer('examstate_id')->unsigned()->default(1);
+			$table->foreign('examstate_id')->references('id')->on('examstates');
 			$table->integer('duration')->default(60);
 			$table->integer('fullmarks')->default(100);
 			$table->integer('totalqn')->default(0);
 			$table->dateTime('starttime')->nullable();
-			$table->foreign('course_id')->references('id')->on('courses');
-			$table->foreign('examstate_id')->references('id')->on('examstates');
 			$table->boolean('randomizeQuestions')->default(0);
+			$table->integer('grace_period')->default(15);
 			$table->text('general_feedback')->nullable();
 			$table->timestamps();
 		});

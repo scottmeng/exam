@@ -11,13 +11,13 @@ class Course extends Eloquent {
         return $this->hasMany('Exam');
     }
 
+    public function questions(){
+    	return $this->hasMany('Question');
+    }
+
     public function users()
     {
         return $this->belongsToMany('User')->withPivot('role_id');
-    }
-
-    public function groups(){
-    	return $this->hasMany('Group');
     }
 
     public function getExamStatus($exam){

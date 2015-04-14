@@ -13,7 +13,7 @@ class Exam extends Eloquent{
     }
 
     public function questions(){
-    	return $this->hasMany('Question');
+    	return $this->belongsToMany('Question');
     }
 
     public function submissions(){

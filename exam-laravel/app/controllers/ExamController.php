@@ -45,9 +45,11 @@ class ExamController extends BaseController {
 			$next_submission = $submissions[$rand];
 
 			return Response::success($next_submission);
-		}else{
-			return Response::error('no other submissions found');
 		}
+		//TODO: not found alert
+		// else{
+		// 	return Response::error('no other submissions found');
+		// }
 	}
 
 	public function getQncount($exam_id)
@@ -185,8 +187,6 @@ class ExamController extends BaseController {
 		$exam = Exam::findOrFail($exam_id);
 
 		$question = new Question(array(
-			'index'=>Input::get('index',-1),
-			'subindex' => Input::get('subindex',0),
 			'questiontype_id' => Input::get('questiontype_id',0),
 			'title' => Input::get('title',NULL),
 			'content' => Input::get('content',NULL),
@@ -195,8 +195,8 @@ class ExamController extends BaseController {
 			'marking_scheme' => Input::get('marking_scheme',NULL),
 			'full_marks' => Input::get('full_marks',0)
 		));
-
-		$exam->questions()->save($question);
+		$exam->course()->first()->questions()->save($question);
+		$exam->questions()->attach($question);
 		if(Input::has('options')){
 			$question['options'] = $question->populateOptions(Input::get('options'));
 		}
@@ -211,8 +211,6 @@ class ExamController extends BaseController {
 		$question = Question::findOrFail($question_id);
 		$updated = new Question();
 
-		$updated->index = Input::get('index',-1);
-		$updated->subindex = Input::get('subindex',-1);
 		$updated->questiontype_id = Input::get('questiontype_id',-1);
 		$updated->title = Input::get('title',NULL);
 		$updated->content = Input::get('content',NULL);
@@ -237,6 +235,58 @@ class ExamController extends BaseController {
 
 		return Response::success('deleted');
 	}
+
+	public function postRemovequestion($exam_id){
+		$qn_id = Input::get('id');
+		$question = Question::find($qn_id);
+		$exam = Exam::find($exam_id);
+		$exam->questions()->detach($question);
+
+		return Response::success('removed');
+	}
+
+	public function getAvailableqns($exam_id){
+		$user = User::find(Session::get('userid'));
+		if(!$user){
+			return Response::error(401,'Please Login First!');
+		}
+		$course_id=Exam::find($exam_id)->course->id;
+		$course = $user->courses()->where('courses.id','=',$course_id)->first();
+		if(!$course){
+			return Response::error(401,'Page not available!');
+		}else{
+			if($course->pivot->role_id != ADMIN){
+				return Response::error(401,'You are unauthorized to view this page!');
+			}
+			else{
+				$questions = $course->questions()->get();
+				return Response::success($questions);
+			}
+		}
+	}
+
+	public function postAddqn($exam_id){
+		$user = User::find(Session::get('userid'));
+		if(!$user){
+			return Response::error(401,'Please Login First!');
+		}
+		$exam=Exam::find($exam_id);
+		$course_id=$exam->course->id;
+		$course = $user->courses()->where('courses.id','=',$course_id)->first();
+		if(!$course){
+			return Response::error(401,'Page not available!');
+		}else{
+			if($course->pivot->role_id != ADMIN){
+				return Response::error(401,'You are unauthorized to view this page!');
+			}
+			else{
+				$question = Question::find(Input::get('id'));
+				$exam->questions()->attach($question);
+				return Response::success($question);
+			}
+		}
+	}
+
 
 	public function getGriddata($exam_id){
 

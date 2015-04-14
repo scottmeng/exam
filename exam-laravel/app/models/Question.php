@@ -9,9 +9,13 @@ class Question extends Eloquent {
         return $this->belongsTo('Questiontype');
     }
 
-    public function exam()
+    public function exams()
     {
-    	return $this->belongsTo('Exam');
+    	return $this->belongsToMany('Exam');
+    }
+
+    public function course(){
+        return $this->belongsTo('Course');
     }
 
     public function options()
@@ -82,6 +86,7 @@ class Question extends Eloquent {
     }
 
     public function deleteQuestion(){
+        $this->exams()->detach();
         $this->options()->delete();
         $this->delete();
     }

@@ -18,6 +18,7 @@ class CourseController extends BaseController {
 			}
 			else{
 				$course = $course->getExamsWithSubmissions($user);
+				$course->questions = $course->questions()->get();
 				return Response::success($course);
 			}
 		}

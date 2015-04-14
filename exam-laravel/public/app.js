@@ -2,7 +2,7 @@
 
 var examApp = angular
 	.module('examApp', ['ngRoute', 'angularMoment', 'checklist-model','ui.bootstrap.modal','ui.bootstrap.tabs',
-		'ui.ace','textAngular','ui.bootstrap.buttons','ui.bootstrap.collapse', 'ui.bootstrap.progressbar', 'ui.bootstrap.carousel',
+		'ui.ace','textAngular','ui.bootstrap.buttons','ui.bootstrap.collapse', 'ui.bootstrap.progressbar', 'ui.bootstrap.carousel','ui.bootstrap.dropdown',
 		'mgcrea.ngStrap.datepicker','mgcrea.ngStrap.timepicker','mgcrea.ngStrap.scrollspy','mgcrea.ngStrap.affix',
 		'timer','hljs','ui.grid','ui.grid.selection','ui.grid.exporter','chart.js'])
 	.constant('QN_TYPES', {
@@ -599,6 +599,20 @@ examApp.controller('loginController', ['$scope', '$rootScope','$location', '$win
 	}
 ]);
 
+examApp.controller('addQnModalController',function($scope,$modalInstance,questions){
+	$scope.questions = questions;
+	console.log(questions);
+	console.log($scope.questions);
+	$scope.cancel = function(){
+		$modalInstance.dismiss('cancel');
+	};	
+
+	$scope.select = function(question){
+		$modalInstance.close(question);
+	}
+
+});
+
 examApp.controller('DeleteModalController',function($scope,$modalInstance,$http,exam){
 	$scope.exam = exam;
 
@@ -813,10 +827,6 @@ examApp.controller('viewCourseController', ['$scope', '$http', '$routeParams',
 		$location.path('/exam/' + exam_id + '/submission/' + submission_id);
 	};
 
-	// $scope.redirectExam = function(exam_id){
-	// 	$location.path('/exam/'+exam_id+'/submissions');
-	// };
-
 	$scope.saveAndToggle = function(){
 		$scope.isDescriptionCollapsed=!$scope.isDescriptionCollapsed;
 		$scope.saveDescription();
@@ -872,6 +882,7 @@ examApp.controller('viewCourseController', ['$scope', '$http', '$routeParams',
 		$http.get('/api/exam/' + exam_id + '/randomsubmission')
 			.success(function(data){
 				if(data.code===200){
+					
 					var submissionId = data.data.id;
 					$location.path('/exam/' + exam_id + '/submission/' + submissionId);
 				}
@@ -934,19 +945,19 @@ examApp.controller('viewCourseController', ['$scope', '$http', '$routeParams',
 			submission.statusText = 'Graded';
 			return 'label-success';
 		}
-	}
+	};
 
 	$scope.saveDescription = function(){
 		// put course information
 		$http.put('/api/course/' + $scope.courseId + '/course',$scope.course)
 			.success(function(data) {
 		});
-	}
+	};
 
 	$scope.prepareExams = function(exams){
 		$scope.updateStartTime(exams);
 		$scope.updateGradingStatus(exams);
-	}
+	};
 
 	$scope.updateGradingStatus = function(exams){
 		for(var i in exams){
@@ -978,13 +989,26 @@ examApp.controller('viewCourseController', ['$scope', '$http', '$routeParams',
 		        }
 			}
 		}
-	}
+	};
 
 	$scope.updateStartTime = function(exams){
 		for(var i in exams){
 			exams[i].starttime = moment.tz(exams[i].starttime, 'GMT').toDate();
 		}
-	}
+	};
+
+	//delete the question from database
+	$scope.deleteQuestion = function(question_id) {
+		var question={'id':question_id};
+		$http.post('/api/exam/' + $scope.examId + '/deletequestion', question)
+			.success(function(data){
+				if (data.code === 200) {
+					$scope.exam.totleqn-=1;
+				}
+			})
+		
+		$scope.exam.questions.splice(index, 1);
+	};
 
 	$scope.getExamLabel = function(exam){
 		if(exam.status === EXAM_STATUS.FINISHED){
@@ -1838,8 +1862,8 @@ examApp.controller('markExamController', ['$scope', '$routeParams', '$http', 'QN
 }]);
 
 examApp.controller('newExamController', ['$scope', '$location','$http', '$routeParams', 
-	'QN_TYPES', 'EXAM_STATUS', 'moment', 'taSelection',
-	function($scope, $location, $http, $routeParams, QN_TYPES, EXAM_STATUS, moment, taSelection) {
+	'QN_TYPES', 'EXAM_STATUS', 'moment', 'taSelection','$modal',
+	function($scope, $location, $http, $routeParams, QN_TYPES, EXAM_STATUS, moment, taSelection,$modal) {
 
 	$scope.examId = $routeParams.examId;
 	$scope.isExamInfoCollapsed = true;
@@ -1897,7 +1921,14 @@ examApp.controller('newExamController', ['$scope', '$location','$http', '$routeP
 					$scope.error = 'You are not allowed to edit an active/archived exam!'
 				}
 			}
-		})
+		});
+
+		$http.get('/api/exam/' + $scope.examId + '/availableqns')
+			.success(function(data){
+				if (data.code === 200) {
+					$scope.available_questions = data.data;
+				}
+		});	
 	};
 
 	$scope.isExamInfoCollapsed = false;
@@ -1937,7 +1968,6 @@ examApp.controller('newExamController', ['$scope', '$location','$http', '$routeP
 				}
 			});
 		} else {
-			console.log($scope.exam.questions[index]);
 			// id does not exist, create question
 			$http.post('/api/exam/' + $scope.examId + '/question', $scope.exam.questions[index])
 			.success(function(data){
@@ -1968,6 +1998,30 @@ examApp.controller('newExamController', ['$scope', '$location','$http', '$routeP
 		return questiontype == QN_TYPES.QN_CODING;
 	}
 
+	$scope.addQuestion = function(){
+				
+		var modalInstance = $modal.open({
+			templateUrl: 'addQnModal.html',
+			controller: 'addQnModalController',
+			resolve: {
+				questions: function () {
+				  return $scope.available_questions;
+				}
+			}
+		});
+
+		modalInstance.result.then(function (question) {
+			$scope.exam.questions.push(question);
+			$http.post('/api/exam/' + $scope.examId + '/addqn', question)
+			.success(function(data){
+				if (data.code === 200) {
+					$scope.exam.totalqn += 1;
+				}
+			});			
+		}, function () {
+		});
+	}
+
 	$scope.addNewQuestion = function() {
 		if ($scope.exam.questions==null) {
 			$scope.exam.questions = [];
@@ -1979,11 +2033,12 @@ examApp.controller('newExamController', ['$scope', '$location','$http', '$routeP
 			index:$scope.exam.questions.length+1	
 		});
 	};
-
-	$scope.removeQuestion = function(index) {
+	//delete the question from database
+	$scope.deleteQuestion = function(index) {
 		if(index<$scope.exam.totalqn){
-			if($scope.exam.hasOwnProperty('id')){
-				$http.post('/api/exam/' + $scope.examId + '/deletequestion', $scope.exam.questions[index])
+			if($scope.exam.questions[index].hasOwnProperty('id')){
+				var question={'id':$scope.exam.questions[index].id};
+				$http.post('/api/exam/' + $scope.examId + '/deletequestion', question)
 					.success(function(data){
 						if (data.code === 200) {
 							$scope.exam.totleqn-=1;
@@ -1993,6 +2048,20 @@ examApp.controller('newExamController', ['$scope', '$location','$http', '$routeP
 		}			
 		$scope.exam.questions.splice(index, 1);
 	};
+	//un-relate question with exam
+	$scope.removeQuestion = function(index){
+		if(index<$scope.exam.totalqn){
+			if($scope.exam.hasOwnProperty('id')){
+				$http.post('/api/exam/' + $scope.examId + '/removequestion', $scope.exam.questions[index])
+					.success(function(data){
+						if (data.code === 200) {
+							$scope.exam.totleqn-=1;
+						}
+					})
+			}
+		}			
+		$scope.exam.questions.splice(index, 1);
+	}
 
 	$scope.removeOption = function(qn_index,option_index){
 		console.log('removing options:');

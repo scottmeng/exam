@@ -12,6 +12,10 @@ body {
   padding-top:10px;
 }
 
+.dropdown-menu{
+  padding:10px;
+}
+
 input.empty {
     font-family: FontAwesome;
     font-style: normal;

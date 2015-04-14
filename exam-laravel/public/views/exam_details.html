@@ -15,8 +15,8 @@
 	<div class="row" style="margin:10px">
 		<h2> {{exam.title}}
 		<div class="button-group pull-right">
-			<button class='btn btn-warning' data-ng-show="exam.grading_finished" data-ng-disabled="exam.isPublished" data-ng-click="publishResult()">{{exam.publishText}}</button>
 			<button class='btn btn-primary'data-ng-show="exam.grading_finished==false" data-ng-click="randomStart()">Start Marking</button>
+			<button class='btn btn-warning' data-ng-show="exam.grading_finished" data-ng-disabled="exam.isPublished" data-ng-click="publishResult()">{{exam.publishText}}</button>
 			<button class='btn btn-info'data-ng-show="exam.grading_finished==false" data-ng-click="markAllMCQs()">Mark All MCQs</button>
 		</div>
 		</h2>
