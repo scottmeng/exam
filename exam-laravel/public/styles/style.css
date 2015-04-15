@@ -5,6 +5,18 @@ body {
   padding:10px;
 }
 
+.scrollable-select{
+  height:300px;
+  overflow: auto;
+  width: auto;
+}
+
+.question-fixed-height{
+  overflow: auto;
+  height:500px;
+  width: auto;
+}
+
 .dashboard-heading{
   background-color: #DCDCDC !important;
 }

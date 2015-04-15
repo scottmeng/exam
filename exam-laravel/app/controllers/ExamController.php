@@ -126,7 +126,7 @@ class ExamController extends BaseController {
 		if ($status == STATUS_UNAVAILABLE) {
 			return Response::error(403, 'You are unauthorized to view this page!');
 		}else if ($status == STATUS_DRAFT || $status == STATUS_NOT_STARTED){
-			return Response::error(404,'The requested page is not available!');
+			return Response::error(403,'The requested page is not available!');
 		}else{
 			if($course->isAdmin()){
 				$exam = $exam->getAllSubmissions(true, false);
@@ -258,7 +258,8 @@ class ExamController extends BaseController {
 		if(!$user){
 			return Response::error(401,'Please Login First!');
 		}
-		$course_id=Exam::find($exam_id)->course->id;
+		$exam = Exam::find($exam_id);
+		$course_id=$exam->course->id;
 		$course = $user->courses()->where('courses.id','=',$course_id)->first();
 		if(!$course){
 			return Response::error(403,'Page not available!');
@@ -267,7 +268,11 @@ class ExamController extends BaseController {
 				return Response::error(403,'You are unauthorized to view this page!');
 			}
 			else{
-				$questions = $course->questions()->get();
+				$questions = $course->questions()
+						->whereNotIn('questions.id',Question::whereHas('exams',function($query) {
+		    					$query->where('exams.id','=',3);
+		    				})->select('questions.id')->get()->toArray())
+						->get();
 				foreach($questions as $question){
 					if($question->type->id == MCQ || $question->type->id == MRQ){
 						$question->options = $question->options()->get();
@@ -296,6 +301,32 @@ class ExamController extends BaseController {
 				$question = Question::find(Input::get('id'));
 				$exam->addQuestion($question->id);
 				return Response::success($question);
+			}
+		}
+	}
+
+
+	public function postAddqns($exam_id){
+		$user = User::find(Session::get('userid'));
+		if(!$user){
+			return Response::error(401,'Please Login First!');
+		}
+		$exam=Exam::find($exam_id);
+		$course_id=$exam->course->id;
+		$course = $user->courses()->where('courses.id','=',$course_id)->first();
+		if(!$course){
+			return Response::error(403,'Page not available!');
+		}else{
+			if($course->pivot->role_id != ADMIN){
+				return Response::error(403,'You are unauthorized to view this page!');
+			}
+			else{
+				$questions = Input::all();
+				foreach($questions as $question){
+					$exam->addQuestion($question['id']);				
+				}
+				
+				return Response::success($questions);
 			}
 		}
 	}

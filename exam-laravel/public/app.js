@@ -398,6 +398,17 @@ examApp.controller('insertCodeModalController', function($scope, $modalInstance)
 	};
 });
 
+examApp.controller('confirmAddQnModalController',function($scope,$modalInstance,course_id,$location,$route){
+	$scope.continue = function(){
+		$route.reload();
+		$modalInstance.dismiss('cancel');
+	};
+	$scope.goBack = function(){
+		$location.path('/course/'+course_id);
+		$modalInstance.dismiss('cancel');
+	}
+});
+
 examApp.controller('viewPaperController', ['$scope', '$routeParams', '$http', 'QN_TYPES', 
 	function($scope, $routeParams, $http, QN_TYPES) {
 		$scope.examId = $routeParams.examId;
@@ -661,16 +672,32 @@ examApp.controller('loginController', ['$scope', '$rootScope','$location', '$win
 	}
 ]);
 
-examApp.controller('addQnModalController',function($scope,$modalInstance,questions){
+examApp.controller('addQnModalController',function($scope,$modalInstance,questions,$window,QN_TYPES){
 	$scope.questions = questions;
+	$scope.selected_questions = [];
 	$scope.cancel = function(){
 		$modalInstance.dismiss('cancel');
 	};	
 
-	$scope.select = function(question){
-		$modalInstance.close(question);
+	$scope.select = function(){
+		$modalInstance.close($scope.selected_questions);
 	}
 
+	$scope.viewQuestion = function(question_id){
+		$window.open('/question/'+ question_id + '/view','_blank');
+	}
+
+	$scope.getQuestionType = function(questiontype_id){
+		if(questiontype_id === QN_TYPES.QN_MCQ){
+			return 'MCQ';
+		}else if(questiontype_id === QN_TYPES.QN_MRQ){
+			return 'MRQ';
+		}else if(questiontype_id === QN_TYPES.QN_SHORT){
+			return 'Short Answer';
+		}else{
+			return 'Coding';
+		}
+	}
 });
 
 examApp.controller('confirmDeleteQnModalController',function($scope,$modalInstance,question){
@@ -907,7 +934,7 @@ examApp.controller('viewCourseController', ['$scope', '$http', '$routeParams',
 	}
 
 	$scope.viewQuestion = function(question_id){
-		$location.path('/question/'+question_id+'/view');
+		$window.open('/question/'+question_id+'/view','_blank');
 	}
 
 	$scope.markAllMCQs = function(exam_id){
@@ -1976,8 +2003,8 @@ examApp.controller('markExamController', ['$scope', '$routeParams', '$http', 'QN
 	$scope.getExamInfo();
 }]);
 
-examApp.controller('newQuestionController',['$scope','$location','$http','QN_TYPES','taSelection','$routeParams',
-	function($scope,$location,$http,QN_TYPES,taSelection,$routeParams){
+examApp.controller('newQuestionController',['$scope','$location','$http','QN_TYPES','taSelection','$routeParams','$modal',
+	function($scope,$location,$http,QN_TYPES,taSelection,$routeParams,$modal){
 
 		$scope.courseId = $routeParams.courseId;
 		$scope.questionId = $routeParams.questionId;
@@ -2022,12 +2049,23 @@ examApp.controller('newQuestionController',['$scope','$location','$http','QN_TYP
 		}
 
 		$scope.submitQuestion = function(){	
-			console.log('I was here!');
 			if($scope.courseId){
 				$http.post('/api/course/'+$scope.courseId+'/createqn', $scope.question)
 				.success(function(data){
 					if (data.code === 200) {
-						$location.path('/course/'+$scope.courseId);
+
+						var modalInstance = $modal.open({
+							templateUrl: 'confirmModal.html',
+							controller: 'confirmAddQnModalController',
+							backdrop: 'static',
+							resolve:{
+								course_id:function(){
+									return $scope.courseId;
+								}
+							}
+						});
+
+						// $location.path('/course/'+$scope.courseId);
 					}
 				});
 			}else{
@@ -2182,13 +2220,6 @@ examApp.controller('newExamController', ['$scope', '$location','$http', '$routeP
 				}
 			}
 		});
-
-		$http.get('/api/exam/' + $scope.examId + '/availableqns')
-			.success(function(data){
-				if (data.code === 200) {
-					$scope.available_questions = data.data;
-				}
-		});	
 	};
 
 	$scope.isExamInfoCollapsed = false;
@@ -2257,28 +2288,37 @@ examApp.controller('newExamController', ['$scope', '$location','$http', '$routeP
 	}
 
 	$scope.addQuestion = function(){
-				
-		var modalInstance = $modal.open({
-			templateUrl: 'addQnModal.html',
-			controller: 'addQnModalController',
-			resolve: {
-				questions: function () {
-				  return $scope.available_questions;
-				}
-			}
-		});
 
-		modalInstance.result.then(function (question) {
-			$scope.exam.questions.push(question);
-			console.log($scope.exam.questions);
-			$http.post('/api/exam/' + $scope.examId + '/addqn', question)
+		$http.get('/api/exam/' + $scope.examId + '/availableqns')
 			.success(function(data){
 				if (data.code === 200) {
-					$scope.exam.totalqn += 1;
-				}
-			});			
-		}, function () {
-		});
+					
+					$scope.available_questions = data.data;
+					var modalInstance = $modal.open({
+						templateUrl: 'addQnModal.html',
+						controller: 'addQnModalController',
+						resolve: {
+							questions: function () {
+							  return $scope.available_questions;
+							}
+						}
+					});
+
+					modalInstance.result.then(function (selected_questions) {
+					for(var i in selected_questions){
+						$scope.exam.questions.push(selected_questions[i]);
+					}
+					$http.post('/api/exam/' + $scope.examId + '/addqns', selected_questions)
+					.success(function(data){
+						if (data.code === 200) {
+							$scope.exam.totalqn += selected_questions.length;
+						}
+					});			
+				}, function () {
+				});
+			}
+		});	
+
 	}
 
 	$scope.addNewQuestion = function() {

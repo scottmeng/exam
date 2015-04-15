@@ -63,16 +63,16 @@
 <!-- 			<div data-ng-bind-html="exam.questions[curQnIndex].content" hljs class="question-body"></div>
  -->			
  			<codearea raw="exam.questions[curQnIndex].content" class="question-body"></codearea>
-			<div data-ng-if="isMCQ(exam.questions[curQnIndex]);" class="row">
-				<div class="col-md-6" style="margin-bottom: 10px" data-ng-repeat="option in exam.questions[curQnIndex].options">
+			<div data-ng-if="isMCQ(exam.questions[curQnIndex]);" >
+				<div style="margin-bottom: 10px" data-ng-repeat="option in exam.questions[curQnIndex].options">
 					<label class="checkbox-inline">
 						<input type="radio" name="exam.questions[curQnIndex].id" ng-checked="isChecked(option.id)" value="{{option.id}}" data-ng-model="curQnSubmission.choice">
 						{{ option.content }}
 					</label>
 				</div>
 			</div>
-			<div data-ng-if="isMRQ(exam.questions[curQnIndex]);" class="row">
-				<div class="col-md-6" style="margin-bottom: 10px" data-ng-repeat="option in exam.questions[curQnIndex].options">
+			<div data-ng-if="isMRQ(exam.questions[curQnIndex]);">
+				<div style="margin-bottom: 10px" data-ng-repeat="option in exam.questions[curQnIndex].options">
 						<input type="checkbox" ng-checked="isChecked(option.id)" checklist-value="option.id" checklist-model="curQnSubmission.choices">
 						{{ option.content }}
 					</label>

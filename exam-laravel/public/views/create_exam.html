@@ -3,17 +3,23 @@
         <h3 class="modal-title">Select Question</h3>
     </div>
     <div class="modal-body">
-    	<div name="questions" style="overflow:auto">
+    	<div name="questions">
 			<input id="question_filter" class="form-control empty" type="search" ng-model="q" placeholder="&#xF002; filter questions..." />
-			<div class="list-group">
-				<div class="list-group-item" data-ng-repeat="question in questions | filter:q as results" data-ng-click="select(question)" style="padding-top:10px">
-						{{($index+1) + ".  " }} {{question.title}}
+			<div class="scrollable-select">
+				<div class="list-group">
+					<div class="list-group-item" data-ng-repeat="question in questions | filter:q as results" style="padding-top:10px">
+							{{($index+1) + ".  " }} {{question.title}}
+							<input type="checkbox" class="pull-right" checklist-value="question" checklist-model="selected_questions"  style="margin-left:10px">
+							<span class="pull-right" data-ng-click="viewQuestion(question.id)"><i class="fa fa-eye" style="margin-left:10px"></i></span>
+							<span class="label label-default pull-right">{{getQuestionType(question.questiontype_id)}}</span>
+					</div>
 				</div>
 			</div>
 		</div>
     </div>
     <div class="modal-footer">
         <button class="btn btn-info" ng-click="cancel()">Cancel</button>
+        <button class="btn btn-success" data-ng-click="select()">OK</button>
     </div>
 </script>
 
@@ -61,7 +67,7 @@
 			<div class="row form-group" >
 				<label class="col-md-3 text-left">Exam Instructions:</label>
 				<div class="col-md-12">
-					<div text-angular ta-toolbar="[['h1','h2','h3','quote'],['bold','italics','underline'],['ul','ol','html'],['justifyLeft','justifyCenter','justifyRight']]" ng-model="exam.description"></div>
+					<div text-angular ta-toolbar="[['h3','h4','h5'],['pre','quote'],['bold','italics','underline'],['ul','ol'],['justifyLeft','justifyCenter','justifyRight'],['undo','redo','html']]" ng-model="exam.description"></div>
 				</div>
 			</div>
 			<div class="row formgroup">
@@ -94,7 +100,7 @@
 		<div class="panel-body">
 			<div class="tab-content">
 				<label class="control-label" style="margin-bottom:15px">Question body</label>
-				<div text-angular ta-toolbar="[['h1','h2','h3','quote', 'code'],['bold','italics','underline'],['ul','ol','html'],['justifyLeft','justifyCenter','justifyRight']]" ng-model="question.content"></div>
+				<div text-angular ta-toolbar="[['h3','h4','h5'],['pre','quote','code'],['bold','italics','underline'],['ul','ol'],['justifyLeft','justifyCenter','justifyRight'],['undo','redo','html']]" ng-model="question.content"></div>
 						
 				<form class="form-vertical">
 					<div class="form-group" data-ng-show="isMCQ(question.questiontype_id);" style="margin-top:15px">
