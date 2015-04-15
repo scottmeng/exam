@@ -17,6 +17,7 @@ class LoginController extends BaseController {
 	 	 if(Input::has('password'))
 	    		$password = Input::get('password');
 	    	
+	    Log::info('user login');
 
 		if ($username != NULL && $password != NULL){
 				
@@ -25,8 +26,9 @@ class LoginController extends BaseController {
 
 			//varify user role
 			$user = User::where('nus_id','like',$username)->first();
+			Log::info($user);
 			if(!$user){
-				return Response::error(404,'user not found');
+				return Response::error(405,'user not found');
 			}else{
 				Session::put('userid',$user->id);
 				return Response::success($user->name);

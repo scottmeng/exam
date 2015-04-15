@@ -97,13 +97,13 @@ Response::macro('error', function($code, $message)
     return App::abort($code, $message);
 });
 
-Response::macro('error', function($code, $data)
-{
-     return Response::json(array(
-    	'code'=>$code,
-    	'data'=>$data
-    ));
-});
+// Response::macro('error', function($code, $data)
+// {
+//      return Response::json(array(
+//     	'code'=>$code,
+//     	'data'=>$data
+//     ));
+// });
 
 
 
