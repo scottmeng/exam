@@ -913,8 +913,8 @@ examApp.controller('dashboardController', ['$scope', '$location', '$modal', '$ht
 }]);
 
 examApp.controller('viewCourseController', ['$scope', '$http', '$routeParams', 
-	'EXAM_STATUS','SUBMISSION_STATUS', '$location','$modal', '$route', '$window',
-	function($scope, $http, $routeParams, EXAM_STATUS,SUBMISSION_STATUS,$location,$modal,$route,$window) {
+	'EXAM_STATUS','SUBMISSION_STATUS', '$location','$modal', '$route', '$window', 'QN_TYPES',
+	function($scope, $http, $routeParams, EXAM_STATUS,SUBMISSION_STATUS,$location,$modal,$route,$window,QN_TYPES) {
 
 	$scope.courseId = $routeParams.courseId;
 	$scope.isDescriptionCollapsed = true;
@@ -935,6 +935,18 @@ examApp.controller('viewCourseController', ['$scope', '$http', '$routeParams',
 
 	$scope.viewQuestion = function(question_id){
 		$window.open('/question/'+question_id+'/view','_blank');
+	}
+
+	$scope.getQuestionType = function(questiontype_id){
+		if(questiontype_id === QN_TYPES.QN_MCQ){
+			return "MCQ";
+		}else if(questiontype_id === QN_TYPES.QN_MRQ){
+			return "MRQ";
+		}else if(questiontype_id === QN_TYPES.QN_SHORT){
+			return "Short Answer";
+		}else {
+			return "Coding";
+		}
 	}
 
 	$scope.markAllMCQs = function(exam_id){
@@ -2292,7 +2304,7 @@ examApp.controller('newExamController', ['$scope', '$location','$http', '$routeP
 		$http.get('/api/exam/' + $scope.examId + '/availableqns')
 			.success(function(data){
 				if (data.code === 200) {
-					
+
 					$scope.available_questions = data.data;
 					var modalInstance = $modal.open({
 						templateUrl: 'addQnModal.html',

@@ -106,6 +106,7 @@ class ExamController extends BaseController {
 		}
 		$exam->status = $status;
 		$exam->totalqn = $exam->questions()->get()->count();
+		$exam->fullmarks = $exam->questions->sum('full_marks');
 		$exam->user_role = Role::find($course->pivot->role_id)->name;
 		return Response::success($exam);
 	}
@@ -197,7 +198,6 @@ class ExamController extends BaseController {
 	public function postQuestion($exam_id)
 	{
 		$exam = Exam::findOrFail($exam_id);
-
 		$question = new Question(array(
 			'questiontype_id' => Input::get('questiontype_id',0),
 			'title' => Input::get('title',NULL),
@@ -229,8 +229,9 @@ class ExamController extends BaseController {
 		if(Input::has('options')){
 			$updated['options'] = Input::get('options');
 		}
-
 		$question = $question->updateQuestion($updated);	
+		$exam = Exam::find($exam_id);
+		$exam->updateFullmarks();
 		return Response::success($question);
 	}
 

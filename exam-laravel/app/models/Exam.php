@@ -144,6 +144,7 @@ class Exam extends Eloquent{
     public function addQuestion($question_id){
         if(!$this->questions->contains($question_id)){
             $this->questions()->attach(Question::find($question_id));
+            $this->updateFullmarks();
         }
     }
 
@@ -158,5 +159,10 @@ class Exam extends Eloquent{
         $next_submission = $submissions[$rand];
 
         return Response::success($next_submission);
+    }
+
+    public function updateFullmarks (){
+        $this->fullmarks = $this->questions->sum('full_marks');
+        $this->save();
     }
 }

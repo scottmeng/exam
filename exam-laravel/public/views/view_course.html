@@ -151,6 +151,7 @@
 						<div class="list-group-item" data-ng-repeat="question in course.questions | filter:q as results" style="padding-top:10px">
 							<h4 style="padding:10px">	
 								{{($index+1) + ".  " }} {{question.title}}
+								<small><span class="label label-default">{{getQuestionType(question.questiontype_id)}}</span></small>
 								<div class="btn-group pull-right" role="group" style="margin-left:10px">
 									<button type="button" data-ng-click="viewQuestion(question.id);" class="btn btn-default"><small><i class="fa fa-eye"></i></small></button>
 									<button type="button" data-ng-click="editQuestion(question.id);" class="btn btn-default"><small><i class="fa fa-pencil"></i></small></button>
