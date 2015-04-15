@@ -2,11 +2,11 @@
 
 class Question extends Eloquent {
 
-	protected $fillable = array('index','subindex','questiontype_id','title','content','exam','marking_scheme','full_marks');
+	protected $fillable = array('questiontype_id','title','content','course_id','language','compiler_enable','marking_scheme','full_marks','suggested_answer','general_feedback');
 
 	public function type()
     {
-        return $this->belongsTo('Questiontype');
+        return $this->belongsTo('Questiontype','questiontype_id');
     }
 
     public function exams()
@@ -27,24 +27,14 @@ class Question extends Eloquent {
         return $this->hasMany('QuestionSubmission');
     }
 
-    public function updateQuestion($updated, Exam $exam)
+    public function updateQuestion($updated)
     {
-        Log::info($updated);
-
-        $this->index = $updated['index'];
-
-        if (isset($updated['subindex'])){
-            $this->subindex = $updated['subindex'];
-        }
         $this->questiontype_id = $updated['questiontype_id'];
         if (isset($updated['title'])){
             $this->title = $updated['title'];
         }
         if (isset($updated['content'])){
             $this->content = $updated['content'];
-        }
-        if (isset($updated['coding_qn'])){
-            $this->coding_qn = $updated['coding_qn'];
         }
         if (isset($updated['compiler_enable'])){
             $this->compiler_enable = $updated['compiler_enable'];
@@ -55,13 +45,12 @@ class Question extends Eloquent {
         if (isset($updated['full_marks'])){
             $this->full_marks = $updated['full_marks'];
         }
+        $this->save();
 
-        $exam->questions()->save($this);
+       // $course->questions()->save($this);
         if (isset($updated['options'])){
             $this->options = $this->populateOptions($updated['options']);
         }
-
-        Log::info($this);
         return $this;
     }
 

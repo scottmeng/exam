@@ -46,6 +46,8 @@
     <script src="{{ URL::to('js/ui-grid-unstable.js') }}"></script>
     <script src="{{ URL::to('js/Chart.js') }}"></script>
     <script src="{{ URL::to('js/angular-chart.js') }}"></script>
+    <script src="{{ URL::to('js/angular-spinner.js') }}"></script>
+    <script src="{{ URL::to('js/spin.js') }}"></script>
 
     <script src="{{ URL::to('app.js') }}"></script>
 </head>

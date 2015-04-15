@@ -4,7 +4,7 @@ var examApp = angular
 	.module('examApp', ['ngRoute', 'angularMoment', 'checklist-model','ui.bootstrap.modal','ui.bootstrap.tabs',
 		'ui.ace','textAngular','ui.bootstrap.buttons','ui.bootstrap.collapse', 'ui.bootstrap.progressbar', 'ui.bootstrap.carousel','ui.bootstrap.dropdown',
 		'mgcrea.ngStrap.datepicker','mgcrea.ngStrap.timepicker','mgcrea.ngStrap.scrollspy','mgcrea.ngStrap.affix',
-		'timer','hljs','ui.grid','ui.grid.selection','ui.grid.exporter','chart.js'])
+		'timer','hljs','ui.grid','ui.grid.selection','ui.grid.exporter','chart.js','angularSpinner'])
 	.constant('QN_TYPES', {
 		'QN_MCQ'	: 1,
 		'QN_MRQ'	: 2,
@@ -133,6 +133,33 @@ examApp.config(['$routeProvider', '$locationProvider',
 			.when('/exam/:examId/submissions',{
 				templateUrl: 'views/exam_details.html',
 				controller: 'examDetailsController',
+				resolve: {
+					auth: function resolveAuthentication(AuthResolver) {
+						return AuthResolver.resolve(true);
+					}
+				}
+			})
+			.when('/course/:courseId/new-question',{
+				templateUrl: 'views/new_question.html',
+				controller: 'newQuestionController',
+				resolve: {
+					auth: function resolveAuthentication(AuthResolver) {
+						return AuthResolver.resolve(true);
+					}
+				}
+			})
+			.when('/question/:questionId/edit',{
+				templateUrl: 'views/new_question.html',
+				controller: 'newQuestionController',
+				resolve: {
+					auth: function resolveAuthentication(AuthResolver) {
+						return AuthResolver.resolve(true);
+					}
+				}
+			})
+			.when('/question/:questionId/view',{
+				templateUrl: 'views/view_question.html',
+				controller: 'viewQuestionController',
 				resolve: {
 					auth: function resolveAuthentication(AuthResolver) {
 						return AuthResolver.resolve(true);
@@ -441,6 +468,41 @@ examApp.controller('viewPaperController', ['$scope', '$routeParams', '$http', 'Q
 		$scope.getExamInfo();
 }]);
 
+examApp.controller('viewQuestionController',['$scope', '$http', '$routeParams',
+	'QN_TYPES', 'EXAM_STATUS',
+	function($scope, $http, $routeParams, QN_TYPES, EXAM_STATUS){
+	
+	$scope.questionId = $routeParams.questionId;
+
+	$scope.getQuestionInfo = function() {
+		$http.get('/api/question/' + $scope.questionId + '/editinfo')
+			.success(function(data){
+				if (data.code === 200) {
+					$scope.question = data.data;
+				}
+		});
+	};
+
+	$scope.isMCQ = function() {
+		return $scope.question.questiontype_id === QN_TYPES.QN_MCQ;
+	};
+	$scope.isMRQ = function(){
+		return scope.question.questiontype_id === QN_TYPES.QN_MRQ;
+	}
+
+	$scope.isCodingQuestion = function() {
+		return scope.question.questiontype_id === QN_TYPES.QN_CODING;
+	};
+
+	$scope.isShortQuestion = function() {
+		return scope.question.questiontype_id === QN_TYPES.QN_SHORT;
+	};
+
+	$scope.getQuestionInfo();
+
+
+}]);
+
 examApp.controller('previewExamController', ['$scope', '$http', '$routeParams', '$location',
 	'QN_TYPES', 'EXAM_STATUS', 'moment',
 	function($scope, $http, $routeParams, $location, QN_TYPES, EXAM_STATUS, moment){
@@ -601,8 +663,6 @@ examApp.controller('loginController', ['$scope', '$rootScope','$location', '$win
 
 examApp.controller('addQnModalController',function($scope,$modalInstance,questions){
 	$scope.questions = questions;
-	console.log(questions);
-	console.log($scope.questions);
 	$scope.cancel = function(){
 		$modalInstance.dismiss('cancel');
 	};	
@@ -611,6 +671,16 @@ examApp.controller('addQnModalController',function($scope,$modalInstance,questio
 		$modalInstance.close(question);
 	}
 
+});
+
+examApp.controller('confirmDeleteQnModalController',function($scope,$modalInstance,question){
+	$scope.question = question;
+	$scope.cancel = function(){
+		$modalInstance.dismiss('cancel');
+	};
+	$scope.confirm = function(){
+		$modalInstance.close();
+	}
 });
 
 examApp.controller('DeleteModalController',function($scope,$modalInstance,$http,exam){
@@ -816,8 +886,8 @@ examApp.controller('dashboardController', ['$scope', '$location', '$modal', '$ht
 }]);
 
 examApp.controller('viewCourseController', ['$scope', '$http', '$routeParams', 
-	'EXAM_STATUS','SUBMISSION_STATUS', '$location','$modal', '$route',
-	function($scope, $http, $routeParams, EXAM_STATUS,SUBMISSION_STATUS,$location,$modal,$route) {
+	'EXAM_STATUS','SUBMISSION_STATUS', '$location','$modal', '$route', '$window',
+	function($scope, $http, $routeParams, EXAM_STATUS,SUBMISSION_STATUS,$location,$modal,$route,$window) {
 
 	$scope.courseId = $routeParams.courseId;
 	$scope.isDescriptionCollapsed = true;
@@ -832,6 +902,13 @@ examApp.controller('viewCourseController', ['$scope', '$http', '$routeParams',
 		$scope.saveDescription();
 	};
 
+	$scope.editQuestion = function(question_id){
+		$location.path('/question/'+question_id+'/edit');
+	}
+
+	$scope.viewQuestion = function(question_id){
+		$location.path('/question/'+question_id+'/view');
+	}
 
 	$scope.markAllMCQs = function(exam_id){
 		$http.get('/api/exam/' + exam_id + '/markmcq')
@@ -858,6 +935,32 @@ examApp.controller('viewCourseController', ['$scope', '$http', '$routeParams',
 				}
 			});
 	};
+
+	$scope.deleteQuestion = function(index){
+
+		var modalInstance = $modal.open({
+			templateUrl: 'confirmDeleteQnModal.html',
+			controller: 'confirmDeleteQnModalController',
+			resolve: {
+				question: function () {
+				  return $scope.course.questions[index];
+				}
+			}
+		});
+
+		modalInstance.result.then(function () {
+			$http.post('/api/course/'+$scope.courseId+'/deleteqn',$scope.course.questions[index])
+			.success(function(data){
+				$scope.course.questions.splice(index,1);
+			});			
+		}, function () {
+		});
+	}
+
+	$scope.addQuestion = function(){
+		// $window.open('/course/' + $scope.courseId + '/new-question', '_blank');
+		$location.path('/course/' + $scope.courseId + '/new-question');
+	}
 
 	$scope.getCourseInfo = function() {
 		// get course information
@@ -995,19 +1098,6 @@ examApp.controller('viewCourseController', ['$scope', '$http', '$routeParams',
 		for(var i in exams){
 			exams[i].starttime = moment.tz(exams[i].starttime, 'GMT').toDate();
 		}
-	};
-
-	//delete the question from database
-	$scope.deleteQuestion = function(question_id) {
-		var question={'id':question_id};
-		$http.post('/api/exam/' + $scope.examId + '/deletequestion', question)
-			.success(function(data){
-				if (data.code === 200) {
-					$scope.exam.totleqn-=1;
-				}
-			})
-		
-		$scope.exam.questions.splice(index, 1);
 	};
 
 	$scope.getExamLabel = function(exam){
@@ -1579,295 +1669,465 @@ examApp.controller('markExamController', ['$scope', '$routeParams', '$http', 'QN
 	'SUBMISSION_STATUS','$timeout','$location','$modal',
 	function($scope, $routeParams, $http, QN_TYPES, EXAM_STATUS,SUBMISSION_STATUS,$timeout,$location,$modal) {
 
-		$scope.examId = $routeParams.examId;
-		$scope.submissionId = $routeParams.submissionId;
-		$scope.isQuestionCollapsed = [];
-		$scope.isQuestionActive = [];
-		$scope.currentQuestion = null;
+	$scope.examId = $routeParams.examId;
+	$scope.submissionId = $routeParams.submissionId;
+	$scope.isQuestionCollapsed = [];
+	$scope.isQuestionActive = [];
+	$scope.currentQuestion = null;
 
-		// code editor setting
-	    $scope.aceOptions = {
-		  useWrapMode : true,
-		  theme:'clouds',
-		  mode: 'c_cpp',
-		  firstLineNumber: 1,
-		  require:['ace/ext/language_tools'],
-		  onload: "aceLoaded",
-		  advanced:{
-		  	enableSnippets: true,
-		  	enableLiveAutocompletion: true
-		  }
-		};
 
-		$scope.isMCQ = function(question) {
-			return question.questiontype_id === QN_TYPES.QN_MCQ;
-		};
-		$scope.isMRQ = function(question){
-			return question.questiontype_id === QN_TYPES.QN_MRQ;
-		}
+    $scope.startSpin = function(spinner_id) {
+      if (!$scope.spinneractive) {
+        usSpinnerService.spin(spinner_id);
+        $scope.startcounter++;
+      }
+    };
 
-		$scope.isCodingQuestion = function(question) {
-			return question.questiontype_id === QN_TYPES.QN_CODING;
-		};
+    $scope.stopSpin = function(spinner_id) {
+      if ($scope.spinneractive) {
+        usSpinnerService.stop(spinner_id);
+      }
+    };
+    $scope.spinneractive = false;
 
-		$scope.isShortQuestion = function(question) {
-			return question.questiontype_id === QN_TYPES.QN_SHORT;
-		};
-		
-		$scope.previousSubmission = function(){
-			//check if all questions have been graded
-		};
+    $rootScope.$on('us-spinner:spin', function(event, key) {
+      $scope.spinneractive = true;
+    });
 
-		$scope.isExamSubmissionGraded = function(){
-			var graded = true;
-			console.log('checking status');
-			for (var i in $scope.exam.questions) {
-				console.log($scope.exam.questions[i].submission.submissionstate_id);
-				if($scope.exam.questions[i].submission &&
-					$scope.exam.questions[i].submission.submissionstate_id != SUBMISSION_STATUS.GRADED){
-					graded = false;
-					break;
-				}
+    $rootScope.$on('us-spinner:stop', function(event, key) {
+      $scope.spinneractive = false;
+    });
+
+	// code editor setting
+    $scope.aceOptions = {
+	  useWrapMode : true,
+	  theme:'clouds',
+	  mode: 'c_cpp',
+	  firstLineNumber: 1,
+	  require:['ace/ext/language_tools'],
+	  onload: "aceLoaded",
+	  advanced:{
+	  	enableSnippets: true,
+	  	enableLiveAutocompletion: true
+	  }
+	};
+
+	$scope.isMCQ = function(question) {
+		return question.questiontype_id === QN_TYPES.QN_MCQ;
+	};
+	$scope.isMRQ = function(question){
+		return question.questiontype_id === QN_TYPES.QN_MRQ;
+	}
+
+	$scope.isCodingQuestion = function(question) {
+		return question.questiontype_id === QN_TYPES.QN_CODING;
+	};
+
+	$scope.isShortQuestion = function(question) {
+		return question.questiontype_id === QN_TYPES.QN_SHORT;
+	};
+	
+	$scope.previousSubmission = function(){
+		//check if all questions have been graded
+	};
+
+	$scope.isExamSubmissionGraded = function(){
+		var graded = true;
+		console.log('checking status');
+		for (var i in $scope.exam.questions) {
+			console.log($scope.exam.questions[i].submission.submissionstate_id);
+			if($scope.exam.questions[i].submission &&
+				$scope.exam.questions[i].submission.submissionstate_id != SUBMISSION_STATUS.GRADED){
+				graded = false;
+				break;
 			}
-			return graded;
 		}
+		return graded;
+	}
 
-		$scope.showOriginal = function(submission){
-			submission.answer_copy = submission.answer;
-		}
+	$scope.showOriginal = function(submission){
+		submission.answer_copy = submission.answer;
+	}
 
-		$scope.nextSubmission = function(){
-			//check if all questions have been graded
-			// if($scope.isExamSubmissionGraded){
-			// 	$http.get('/api/submission/' + $scope.submissionId + '/finish')
-			// 	.success(function(data){});
-			// }
-			$http.get('/api/submission/' + $scope.submissionId + '/nextsubmission')
-				.success(function(data){
-					if(data.code===200){
-						var submissionId = data.data.id;
-						$location.path('/exam/' + $scope.examId + '/submission/' + submissionId);
-					}
-					else{
-						var modalData = {
-											message:"There are no more unmarked papers!",
-											header:"No More Paper Found"
-										};
-						var modalInstance = $modal.open({
-							templateUrl: 'confirmModal.html',
-							controller: 'ConfirmModalController',
-							resolve:{
-								data:function(){
-								return modalData;
-								}
+	$scope.nextSubmission = function(){
+		//check if all questions have been graded
+		// if($scope.isExamSubmissionGraded){
+		// 	$http.get('/api/submission/' + $scope.submissionId + '/finish')
+		// 	.success(function(data){});
+		// }
+		$http.get('/api/submission/' + $scope.submissionId + '/nextsubmission')
+			.success(function(data){
+				if(data.code===200){
+					var submissionId = data.data.id;
+					$location.path('/exam/' + $scope.examId + '/submission/' + submissionId);
+				}
+				else{
+					var modalData = {
+										message:"There are no more unmarked papers!",
+										header:"No More Paper Found"
+									};
+					var modalInstance = $modal.open({
+						templateUrl: 'confirmModal.html',
+						controller: 'ConfirmModalController',
+						resolve:{
+							data:function(){
+							return modalData;
 							}
-						});
+						}
+					});
 
-						modalInstance.result.then(function () {
-							$location.path('/exam/'+ $scope.examId + '/submissions');
-						}, function () {
-						});	
-					}
-				});
-		};
+					modalInstance.result.then(function () {
+						$location.path('/exam/'+ $scope.examId + '/submissions');
+					}, function () {
+					});	
+				}
+			});
+	};
 
-		$scope.markQuestion = function(index) {
-			$http.put('/api/submission/' + $scope.submissionId + '/qnmarking', 
-				$scope.exam.questions[index].submission).success(function(data){
-					if(data.code===200){
-						$scope.exam.questions[index].submission.submissionstate_id = SUBMISSION_STATUS.GRADED;
-					}
-				});
-			$scope.updateTotalMarks();
-		};
+	$scope.markQuestion = function(index) {
+		$scope.startSpin('spinner-1');
+		$http.put('/api/submission/' + $scope.submissionId + '/qnmarking', 
+			$scope.exam.questions[index].submission).success(function(data){
+				if(data.code===200){
+					$scope.stopSpin('spinner-1');
+					$scope.exam.questions[index].submission.submissionstate_id = SUBMISSION_STATUS.GRADED;
+				}
+			});
+		$scope.updateTotalMarks();
+	};
 
-		$scope.goToQuestion = function(newIndex) {
-			if($scope.currentQuestion!=null){
-				// $scope.markQuestion($scope.currentQuestion);
-				$scope.isQuestionActive[$scope.currentQuestion] = false;
+	$scope.goToQuestion = function(newIndex) {
+		if($scope.currentQuestion!=null){
+			// $scope.markQuestion($scope.currentQuestion);
+			$scope.isQuestionActive[$scope.currentQuestion] = false;
+		}
+		$scope.isQuestionActive[newIndex] = true;
+
+		if($scope.exam.questions[newIndex].submission && 
+			$scope.exam.questions[newIndex].submission.submissionstate_id === SUBMISSION_STATUS.NOT_GRADED){
+			$scope.exam.questions[newIndex].submission.submissionstate_id = SUBMISSION_STATUS.GRADING;
+			$http.post('/api/submission/' + $scope.submissionId + '/startqnmarking', 
+				$scope.exam.questions[newIndex].submission)
+				.success(function(data){
+			});
+		}
+		$scope.currentQuestion = newIndex;
+	};
+
+	$scope.getExamInfo = function() {
+		$http.get('/api/exam/' + $scope.examId + '/examinfo')
+		.success(function(data){
+			if (data.code === 200) {
+				for (var i in data.data.questions) {
+					$scope.isQuestionCollapsed.push(true);
+					$scope.isQuestionActive.push(false);
+				}					
+				$scope.exam = data.data;
+				if ($scope.exam.status === EXAM_STATUS.UNAVAILABLE) {
+					$scope.error = 'You are not allowed to view this page';
+				}
+				else{
+					$scope.getSubmission();
+				}	
+			}else{
+				$scope.error = data.data;
 			}
-			$scope.isQuestionActive[newIndex] = true;
+		});
+	};
 
-			if($scope.exam.questions[newIndex].submission && 
-				$scope.exam.questions[newIndex].submission.submissionstate_id === SUBMISSION_STATUS.NOT_GRADED){
-				$scope.exam.questions[newIndex].submission.submissionstate_id = SUBMISSION_STATUS.GRADING;
-				$http.post('/api/submission/' + $scope.submissionId + '/startqnmarking', 
-					$scope.exam.questions[newIndex].submission)
-					.success(function(data){
-				});
+	$scope.getSubmission = function() {
+		// todo
+		// get exam submission data from server
+		$http.get('/api/submission/' + $scope.submissionId + '/examsubmission')
+		.success(function(data){
+			if (data.code === 200) {
+				console.log('here here here');
+				console.log(data.data);
+				$scope.submission = data.data;
+				$scope.mergeSubmissionToExam();
+				$scope.goToQuestion(0);
+				console.log($scope.submission.submissionstate_id);
+				if($scope.submission.submissionstate_id === SUBMISSION_STATUS.NOT_GRADED){
+					$http.get('/api/submission/' + $scope.submissionId + '/startgrading')
+						.success(function(data){
+							console.log(data.data);
+					});
+				}
 			}
-			$scope.currentQuestion = newIndex;
+		});
+	};
+
+	$scope.mergeSubmissionToExam = function() {
+		if (!$scope.submission) {
+			return;
+		}
+		if (!$scope.exam) {
+			return;
+		}
+
+		for (var i in $scope.exam.questions) {
+			$scope.exam.questions[i].submission = $scope.getQuestionSubmission($scope.exam.questions[i].id);
+			// $scope.exam.questions[i].submission.invalidmark=false;
+			if($scope.isCodingQuestion($scope.exam.questions[i])){
+				$scope.exam.questions[i].submission.answer_copy = $scope.exam.questions[i].submission.answer;
+			}
+			//$scope.exam.questions[i].answers = [];
+		}
+	};
+
+	$scope.getQuestionSubmission = function(questionId) {
+		for (var i in $scope.submission.questions) {
+			if ($scope.submission.questions[i].question_id === questionId) {
+				return $scope.submission.questions[i];
+			}
+		}
+
+		return null;
+	};
+
+	$scope.getQuestionStatus = function(question){
+		if(question.submission){
+			if(question.submission.submissionstate_id === SUBMISSION_STATUS.GRADED){
+				return 'label-success';
+			}else if(question.submission.submissionstate_id === SUBMISSION_STATUS.GRADING){
+				return 'label-warning';
+			}else{
+				return 'label-danger';
+			}
+		}
+		return 'label-default';
+	}
+
+	// helper function to calculate the total mark
+	$scope.updateTotalMarks = function() {
+		if (!$scope.submission) {
+			return;
+		}
+
+		$total=0;
+		for (var i in $scope.exam.questions) {
+			if($scope.exam.questions[i].submission && $scope.exam.questions[i].submission.marks_obtained){
+				$total += $scope.exam.questions[i].submission.marks_obtained;
+			}
+		}
+		$scope.submission.total_marks = $total;
+
+		console.log($scope.submission.total_marks);
+	};
+
+	$scope.CompileRun = function(submission){
+		var student_answer={
+			'code':submission.answer_copy,
+			'lang':'c++'
 		};
 
-		$scope.getExamInfo = function() {
-			$http.get('/api/exam/' + $scope.examId + '/examinfo')
-			.success(function(data){
-				if (data.code === 200) {
-					for (var i in data.data.questions) {
-						$scope.isQuestionCollapsed.push(true);
-						$scope.isQuestionActive.push(false);
-					}					
-					$scope.exam = data.data;
-					if ($scope.exam.status === EXAM_STATUS.UNAVAILABLE) {
-						$scope.error = 'You are not allowed to view this page';
-					}
-					else{
-						$scope.getSubmission();
-					}	
+		$http.post('/api/test-code',student_answer)
+		.success(function(data){
+			if (data.code === 200) {
+				console.log(data);
+				submission.resultReady = true;
+				if(data.data.compilation.length>0){
+					submission.compilation_fail = true;
+					submission.compilation_error = data.data.compilation;
 				}else{
-					$scope.error = data.data;
-				}
-			});
-		};
-
-		$scope.getSubmission = function() {
-			// todo
-			// get exam submission data from server
-			$http.get('/api/submission/' + $scope.submissionId + '/examsubmission')
-			.success(function(data){
-				if (data.code === 200) {
-					console.log('here here here');
-					console.log(data.data);
-					$scope.submission = data.data;
-					$scope.mergeSubmissionToExam();
-					$scope.goToQuestion(0);
-					console.log($scope.submission.submissionstate_id);
-					if($scope.submission.submissionstate_id === SUBMISSION_STATUS.NOT_GRADED){
-						$http.get('/api/submission/' + $scope.submissionId + '/startgrading')
-							.success(function(data){
-								console.log(data.data);
-						});
-					}
-				}
-			});
-		};
-
-		$scope.mergeSubmissionToExam = function() {
-			if (!$scope.submission) {
-				return;
-			}
-			if (!$scope.exam) {
-				return;
-			}
-
-			for (var i in $scope.exam.questions) {
-				$scope.exam.questions[i].submission = $scope.getQuestionSubmission($scope.exam.questions[i].id);
-				// $scope.exam.questions[i].submission.invalidmark=false;
-				if($scope.isCodingQuestion($scope.exam.questions[i])){
-					$scope.exam.questions[i].submission.answer_copy = $scope.exam.questions[i].submission.answer;
-				}
-				//$scope.exam.questions[i].answers = [];
-			}
-		};
-
-		$scope.getQuestionSubmission = function(questionId) {
-			for (var i in $scope.submission.questions) {
-				if ($scope.submission.questions[i].question_id === questionId) {
-					return $scope.submission.questions[i];
+					submission.compilation_fail = false;
+					submission.output = data.data.execution;	
 				}
 			}
+		});
+	}
 
-			return null;
-		};
+	$scope.isCorrectMCQ = function(question,option){
+		// console.log(question);
+		// if(option.correctOption == 1){
+		// 	return 'green';
+		// }else if(question.submission.choice == option.id){
+		// 	if(option.correctOption != 1){
+		// 		return 'red';
+		// 	}
+		// }
+		// return 'black';		
+	}
 
-		$scope.getQuestionStatus = function(question){
-			if(question.submission){
-				if(question.submission.submissionstate_id === SUBMISSION_STATUS.GRADED){
-					return 'label-success';
-				}else if(question.submission.submissionstate_id === SUBMISSION_STATUS.GRADING){
-					return 'label-warning';
-				}else{
-					return 'label-danger';
-				}
-			}
-			return 'label-default';
-		}
+	$scope.isCorrectMRQ = function(submission, option){
+		// console.log(submission);
+		// console.log(option);
+		// if(option.correctOption === 1){
+		// 	for (var i in submission.choices){
+		// 		//if choosen
+		// 		if (submission.choices[i] === option.id){
+		// 			return 'green';
+		// 		}
+		// 	}
+		// 	return 'orange';
+		// }
+		// //wrong option
+		// else{
+		// 		for (var i in submission.choices){
+		// 			//if choosen
+		// 			if (submission.choices[i] === option.id){
+		// 				return 'red';
+		// 			}
+		// 	}
+		// }
+		// return 'black';	
+	}
 
-		// helper function to calculate the total mark
-		$scope.updateTotalMarks = function() {
-			if (!$scope.submission) {
-				return;
-			}
-
-			$total=0;
-			for (var i in $scope.exam.questions) {
-				if($scope.exam.questions[i].submission && $scope.exam.questions[i].submission.marks_obtained){
-					$total += $scope.exam.questions[i].submission.marks_obtained;
-				}
-			}
-			$scope.submission.total_marks = $total;
-
-			console.log($scope.submission.total_marks);
-		};
-
-		$scope.CompileRun = function(submission){
-			var student_answer={
-				'code':submission.answer_copy,
-				'lang':'c++'
-			};
-
-			$http.post('/api/test-code',student_answer)
-			.success(function(data){
-				if (data.code === 200) {
-					console.log(data);
-					submission.resultReady = true;
-					if(data.data.compilation.length>0){
-						submission.compilation_fail = true;
-						submission.compilation_error = data.data.compilation;
-					}else{
-						submission.compilation_fail = false;
-						submission.output = data.data.execution;	
-					}
-				}
-			});
-		}
-
-		$scope.isCorrectMCQ = function(question,option){
-			// console.log(question);
-			// if(option.correctOption == 1){
-			// 	return 'green';
-			// }else if(question.submission.choice == option.id){
-			// 	if(option.correctOption != 1){
-			// 		return 'red';
-			// 	}
-			// }
-			// return 'black';		
-		}
-
-		$scope.isCorrectMRQ = function(submission, option){
-			// console.log(submission);
-			// console.log(option);
-			// if(option.correctOption === 1){
-			// 	for (var i in submission.choices){
-			// 		//if choosen
-			// 		if (submission.choices[i] === option.id){
-			// 			return 'green';
-			// 		}
-			// 	}
-			// 	return 'orange';
-			// }
-			// //wrong option
-			// else{
-			// 		for (var i in submission.choices){
-			// 			//if choosen
-			// 			if (submission.choices[i] === option.id){
-			// 				return 'red';
-			// 			}
-			// 	}
-			// }
-			// return 'black';	
-		}
-
-		$scope.getExamInfo();
+	$scope.getExamInfo();
 }]);
 
+examApp.controller('newQuestionController',['$scope','$location','$http','QN_TYPES','taSelection','$routeParams',
+	function($scope,$location,$http,QN_TYPES,taSelection,$routeParams){
+
+		$scope.courseId = $routeParams.courseId;
+		$scope.questionId = $routeParams.questionId;
+		$scope.question={
+			questiontype_id: QN_TYPES.QN_SHORT, 
+			content: ''
+		};
+
+
+		$scope.init = function(){
+			$scope.getQuestionTypes();
+			if($scope.courseId){
+				$scope.question={
+					questiontype_id: QN_TYPES.QN_SHORT, 
+					content: ''
+				};	
+			}else if($scope.questionId){
+				$scope.getQuestionInfo();
+			}
+		}
+
+	    $scope.textAreaSetup = function($element){
+		  $element.attr('ui-codemirror', '');
+		};
+		$scope.getQuestionTypes = function() {
+			$http.get('/api/get-qn-types')
+				.success(function(data, status, header, config) {
+					if (data.code === 200) {
+						$scope.questionTypes = data.data;
+					}
+				});	
+		};
+
+		$scope.getQuestionInfo = function(){
+			$http.get('/api/question/'+$scope.questionId+'/editinfo')
+				.success(function(data, status, header, config) {
+					if (data.code === 200) {
+						console.log(data.data);
+						$scope.question = data.data;
+					}
+				});	
+		}
+
+		$scope.submitQuestion = function(){	
+			console.log('I was here!');
+			if($scope.courseId){
+				$http.post('/api/course/'+$scope.courseId+'/createqn', $scope.question)
+				.success(function(data){
+					if (data.code === 200) {
+						$location.path('/course/'+$scope.courseId);
+					}
+				});
+			}else{
+				$http.post('/api/question/'+$scope.questionId +'/edit', $scope.question)
+				.success(function(data){
+					if (data.code === 200) {
+						console.log('success');
+						$location.path('/course/'+$scope.question.course_id);
+					}
+				});
+			}
+		};
+
+		$scope.onRadioSelection = function (option_index){
+			//set all other options false
+			for (var i in $scope.question.options) {
+				if(i!=option_index){
+					$scope.question.options[i].correctOption = false;
+				}
+			}
+		}
+
+		$scope.isMCQ = function(questiontype) {
+			return questiontype === QN_TYPES.QN_MCQ;
+		};
+		$scope.isMRQ = function(questiontype){
+			return questiontype === QN_TYPES.QN_MRQ;
+		}
+		$scope.isCodingQn = function(questiontype){
+			return questiontype == QN_TYPES.QN_CODING;
+		}
+		$scope.deleteOption = function(option_index){
+			if($scope.question.options[option_index].hasOwnProperty('id')){
+				$http.post('/api/exam/' + $scope.examId + '/deleteoption', $scope.question.options[option_index])
+					.success(function(data){})
+			}
+			$scope.question.options.splice([option_index],1);
+		}
+
+		$scope.addOption = function() {
+			if ($scope.question.questiontype_id != QN_TYPES.QN_MCQ && $scope.question.questiontype_id != QN_TYPES.QN_MRQ) {
+				return;
+			}
+			if (!$scope.question.options) {
+					question.options = [];
+			}
+			$scope.question.options.push({correctOption: false, content: ''});
+		};
+
+		$scope.onQuestionTypeChanged = function() {
+			if ($scope.question.questiontype_id === QN_TYPES.QN_MCQ) {
+				if (!$scope.question.options) {
+					$scope.question.options = [];
+					// add two options
+					$scope.question.options.push({
+						correctOption: 1,
+						content: ''
+					});
+					$scope.question.options.push({
+						correctOption: 0,
+						content: ''
+					});
+				}
+			}
+		};
+
+		$scope.init();	
+
+	}]);
+
 examApp.controller('newExamController', ['$scope', '$location','$http', '$routeParams', 
-	'QN_TYPES', 'EXAM_STATUS', 'moment', 'taSelection','$modal',
-	function($scope, $location, $http, $routeParams, QN_TYPES, EXAM_STATUS, moment, taSelection,$modal) {
+	'QN_TYPES', 'EXAM_STATUS', 'moment', 'taSelection','$modal','usSpinnerService','$rootScope',
+	function($scope, $location, $http, $routeParams, QN_TYPES, EXAM_STATUS, moment, taSelection,$modal,usSpinnerService,$rootScope) {
 
 	$scope.examId = $routeParams.examId;
 	$scope.isExamInfoCollapsed = true;
 	$scope.error = null;
+
+
+    $scope.startSpin = function(spinner_id) {
+      if (!$scope.spinneractive) {
+        usSpinnerService.spin(spinner_id);
+        $scope.startcounter++;
+      }
+    };
+
+    $scope.stopSpin = function(spinner_id) {
+      if ($scope.spinneractive) {
+        usSpinnerService.stop(spinner_id);
+      }
+    };
+    $scope.spinneractive = false;
+
+    $rootScope.$on('us-spinner:spin', function(event, key) {
+      $scope.spinneractive = true;
+    });
+
+    $rootScope.$on('us-spinner:stop', function(event, key) {
+      $scope.spinneractive = false;
+    });
 
 	$scope.getQuestionTypes = function() {
 		$http.get('/api/get-qn-types')
@@ -1932,9 +2192,6 @@ examApp.controller('newExamController', ['$scope', '$location','$http', '$routeP
 	};
 
 	$scope.isExamInfoCollapsed = false;
-	// $scope.ExamName="CS1010 Mid-Term Exam";
-
-	// $scope.defaultDate = "2015-02-05T08:00:01.534Z"; // (formatted: 2/5/15 4:00 PM)
 	$scope.isMarkingSchemeCollapsed = true;
 	$scope.hasMarkingScheme = false;
 
@@ -1956,13 +2213,14 @@ examApp.controller('newExamController', ['$scope', '$location','$http', '$routeP
 	}
 
 	$scope.submitQuestion = function(index){
-		console.log($scope.exam.questions[index]);
+		$scope.startSpin('spinner-1');
 		
 		if ($scope.exam.questions[index].id) {
 			// id does exist, update question
 			$http.put('/api/exam/' + $scope.examId + '/question', $scope.exam.questions[index])
 			.success(function(data){
 				if (data.code === 200) {
+					$scope.stopSpin('spinner-1');
 					console.log(data.data);
 					$scope.exam.questions[index] = data.data;
 				}
@@ -2012,6 +2270,7 @@ examApp.controller('newExamController', ['$scope', '$location','$http', '$routeP
 
 		modalInstance.result.then(function (question) {
 			$scope.exam.questions.push(question);
+			console.log($scope.exam.questions);
 			$http.post('/api/exam/' + $scope.examId + '/addqn', question)
 			.success(function(data){
 				if (data.code === 200) {
@@ -2063,10 +2322,11 @@ examApp.controller('newExamController', ['$scope', '$location','$http', '$routeP
 		$scope.exam.questions.splice(index, 1);
 	}
 
-	$scope.removeOption = function(qn_index,option_index){
-		console.log('removing options:');
-		console.log(qn_index);
-		console.log(option_index);
+	$scope.deleteOption = function(qn_index,option_index){
+		if($scope.exam.questions[qn_index].options[option_index].hasOwnProperty('id')){
+			$http.post('/api/exam/' + $scope.examId + '/deleteoption', $scope.exam.questions[qn_index].options[option_index])
+					.success(function(data){})
+		}
 		$scope.exam.questions[qn_index].options.splice([option_index],1);
 	}
 

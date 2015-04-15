@@ -30,6 +30,7 @@ Route::post('/api/test-code', 'HomeController@testCode');
 Route::controller('/api/exam/{exam_id}','ExamController');
 Route::controller('/api/submission/{submission_id}','SubmissionController');
 Route::controller('api/course/{course_id}','CourseController');
+Route::controller('api/question/{question_id}','QuestionController');
 
 
 

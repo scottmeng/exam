@@ -37,10 +37,21 @@ class HomeController extends BaseController {
 
 	public function newExam()
 	{
+		$user = User::find(Session::get('userid'));
+		if(!$user){
+			return Response::error(401,'Please Login First!');
+		}
+
 		$course_id = Input::get('course_id');
+		$course = $user->courses()->where('courses.id','=',$course_id)->first();
+		if(!$course){
+			return Response::error(401,'Page not available!');
+		}else if($course->pivot->role_id != ADMIN){
+			return Response::error(401,'You are unauthorized to view this page!');
+		}
+
 		$title = Input::get('title');
 
-		$course = Course::find($course_id);
 		//check if exam with the same title under the same course already exists
 		$valid_exam = Exam::whereRaw('course_id = ? and title = ?',array($course_id,$title))->get()->isEmpty();
 
@@ -59,9 +70,22 @@ class HomeController extends BaseController {
 
 	public function deleteExamWithQns()
 	{
+		$user = User::find(Session::get('userid'));
+		if(!$user){
+			return Response::error(401,'Please Login First!');
+		}
+
 		$exam_id = Input::get('id');
-		Log::info($exam_id);
 		$exam = Exam::find($exam_id);
+
+		$course_id = $exam->course->id;
+		$course = $user->courses()->where('courses.id','=',$course_id)->first();
+		if(!$course){
+			return Response::error(401,'Page not available!');
+		}else if($course->pivot->role_id != ADMIN){
+			return Response::error(401,'You are unauthorized to view this page!');
+		}
+
 		$exam->deleteExamWithQns();
 
 		return Response::success('deleted');
@@ -69,11 +93,25 @@ class HomeController extends BaseController {
 
 	public function deleteExam(){
 
+		$user = User::find(Session::get('userid'));
+		if(!$user){
+			return Response::error(401,'Please Login First!');
+		}
+
 		$exam_id = Input::get('id');
+		$exam = Exam::find($exam_id);
+
+		$course_id = $exam->course->id;
+		$course = $user->courses()->where('courses.id','=',$course_id)->first();
+		if(!$course){
+			return Response::error(401,'Page not available!');
+		}else if($course->pivot->role_id != ADMIN){
+			return Response::error(401,'You are unauthorized to view this page!');
+		}
+
 		DB::statement('SET FOREIGN_KEY_CHECKS = 0');
 		Exam::destroy($exam_id);
 		DB::statement('SET FOREIGN_KEY_CHECKS = 1');
-
 
 		return Response::success('deleted');
 	}

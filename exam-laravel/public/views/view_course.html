@@ -44,6 +44,19 @@
     </div>
 </script>
 
+<script type="text/ng-template" id="confirmDeleteQnModal.html">
+    <div class="modal-header">
+        <h3 class="modal-title" data-ng-model="exam">{{'Deleting ' + question.title}}</h3>
+    </div>
+    <div class="modal-body">
+    	Are you sure you want to delete {{question.title}}? This action is non-recoverable.
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-danger" ng-click="confirm()">Delete</button>
+        <button class="btn btn-primary" ng-click="cancel()">Cancel</button>
+    </div>
+</script>
+
 <script type="text/ng-template" id="confirmModal.html">
     <div class="modal-header">
         <h4 class="modal-title" data-ng-model="exam">{{modalData.header}}</h4>
@@ -85,15 +98,14 @@
 					<h4>{{exam.title}}</a>
 						<small><span class="label" ng-class="getExamLabel(exam)">{{exam.statusText}}</span></small>
 						<div class="pull-right" role="group">
-							<button type="button" data-ng-click="previewExam(exam.id);" class="btn btn-default" ng-show="(course.user_role!='student'&&exam.status!='draft')||isAdmin"><small><i class="fa fa-eye"></i></small></button>
 							<button type="button" data-ng-click="editExam(exam.id);" class="btn btn-default" ng-show="course.user_role=='admin'&&exam.status=='draft'"><small><i class="fa fa-pencil"></i></small></button>
+							<button type="button" data-ng-click="previewExam(exam.id);" class="btn btn-default" ng-show="(course.user_role!='student'&&exam.status!='draft')||isAdmin"><small><i class="fa fa-eye"></i></small></button>
 							<button type="button" data-ng-click="removeExam(exam);" class="btn btn-danger" ng-show="course.user_role=='admin'&&exam.status=='draft'"><small><i class="fa fa-trash-o" style="color:white"></i></small></button>
 							<button type="button" data-ng-click="startExam(exam.id);" class="btn btn-primary" ng-show="exam.status=='in_exam'"><small><i class="fa fa-play-circle" style="color:white"></i></small></button>
 							<button type="button" class="btn btn-primary" data-ng-click="showExamStats(exam.id)" data-ng-show="isExamFinished(exam.status)"><small><i class="fa fa-bar-chart-o" style="color:white"></i></small></button>
 						</div>
 					</h4>
 					<small ng-show="isExamFinished(exam.status)"><i class="fa fa-clock-o" style="color:grey"></i><span am-time-ago="exam.starttime" style="font-weight:light;color:grey;margin-left:5px"></span></small>
-
 				</div>
 				<div data-ng-show="isExamFinished(exam.status)" style="margin-top:30px">
 					<div class="row" style="margin:10px" >
@@ -141,7 +153,7 @@
 							<div class="btn-group pull-right" role="group">
 								<button type="button" data-ng-click="viewQuestion(question.id);" class="btn btn-default"><small><i class="fa fa-eye"></i></small></button>
 								<button type="button" data-ng-click="editQuestion(question.id);" class="btn btn-default"><small><i class="fa fa-pencil"></i></small></button>
-								<button type="button" data-ng-click="removeQuestion(question.id);" class="btn btn-danger"><small><i class="fa fa-trash-o" style="color:white"></i></small></button>
+								<button type="button" data-ng-click="deleteQuestion($index);" class="btn btn-danger"><small><i class="fa fa-trash-o" style="color:white"></i></small></button>
 							</div>
 						</h4>
 					</div>

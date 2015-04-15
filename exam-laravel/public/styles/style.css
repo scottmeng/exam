@@ -1,6 +1,9 @@
 body {
   font-family: "Helvetica";
 }
+.qn-page-header{
+  padding:10px;
+}
 
 .dashboard-heading{
   background-color: #DCDCDC !important;

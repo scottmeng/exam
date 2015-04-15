@@ -141,6 +141,12 @@ class Exam extends Eloquent{
         $this->delete();
     }
 
+    public function addQuestion($question_id){
+        if(!$this->questions->contains($question_id)){
+            $this->questions()->attach(Question::find($question_id));
+        }
+    }
+
     public function getRandomSubmission(){
         
         $submissions = ExamSubmission::where(function ($query) {

@@ -4,6 +4,18 @@ class ExamController extends BaseController {
 
 	public function putEditexam($exam_id)
 	{
+		$user = User::find(Session::get('userid'));
+		if(!$user){
+			return Response::error(401,'Please Login First!');
+		}
+		$exam = Exam::find($exam_id);
+
+		$course_id = $exam->course->id;
+		$course = $user->courses()->where('courses.id', '=', $course_id)->first();
+
+		if($course->pivot->role_id != ADMIN){
+			return Response::error(403,'You are unauthorized to view this page!');
+		}
 		$exam = Exam::findOrFail($exam_id);
 
 		$exam->title = Input::get('title');
@@ -190,13 +202,12 @@ class ExamController extends BaseController {
 			'questiontype_id' => Input::get('questiontype_id',0),
 			'title' => Input::get('title',NULL),
 			'content' => Input::get('content',NULL),
-			'coding_qn' => Input::get('coding_qn',False),
 			'compiler_enable' => Input::get('compiler_enable',False),
 			'marking_scheme' => Input::get('marking_scheme',NULL),
-			'full_marks' => Input::get('full_marks',0)
+			'full_marks' => Input::get('full_marks',0),
 		));
 		$exam->course()->first()->questions()->save($question);
-		$exam->questions()->attach($question);
+		$exam->addQuestion($question->id);
 		if(Input::has('options')){
 			$question['options'] = $question->populateOptions(Input::get('options'));
 		}
@@ -205,8 +216,6 @@ class ExamController extends BaseController {
 
 	public function putQuestion($exam_id)
 	{
-		$exam = Exam::findOrFail($exam_id);
-
 		$question_id = Input::get('id');
 		$question = Question::findOrFail($question_id);
 		$updated = new Question();
@@ -214,15 +223,14 @@ class ExamController extends BaseController {
 		$updated->questiontype_id = Input::get('questiontype_id',-1);
 		$updated->title = Input::get('title',NULL);
 		$updated->content = Input::get('content',NULL);
-		$updated->coding_qn = Input::get('coding_qn',False);
 		$updated->compiler_enable = Input::get('compiler_enable',False);
 		$updated->marking_scheme = Input::get('marking_scheme',NULL);
 		$updated->full_marks = Input::get('full_marks',0);
-
-		$question = $question->updateQuestion($updated,$exam);
 		if(Input::has('options')){
-			$question['options'] = $question->populateOptions(Input::get('options'));
+			$updated['options'] = Input::get('options');
 		}
+
+		$question = $question->updateQuestion($updated);	
 		return Response::success($question);
 	}
 
@@ -253,13 +261,18 @@ class ExamController extends BaseController {
 		$course_id=Exam::find($exam_id)->course->id;
 		$course = $user->courses()->where('courses.id','=',$course_id)->first();
 		if(!$course){
-			return Response::error(401,'Page not available!');
+			return Response::error(403,'Page not available!');
 		}else{
 			if($course->pivot->role_id != ADMIN){
-				return Response::error(401,'You are unauthorized to view this page!');
+				return Response::error(403,'You are unauthorized to view this page!');
 			}
 			else{
 				$questions = $course->questions()->get();
+				foreach($questions as $question){
+					if($question->type->id == MCQ || $question->type->id == MRQ){
+						$question->options = $question->options()->get();
+					}
+				}
 				return Response::success($questions);
 			}
 		}
@@ -274,17 +287,37 @@ class ExamController extends BaseController {
 		$course_id=$exam->course->id;
 		$course = $user->courses()->where('courses.id','=',$course_id)->first();
 		if(!$course){
-			return Response::error(401,'Page not available!');
+			return Response::error(403,'Page not available!');
 		}else{
 			if($course->pivot->role_id != ADMIN){
-				return Response::error(401,'You are unauthorized to view this page!');
+				return Response::error(403,'You are unauthorized to view this page!');
 			}
 			else{
 				$question = Question::find(Input::get('id'));
-				$exam->questions()->attach($question);
+				$exam->addQuestion($question->id);
 				return Response::success($question);
 			}
 		}
+	}
+
+	public function postDeleteoption($exam_id){
+		$user = User::find(Session::get('userid'));
+		if(!$user){
+			return Response::error(401,'Please Login First!');
+		}
+		$exam=Exam::find($exam_id);
+		$course_id=$exam->course->id;
+		$course = $user->courses()->where('courses.id','=',$course_id)->first();
+		if(!$course){
+			return Response::error(403,'Page not available!');
+		}else{
+			if($course->pivot->role_id != ADMIN){
+				return Response::error(403,'You are unauthorized to view this page!');
+			}
+			else{
+				Option::destroy(Input::get('id'));
+			}
+		}		
 	}
 
 
