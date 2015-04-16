@@ -2,7 +2,8 @@
 
 class Option extends Eloquent {
 
-	protected $fillable = array('index','content','question_id','correctOption');
+	protected $fillable = array('content','question_id','correctOption');
+	protected $touches = ['question'];
 
     public function question()
     {

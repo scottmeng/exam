@@ -3,6 +3,7 @@
 class Question extends Eloquent {
 
 	protected $fillable = array('questiontype_id','title','content','course_id','language','compiler_enable','marking_scheme','full_marks','suggested_answer','general_feedback');
+    protected $touches = ['course','exams'];
 
 	public function type()
     {
@@ -11,7 +12,7 @@ class Question extends Eloquent {
 
     public function exams()
     {
-    	return $this->belongsToMany('Exam');
+    	return $this->belongsToMany('Exam')->withPivot('index');;
     }
 
     public function course(){

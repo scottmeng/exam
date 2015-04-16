@@ -107,14 +107,16 @@
 					</h4>
 					<small ng-show="isExamFinished(exam.status)"><i class="fa fa-clock-o" style="color:grey"></i><span am-time-ago="exam.starttime" style="font-weight:light;color:grey;margin-left:5px"></span></small>
 				</div>
+				<div data-ng-show="isExamFinished(exam.status)==false" style="margin-top:20px">
+					<b>{{exam.totalqn}}</b> Questions:
+					<span data-ng-repeat="question in exam.questions"><a data-ng-click="viewQuestion(question.id)">{{question.title}}</a> |</span>
+				</div>
 				<div data-ng-show="isExamFinished(exam.status)" style="margin-top:30px">
 					<div class="row" style="margin:10px" >
 						<small><em>Marking Progress:</em></small>
 						<progress><bar ng-repeat="status in exam.status_data track by $index" value="status.value" type="{{status.type}}"><span ng-hide="status.value < 5"><small><em>{{status.text + status.count}}</small></em></span></bar></progress>
 					</div>
-					<div class="row" style="margin:10px">
-<!-- 						<span data-ng-repeat="group in course.groups"><a>{{group.name}} </a>|</span>
- -->						
+					<div class="row" style="margin:10px">					
  						<div class="button-group pull-right">
 							<button class='btn btn-primary' data-ng-click="randomStart(exam.id)" data-ng-show="exam.grading_finished==false">Start Marking</button>
 							<button class='btn btn-info'data-ng-hide="exam.grading_finished" data-ng-click="markAllMCQs(exam.id)">Mark All MCQs</button>
@@ -127,13 +129,14 @@
 							<span class="button-transparent"><i class="fa fa-chevron-down"></i></span>
 						</div>
 					</div>
-					<div name="submissions" style="overflow:auto" collapse="areSubmissionsCollapsed">
+					<div name="submissions" collapse="areSubmissionsCollapsed">
 						<input id="submission_filter" class="form-control empty" type="search" ng-model="q" placeholder="&#xF002; filter submissions..." />
-
-						<div class="list-group">
-							<div class="list-group-item" data-ng-repeat="submission in exam.submissions | filter:q as results" data-ng-click="gradePaper(exam.id,submission.id);">
-								{{($index+1) + ".  " }} <a>{{submission.user}}</a>
-								<span class="label {{getStatusClass(submission)}} pull-right">{{submission.statusText}}</span>
+						<div class="scrollable-select">
+							<div class="list-group">
+								<div class="list-group-item" data-ng-repeat="submission in exam.submissions | filter:q as results" data-ng-click="gradePaper(exam.id,submission.id);">
+									{{($index+1) + ".  " }} <a>{{submission.user}}</a>
+									<span class="label {{getStatusClass(submission)}} pull-right">{{submission.statusText}}</span>
+								</div>
 							</div>
 						</div>
 					</div>
@@ -152,10 +155,10 @@
 							<h4 style="padding:10px">	
 								{{($index+1) + ".  " }} {{question.title}}
 								<small><span class="label label-default">{{getQuestionType(question.questiontype_id)}}</span></small>
-								<div class="btn-group pull-right" role="group" style="margin-left:10px">
+								<div class="pull-right" role="group" style="margin-left:10px">
 									<button type="button" data-ng-click="viewQuestion(question.id);" class="btn btn-default"><small><i class="fa fa-eye"></i></small></button>
-									<button type="button" data-ng-click="editQuestion(question.id);" class="btn btn-default"><small><i class="fa fa-pencil"></i></small></button>
-									<button type="button" data-ng-click="deleteQuestion($index);" class="btn btn-danger"><small><i class="fa fa-trash-o" style="color:white"></i></small></button>
+									<button type="button" data-ng-click="editQuestion(question.id);" class="btn btn-default"  data-ng-show="course.user_role=='admin'"><small><i class="fa fa-pencil"></i></small></button>
+									<button type="button" data-ng-click="deleteQuestion($index);" class="btn btn-danger" data-ng-show="course.user_role=='admin'"><small><i class="fa fa-trash-o" style="color:white"></i></small></button>
 								</div>
 							</h4>
 						</div>

@@ -84,6 +84,9 @@ class ExamController extends BaseController {
 			return Response::error(401,'Please Login First!');
 		}
 		$exam = Exam::find($exam_id);
+		if(!$exam){
+			return Response::error(406,'Page Not Found!');
+		}
 
 		$course_id = $exam->course->id;
 		$course = $user->courses()->where('courses.id', '=', $course_id)->first();
@@ -198,6 +201,7 @@ class ExamController extends BaseController {
 	public function postQuestion($exam_id)
 	{
 		$exam = Exam::findOrFail($exam_id);
+		$qn_index = Input::find('index');
 		$question = new Question(array(
 			'questiontype_id' => Input::get('questiontype_id',0),
 			'title' => Input::get('title',NULL),
@@ -207,7 +211,7 @@ class ExamController extends BaseController {
 			'full_marks' => Input::get('full_marks',0),
 		));
 		$exam->course()->first()->questions()->save($question);
-		$exam->addQuestion($question->id);
+		$exam->addQuestion($question->id,$qn_index);
 		if(Input::has('options')){
 			$question['options'] = $question->populateOptions(Input::get('options'));
 		}
@@ -218,6 +222,7 @@ class ExamController extends BaseController {
 	{
 		$question_id = Input::get('id');
 		$question = Question::findOrFail($question_id);
+		$new_index = Input::get('index');
 		$updated = new Question();
 
 		$updated->questiontype_id = Input::get('questiontype_id',-1);
@@ -229,8 +234,10 @@ class ExamController extends BaseController {
 		if(Input::has('options')){
 			$updated['options'] = Input::get('options');
 		}
-		$question = $question->updateQuestion($updated);	
+		$question = $question->updateQuestion($updated);
+
 		$exam = Exam::find($exam_id);
+		$exam->addQuestion($question_id,$new_index);
 		$exam->updateFullmarks();
 		return Response::success($question);
 	}
@@ -377,7 +384,7 @@ class ExamController extends BaseController {
 			for($index = 1; $index < $exam->totalqn + 1; $index++ ){
 				// $column = "Qn " + $index;
 				$marks = $submission->questionsubmissions()->whereIn('question_id',
-					$exam->questions()->where('index','=',$index)->select('id')
+					$exam->questions()->where('exam_question.index','=',$index)->select('questions.id')
 					->get()->toArray())->select('marks_obtained')->first();
 			    if(!$marks || !$marks->marks_obtained){
 			    	$submission_entry[$index] = 0;
@@ -488,7 +495,7 @@ class ExamController extends BaseController {
 			$question_submission = new questionSubmission(array(
 				'examsubmission_id' => $exam_submission->id
 			));	
-			$question->submissions->save($question_submission);	
+			$question->submissions()->save($question_submission);	
 			array_push($qnsubmissions,$question_submission);
 		}
 		$exam_submission->questions = $qnsubmissions;

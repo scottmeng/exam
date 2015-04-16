@@ -93,10 +93,11 @@ class Course extends Eloquent {
 				if($this->isAdmin()){
 					// $exam->submissions = $this->submissions()
 					$exam = $exam->getAllSubmissions(false, false);
-					$this->groups = $this->groups()->get();
 				}else{
 					$exam = $exam->getSubmissions($user->id,false, false);
 				}
+			}else{
+				$exam->questions = $exam->questions()->select('questions.id','title')->get();
 			}
 			$exam->status = $status; 
 		}

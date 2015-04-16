@@ -489,6 +489,7 @@ examApp.controller('viewQuestionController',['$scope', '$http', '$routeParams',
 		$http.get('/api/question/' + $scope.questionId + '/editinfo')
 			.success(function(data){
 				if (data.code === 200) {
+					console.log(data.data);
 					$scope.question = data.data;
 				}
 		});
@@ -498,15 +499,15 @@ examApp.controller('viewQuestionController',['$scope', '$http', '$routeParams',
 		return $scope.question.questiontype_id === QN_TYPES.QN_MCQ;
 	};
 	$scope.isMRQ = function(){
-		return scope.question.questiontype_id === QN_TYPES.QN_MRQ;
+		return $scope.question.questiontype_id === QN_TYPES.QN_MRQ;
 	}
 
 	$scope.isCodingQuestion = function() {
-		return scope.question.questiontype_id === QN_TYPES.QN_CODING;
+		return $scope.question.questiontype_id === QN_TYPES.QN_CODING;
 	};
 
 	$scope.isShortQuestion = function() {
-		return scope.question.questiontype_id === QN_TYPES.QN_SHORT;
+		return $scope.question.questiontype_id === QN_TYPES.QN_SHORT;
 	};
 
 	$scope.getQuestionInfo();
@@ -1015,6 +1016,7 @@ examApp.controller('viewCourseController', ['$scope', '$http', '$routeParams',
 				}
 			});
 	};
+
 
 	$scope.showExamStats = function(exam_id){
 		$location.path('/exam/'+exam_id+'/submissions');
@@ -1536,13 +1538,13 @@ examApp.controller('viewExamController', ['$scope', '$http', '$routeParams',
 		// start timer 
 		// todo calculate based on server returned current time
 		$scope.startExamSubmission();
-		$scope.timerEndTime = parseInt(moment.tz($scope.exam.starttime, 'GMT').add($scope.exam.duration,'minutes').format('x'),10);
+		// $scope.timerEndTime = parseInt(moment.tz($scope.exam.starttime, 'GMT').add($scope.exam.duration,'minutes').format('x'),10);
 		
-		//start countdown timer
-		$timeout(function(){
-	        $scope.$broadcast('timer-start');
-	    },0);	   
-	   	$scope.canAnswerQuestion = true;
+		// //start countdown timer
+		// $timeout(function(){
+	 //        $scope.$broadcast('timer-start');
+	 //    },0);	   
+	 //   	$scope.canAnswerQuestion = true;
      };
 
     $scope.startCountdown = function(){
@@ -1566,6 +1568,13 @@ examApp.controller('viewExamController', ['$scope', '$http', '$routeParams',
 					console.log(data.data);
 					$scope.submission = data.data;
 					$scope.goToQuestion(0);
+					$scope.timerEndTime = parseInt(moment.tz($scope.exam.starttime, 'GMT').add($scope.exam.duration,'minutes').format('x'),10);
+		
+					//start countdown timer
+					$timeout(function(){
+				        $scope.$broadcast('timer-start');
+				    },0);	   
+				   	$scope.canAnswerQuestion = true;
 				}else {
 					$scope.error = data.data;
 				}
@@ -1705,8 +1714,8 @@ examApp.controller('viewExamController', ['$scope', '$http', '$routeParams',
 }]);
 
 examApp.controller('markExamController', ['$scope', '$routeParams', '$http', 'QN_TYPES', 'EXAM_STATUS', 
-	'SUBMISSION_STATUS','$timeout','$location','$modal',
-	function($scope, $routeParams, $http, QN_TYPES, EXAM_STATUS,SUBMISSION_STATUS,$timeout,$location,$modal) {
+	'SUBMISSION_STATUS','$timeout','$location','$modal','$rootScope','usSpinnerService',
+	function($scope, $routeParams, $http, QN_TYPES, EXAM_STATUS,SUBMISSION_STATUS,$timeout,$location,$modal,$rootScope,usSpinnerService) {
 
 	$scope.examId = $routeParams.examId;
 	$scope.submissionId = $routeParams.submissionId;
@@ -1912,6 +1921,12 @@ examApp.controller('markExamController', ['$scope', '$routeParams', '$http', 'QN
 			}
 			//$scope.exam.questions[i].answers = [];
 		}
+
+		console.log($scope.exam);
+	};
+
+	$scope.data = {
+		choice: 14
 	};
 
 	$scope.getQuestionSubmission = function(questionId) {
@@ -2257,7 +2272,7 @@ examApp.controller('newExamController', ['$scope', '$location','$http', '$routeP
 
 	$scope.submitQuestion = function(index){
 		$scope.startSpin('spinner-1');
-		
+		$scope.questions[index].index=index+1;
 		if ($scope.exam.questions[index].id) {
 			// id does exist, update question
 			$http.put('/api/exam/' + $scope.examId + '/question', $scope.exam.questions[index])

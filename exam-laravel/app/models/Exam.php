@@ -3,6 +3,7 @@
 class Exam extends Eloquent{
 
     protected $fillable = array('name', 'course_id', 'examstate_id','description','duration_in_min','full_marks','total_qn', 'start_time');
+    protected $touches = ['course'];
 
     public function course(){
 		return $this->belongsTo('Course');
@@ -13,7 +14,7 @@ class Exam extends Eloquent{
     }
 
     public function questions(){
-    	return $this->belongsToMany('Question');
+    	return $this->belongsToMany('Question')->withPivot('index');;
     }
 
     public function submissions(){
@@ -59,7 +60,6 @@ class Exam extends Eloquent{
             $student = $exam_submission->user_id;
             $exam_submission->user = User::findOrFail($student)->nus_id;
             $exam_submission->status = SubmissionState::findOrFail($exam_submission->submissionstate_id)->description;
-            $exam_submission->group = User::findOrFail($student)->group()->first();
             
             if($returnGroup){
                switch ($exam_submission->submissionstate_id) {
@@ -141,11 +141,17 @@ class Exam extends Eloquent{
         $this->delete();
     }
 
-    public function addQuestion($question_id){
+    public function addQuestion($question_id, $index){
         if(!$this->questions->contains($question_id)){
-            $this->questions()->attach(Question::find($question_id));
+            $this->questions()->attach(Question::find($question_id),array('index',$index));
             $this->updateFullmarks();
+        }else{
+            $this->questions()->updateExistingPivot($question_id,array('index',$index));
         }
+    }
+
+    public function updateQuestion($question_id,$index){
+
     }
 
     public function getRandomSubmission(){

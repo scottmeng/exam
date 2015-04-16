@@ -12,7 +12,7 @@ class QuestionController extends BaseController {
 		$course = $user->courses()->where('courses.id','=',$course_id)->first();
 		if(!$course){
 			return Response::error(403,'Page not available!');
-		}else if($course->pivot->role_id != ADMIN){
+		}else if($course->pivot->role_id != ADMIN && $course->pivot->role_id != FACILITATOR){
 			return Response::error(403,'You are unauthorized to view this page!');
 		}
 		if($question->type->id == MCQ || $question->type->id == MRQ){

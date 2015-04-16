@@ -4,6 +4,7 @@ class QuestionSubmission extends Eloquent{
 
     protected $fillable = array('answer', 'question_id', 'examsubmission_id','submissionstate_id','marks_obtained','comment');
     protected $table="questionsubmissions";
+    protected $touches = ['examsubmission'];
 
     public function question(){
 		return $this->belongsTo('Question');

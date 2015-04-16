@@ -47,7 +47,7 @@
 							<div style="height:80px">
 								<span data-ng-repeat="option in question.options">
 									<label class="checkbox-inline">
-										<input type="radio" name="question.id" ng-checked="option.id===question.submission.choice" ng-model="selected" value="{{option.id}}" disabled>
+										<input type="radio" ng-model="question.submission.choice" ng-value="option.id" disabled>
 										{{ option.content }}
 									</label>
 								</span>	
