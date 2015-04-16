@@ -4,7 +4,7 @@ var examApp = angular
 	.module('examApp', ['ngRoute', 'angularMoment', 'checklist-model','ui.bootstrap.modal','ui.bootstrap.tabs',
 		'ui.ace','textAngular','ui.bootstrap.buttons','ui.bootstrap.collapse', 'ui.bootstrap.progressbar', 'ui.bootstrap.carousel','ui.bootstrap.dropdown',
 		'mgcrea.ngStrap.datepicker','mgcrea.ngStrap.timepicker','mgcrea.ngStrap.scrollspy','mgcrea.ngStrap.affix',
-		'timer','hljs','ui.grid','ui.grid.selection','ui.grid.exporter','chart.js','angularSpinner'])
+		'timer','hljs','ui.grid','ui.grid.selection','ui.grid.exporter','chart.js','angularSpinner','ui.select', 'ngSanitize'])
 	.constant('QN_TYPES', {
 		'QN_MCQ'	: 1,
 		'QN_MRQ'	: 2,
@@ -920,6 +920,7 @@ examApp.controller('viewCourseController', ['$scope', '$http', '$routeParams',
 	$scope.courseId = $routeParams.courseId;
 	$scope.isDescriptionCollapsed = true;
 	$scope.areSubmissionsCollapsed = true;
+	$scope.selectedExamIndex=0;
 
 	$scope.gradePaper = function(exam_id,submission_id){
 		$location.path('/exam/' + exam_id + '/submission/' + submission_id);
@@ -1002,6 +1003,19 @@ examApp.controller('viewCourseController', ['$scope', '$http', '$routeParams',
 		$location.path('/course/' + $scope.courseId + '/new-question');
 	}
 
+	$scope.updateExam = function(selectedExam){
+
+		for(var i in $scope.course.exams){
+			if ($scope.course.exams[i].id===selectedExam.id){
+				$scope.selectedExamIndex = i;
+				break;
+			}
+		}
+
+		console.log($scope.course.facilitators[0].exams[$scope.selectedExamIndex]);
+
+	}
+
 	$scope.getCourseInfo = function() {
 		// get course information
 		$http.get('/api/course/' + $scope.courseId + '/course')
@@ -1010,6 +1024,7 @@ examApp.controller('viewCourseController', ['$scope', '$http', '$routeParams',
 					$scope.prepareExams(data.data.exams);
 					$scope.course = data.data;
 					$scope.isAdmin = $scope.course.user_role === 'admin';
+					$scope.course.exams.selected=$scope.course.exams[$scope.selectedExamIndex];
 					console.log($scope.course);
 				}else {
 					$scope.error = data.data;

@@ -19,6 +19,9 @@ class CourseController extends BaseController {
 			else{
 				$course = $course->getExamsWithSubmissions($user);
 				$course->questions = $course->questions()->get();
+				if($course->pivot->role_id == ADMIN){
+					$course->facilitators = $course->getFacilitator();
+				}
 				return Response::success($course);
 			}
 		}

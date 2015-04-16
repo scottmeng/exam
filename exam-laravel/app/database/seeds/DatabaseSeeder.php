@@ -87,13 +87,17 @@ class RelationSeeder extends Seeder{
         //enrol users
         $user1 = User::where('name','like','Lingyi')->first();
         $user2 = User::where('name','like','Scott')->first();
-        $students = User::whereRaw('id <> ? and id <> ?',array($user1->id, $user2->id))->get();
+        $user3 = User::where('name','like','Emily')->first();
+        $user4 = User::where('name','like','Idola')->first();
+        $students = User::whereRaw('id <> ? and id <> ?',array($user1->id, $user2->id, $user3->id, $user4->id))->get();
         $initCourse1 = Course::where('id','=','1')->first();
         $initCourse2 = Course::where('id','=','2')->first();
         $user1->courses()->save($initCourse1,array('role_id'=>1));
         $user1->courses()->save($initCourse2,array('role_id'=>1));
         $user2->courses()->save($initCourse1,array('role_id'=>2));
         $user2->courses()->save($initCourse2,array('role_id'=>3));
+        $user3->courses()->save($initCourse1,array('role_id'=>2));
+        $user4->courses()->save($initCourse1,array('role_id'=>2));
         foreach($students as $student){
             $initCourse1->users()->save($student,array('role_id'=>3));               
         }

@@ -91,7 +91,7 @@
 	<tabset style="padding-top:30px">
 		<tab>
 			<tab-heading>
-	        	Exams
+	        	 Exams
 	      	</tab-heading>
 			<div class="well" style="margin:10px;" data-ng-repeat="exam in course.exams">
 				<div>
@@ -166,10 +166,58 @@
 				</div>
 			</div>
 		</tab>
-		<tab>
+		<tab data-ng-if="course.user_role=='admin'">
 			<tab-heading>
-	        	Setting
+	        	<i class="fa fa-group"></i> Facilitators
 	      	</tab-heading>
+	      	<div class="tab-content">
+	      		<div class="wrapper row">
+	      			<div class="col-md-4 col-md-offset-4">
+						<ui-select ng-model="course.exams.selected"
+					             theme="bootstrap"
+					             ng-disabled="disabled"
+					             reset-search-input="false"
+					             style="width: 300px;" ng-change="updateExam($select.selected)">
+					    <ui-select-match>{{$select.selected.title}}</ui-select-match>
+					    <ui-select-choices repeat="exam in course.exams track by $index">
+					    	{{exam.title}}
+					    </ui-select-choices>
+					  </ui-select>
+					</div>
+
+	      		</div>
+	      		<div class="row">
+		      		<div data-ng-repeat="facilitator in course.facilitators" class="col-md-4">
+		      			 <div class="ta-box" ng-mouseover="showOverlay=true" ng-mouseleave="showOverlay=false">
+			      			 <div class="ta-box-content">
+				      			 <div class="text-center wrapper">
+				      			 	<span class="grader-title">{{facilitator.name}}<span>
+				      			 </div>
+				      			 <div class="text-left">
+				      			 	<div class="assigned-paper wrapper">
+				      			 		<span>Assigned: {{facilitator.exams[selectedExamIndex].assigned}}</span>
+				      			 	</div>
+				      			 	<div class="graded-paper wrapper">
+				      			 		<span>Graded: {{facilitator.exams[selectedExamIndex].graded}}</span>
+				      			 	</div>
+				      			 	<div class="grading-paper wrapper">
+				      			 		<span>Grading: {{facilitator.exams[selectedExamIndex].grading}}</span>
+				      			 	</div>
+				      			 </div>
+				      			 <div class="box-footer">
+				      			 	Average Score (graded): {{facilitator.exams[selectedExamIndex].average}}
+				      			 </div>
+			      			 </div>
+			      			 <div class="box-overlay" ng-class="{'visible-overlay':showOverlay==true}">
+							    <span class="action"><i class="fa fa-eye white-icon"></i></span>
+							 </div>
+						</div> 
+		      		</div>
+	      		</div>
+	      		<div class="row wrapper">
+	      			<button class="btn btn-primary col-md-2 col-md-offset-5">Distribute Papers</button>
+	      		</div>
+	      	</div>
 		</tab>
 	</tabset>
 </div>

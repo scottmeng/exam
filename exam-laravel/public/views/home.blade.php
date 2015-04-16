@@ -27,6 +27,7 @@
     <link rel='stylesheet' href="{{ URL::to('styles/hljs-default.css') }}">
     <link rel='stylesheet' href="{{ URL::to('styles/ui-grid-unstable.css') }}">
     <link rel='stylesheet' href="{{ URL::to('styles/angular-chart.css') }}">
+    <link rel='stylesheet' href="{{ URL::to('styles/select.css') }}">
 
     <script src="{{ URL::to('js/textAngular/textAngular-rangy.min.js') }}"></script>
     <script src="{{ URL::to('js/textAngular/textAngular-sanitize.min.js') }}"></script>
@@ -48,6 +49,7 @@
     <script src="{{ URL::to('js/angular-chart.js') }}"></script>
     <script src="{{ URL::to('js/angular-spinner.js') }}"></script>
     <script src="{{ URL::to('js/spin.js') }}"></script>
+    <script src="{{ URL::to('js/select.js') }}"></script>
 
     <script src="{{ URL::to('app.js') }}"></script>
 </head>
