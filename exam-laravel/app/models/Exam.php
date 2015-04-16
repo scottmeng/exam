@@ -104,8 +104,7 @@ class Exam extends Eloquent{
                     $submission = $submission->getQnSubmissions();
                 }      
                 $submission->user = User::findOrFail($submission->user_id)->nus_id;
-                $exam_submission->status = SubmissionState::findOrFail($exam_submission->submissionstate_id)->description;
-                $exam_submission->group = User::findOrFail($submission->user_id)->group()->first();
+                $submission->status = SubmissionState::findOrFail($submission->submissionstate_id)->description;
 
                if($returnGroup){
                    switch ($exam_submission.submissionstate_id) {

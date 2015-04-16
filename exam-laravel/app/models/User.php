@@ -13,6 +13,10 @@ class User extends Eloquent{
     	return $this->hasMany('ExamSubmission', 'user_id', 'id');
 	}
 
+	public function assignedsubmissions(){
+		return $this->hasMany('ExamSubmission', 'grader_id', 'id');
+	}
+
 	public function getCourses(){
 		
 		$courses = $this->courses()->orderBy('created_at','desc')->get();

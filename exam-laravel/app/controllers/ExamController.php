@@ -143,6 +143,20 @@ class ExamController extends BaseController {
 	}
 
 	public function getMarkmcq($exam_id){
+
+		$user = User::find(Session::get('userid'));
+		if(!$user){
+			return Response::error(401,'Please Login First!');
+		}
+		$exam = Exam::find($exam_id);
+
+		$course_id = $exam->course->id;
+		$course = $user->courses()->where('courses.id', '=', $course_id)->first();
+
+		if($course->pivot->role_id != ADMIN && $course->pivot->role_id != FACILITATOR){
+			return Response::error(403,'You are unauthorized to view this page!');
+		}
+
 		$mcq_qns = Exam::findOrFail($exam_id)->questions()->where('questiontype_id','=',MCQ)->get();
 
 		foreach($mcq_qns as $qn){
@@ -360,6 +374,34 @@ class ExamController extends BaseController {
 		}		
 	}
 
+	public function getDistributepaper($exam_id){
+		$exam = Exam::find($exam_id);
+		if(!$exam){
+			Response::error('404','Exam Not Found');
+		}
+		$user = User::find(Session::get('userid'));
+		if(!$user){
+			return Response::error(401,'Please Login First!');
+		}
+		$course_id=$exam->course->id;
+		$course = $user->courses()->where('courses.id','=',$course_id)->first();
+		if(!$course){
+			return Response::error(403,'Page not available!');
+		}else if($course->pivot->role_id != ADMIN){
+				return Response::error(403,'You are unauthorized to view this page!');
+		}
+
+		$facilitators = $exam->course->users()->where('course_user.role_id','=',FACILITATOR)->get();
+		$submissions = $exam->submissions()->get();
+
+		$k = 0;
+		for($i = 0; $i < $submissions->count(); $i++){
+			$submissions[$i]->grader()->associate($facilitators[$k])->save();
+			$k = ($k+1)%($facilitators->count());
+		}
+
+		return Response::success('distributed');
+	}
 
 	public function getGriddata($exam_id){
 

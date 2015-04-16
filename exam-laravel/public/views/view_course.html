@@ -168,7 +168,7 @@
 		</tab>
 		<tab data-ng-if="course.user_role=='admin'">
 			<tab-heading>
-	        	<i class="fa fa-group"></i> Facilitators
+	        	<i class="fa fa-group"></i> Manage
 	      	</tab-heading>
 	      	<div class="tab-content">
 	      		<div class="wrapper row">
@@ -179,8 +179,8 @@
 					             reset-search-input="false"
 					             style="width: 300px;" ng-change="updateExam($select.selected)">
 					    <ui-select-match>{{$select.selected.title}}</ui-select-match>
-					    <ui-select-choices repeat="exam in course.exams track by $index">
-					    	{{exam.title}}
+					    <ui-select-choices repeat="exam in course.exams | filter: $select.search">
+					    	<div ng-bind-html="exam.title"></div>
 					    </ui-select-choices>
 					  </ui-select>
 					</div>
@@ -190,7 +190,7 @@
 		      		<div data-ng-repeat="facilitator in course.facilitators" class="col-md-4">
 		      			 <div class="ta-box" ng-mouseover="showOverlay=true" ng-mouseleave="showOverlay=false">
 			      			 <div class="ta-box-content">
-				      			 <div class="text-center wrapper">
+				      			 <div class="text-center">
 				      			 	<span class="grader-title">{{facilitator.name}}<span>
 				      			 </div>
 				      			 <div class="text-left">
@@ -215,7 +215,7 @@
 		      		</div>
 	      		</div>
 	      		<div class="row wrapper">
-	      			<button class="btn btn-primary col-md-2 col-md-offset-5">Distribute Papers</button>
+	      			<button class="btn btn-primary col-md-2 col-md-offset-5" data-ng-click="distributePapers()">Distribute Papers</button>
 	      		</div>
 	      	</div>
 		</tab>

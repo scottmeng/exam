@@ -1032,6 +1032,16 @@ examApp.controller('viewCourseController', ['$scope', '$http', '$routeParams',
 			});
 	};
 
+	$scope.distributePapers = function(){
+		var exam_id = $scope.course.exams[$scope.selectedExamIndex].id;
+		$http.get('/api/exam/' + exam_id + '/distributepaper')
+			.success(function(data){
+				if(data.code===200){	
+					$route.reload();
+				}
+			});
+	}
+
 
 	$scope.showExamStats = function(exam_id){
 		$location.path('/exam/'+exam_id+'/submissions');

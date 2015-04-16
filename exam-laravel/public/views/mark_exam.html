@@ -44,30 +44,30 @@
 
 					<div class="row tab-content text-left">
 						<div data-ng-if="isMCQ(question);" style="height:200px;">
-							<div style="height:80px">
-								<span data-ng-repeat="option in question.options">
+							<div style="padding-bottom:10px">
+								<div data-ng-repeat="option in question.options">
 									<label class="checkbox-inline">
 										<input type="radio" ng-model="question.submission.choice" ng-value="option.id" disabled>
 										{{ option.content }}
 									</label>
-								</span>	
+								</div>	
 							</div>
-							<div class="tab-content" style="height:50px;margin-top=20px">
+							<div class="tab-content" style="height:50px;margin-top=30px">
 								<label>Answers:</label>
 								<div ng-repeat="option in question.options" ng-show="option.correctOption == 1"><h5 style="color:green">{{option.content}}</h5>
 								</div>
 							</div>
 						</div>
 						<div data-ng-if="isMRQ(question);" class="tab-content" style="height:200px">
-							<div style="height:80px">
-								<span data-ng-repeat="option in question.options">
+							<div style="padding-bottom:10px">
+								<div data-ng-repeat="option in question.options">
 									</label class="checkbox-inline">
 										<input type="checkbox" checklist-value="option.id" checklist-model="question.submission.choices" disabled>
 										{{ option.content }}
 									</label>
-								</span>
+								</div>
 							</div>
-							<div class="tab-content" style="height:50px;margin-top=20px">
+							<div class="tab-content" style="height:50px;margin-top=30px">
 								<label>Answers:</label>
 								<div ng-repeat="option in question.options" ng-show="option.correctOption == 1"><h5 style="color:green">{{option.content}}</h5>
 								</div>
@@ -94,7 +94,7 @@
 								<div class="form-group" ng-class="{'has-error':feedbackForm.marks.$invalid && feedbackForm.marks.$dirty}">
 									<label class="col-md-2 control-label text-right">Marks:</label>
 									<div class="col-md-9 text-left">
-										<input class="form-control" type="number" name="marks" max="{{question.full_marks}}" data-ng-model="question.submission.marks_obtained" placeholder="{{question.full_marks}}/{{ question.full_marks }}"> 
+										<input class="form-control" type="number" name="marks" min="0" max="{{question.full_marks}}" data-ng-model="question.submission.marks_obtained" placeholder="{{question.full_marks}}/{{ question.full_marks }}"> 
 									</div>
 								</div>
 								<div class="form-group">
