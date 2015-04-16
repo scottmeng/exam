@@ -158,6 +158,7 @@ class ExamController extends BaseController {
 					$submission->marks_obtained = 0;
 				}
 				$submission->comment = "system automatic grading";
+				$submission->examsubmission->updateStatus();
 				SubmissionState::find(GRADED)->questionsubmissions()->save($submission);
 			}
 		}
@@ -277,8 +278,8 @@ class ExamController extends BaseController {
 			}
 			else{
 				$questions = $course->questions()
-						->whereNotIn('questions.id',Question::whereHas('exams',function($query) {
-		    					$query->where('exams.id','=',3);
+						->whereNotIn('questions.id',Question::whereHas('exams',function($query) use($exam_id) {
+		    					$query->whereRaw('exams.id = ?',array($exam_id));
 		    				})->select('questions.id')->get()->toArray())
 						->get();
 				foreach($questions as $question){
@@ -382,10 +383,13 @@ class ExamController extends BaseController {
 				"status"=>$submission->status->description
 			);
 			for($index = 1; $index < $exam->totalqn + 1; $index++ ){
-				// $column = "Qn " + $index;
-				$marks = $submission->questionsubmissions()->whereIn('question_id',
-					$exam->questions()->where('exam_question.index','=',$index)->select('questions.id')
-					->get()->toArray())->select('marks_obtained')->first();
+				$column = "Qn " + $index;
+
+				$marks = $submission->questionsubmissions()->whereIn('question_id',Question::whereHas('exams', 
+						function($query) use($exam_id, $index){
+							$query->whereRaw('exams.id = ? and exam_question.index = ?',array($exam_id,$index));
+						})->select('questions.id')->get()->toArray())->select('marks_obtained')->first();
+
 			    if(!$marks || !$marks->marks_obtained){
 			    	$submission_entry[$index] = 0;
 			    }else{

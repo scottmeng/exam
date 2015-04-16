@@ -1395,6 +1395,7 @@ examApp.controller('examDetailsController', ['$scope', '$http', '$routeParams', 
 		$http.get('/api/exam/' + $scope.examId + '/griddata')
 			.success(function(data) {
 				if (data.code === 200) {
+					console.log(data.data);
 					$scope.AllSubmissionsGrid.data = data.data.all;
 					$scope.gradedSubmissionsGrid.data = data.data.graded;
 					$scope.gradingSubmissionsGrid.data = data.data.grading;

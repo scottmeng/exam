@@ -47,6 +47,9 @@ class ExamSubmission extends Eloquent{
         if($ungraded=0){
             $graded_status= SubmissionState::where('name','like','graded')->first();
             $graded_status->examsubmissions()->save($this);
+        }else{
+            $grading_status= SubmissionState::where('name','like','grading')->first();
+            $grading_status->examsubmissions()->save($this);           
         }
         $this->total_marks = $this->questionsubmissions()->sum('marks_obtained');
         $this->save();
