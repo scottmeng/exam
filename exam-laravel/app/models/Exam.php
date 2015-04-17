@@ -142,19 +142,33 @@ class Exam extends Eloquent{
 
     public function addQuestion($question_id, $index){
         if(!$this->questions->contains($question_id)){
-            $this->questions()->attach(Question::find($question_id),array('index',$index));
+            $this->questions()->attach($question_id,array('index'=>$index));
             $this->updateFullmarks();
         }else{
-            $this->questions()->updateExistingPivot($question_id,array('index',$index));
+            $this->questions()->updateExistingPivot($question_id,array('index'=>$index));
         }
     }
 
-    public function updateQuestion($question_id,$index){
-
+    public function getGrader(){
+        $graders = User::whereIn('id',$this->submissions()->select('grader_id')->distinct()->get()->toArray())
+                        ->get(); 
+        $graders_info=array();
+        foreach($graders as $grader){
+            $grading_info = array(
+                'id'=>$grader->nus_id,
+                'name'=>$grader->name,
+                'assigned'=>$grader->assignedsubmissions()->where('exam_id','=',$this->id)->count(),
+                'graded'=>$grader->assignedsubmissions()->where('submissionstate_id', '=', GRADED)->where('exam_id','=',$this->id)->count(),
+                'grading'=>$grader->assignedsubmissions()->where('submissionstate_id', '=', GRADING)->where('exam_id','=',$this->id)->count(),
+                'average'=>$grader->assignedsubmissions()->where('submissionstate_id', '=', GRADED)->where('exam_id','=',$this->id)->avg('total_marks')
+            );
+            array_push($graders_info,$grading_info);
+        }
+        $this->graders = $graders_info;
+        return $this;
     }
 
     public function getRandomSubmission(){
-        
         $submissions = ExamSubmission::where(function ($query) {
             $query->where('submissionstate_id','=',SUBMITTED)
                   ->orWhere('submissionstate_id','=',GRADING);
@@ -170,4 +184,41 @@ class Exam extends Eloquent{
         $this->fullmarks = $this->questions->sum('full_marks');
         $this->save();
     }
+
+    public function isAdmin($user){
+        $course_id = $this->course->id;
+        $course = $user->courses()->where('courses.id', '=', $course_id)->first();
+        if(!$course || $course->pivot->role_id != ADMIN){
+            return false;
+        }
+        return true;
+    }
+
+    public function isFacilitator($user){
+        $course_id = $this->course->id;
+        $course = $user->courses()->where('courses.id', '=', $course_id)->first();
+        if(!$course || ($course->pivot->role_id != ADMIN && $course->pivot->role_id != FACILITATOR)){
+            return false;
+        }
+        return true;
+    }
+
+    public function checkRole($user){
+        $course_id = $this->course->id;
+        $course = $user->courses()->where('courses.id', '=', $course_id)->first();
+        if(!$course){
+            return UNKNOWN;
+        }
+        return $course->pivot->role_id;
+    }
+
+    public function getStatus($user){
+        $course_id = $this->course->id;
+        $course = $user->courses()->where('courses.id', '=', $course_id)->first();
+         if(!$course){
+            return STATUS_UNKNOWN;
+        }
+        return $course->getExamStatus($this);
+    }
+
 }

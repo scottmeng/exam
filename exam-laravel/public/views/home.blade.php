@@ -34,9 +34,9 @@
     <script src="{{ URL::to('js/textAngular/textAngular.min.js') }}"></script>
     <script src="{{ URL::to('js/timer.js') }}"></script>
     <script src="{{ URL::to('js/i18nService.js') }}"></script>
-    <script src="{{ URL::to('js/moment.min.js') }}"></script>
-    <script src="{{ URL::to('js/angular-moment.js') }}"></script>
+    <script src="{{ URL::to('js/moment.js') }}"></script>
     <script src="{{ URL::to('js/moment-timezone-with-data.js') }}"></script>
+    <script src="{{ URL::to('js/angular-moment.js') }}"></script>
 
     <script src="{{ URL::to('js/humanize-duration.js') }}"></script>
     <script src="{{ URL::to('js/checklist-model.js') }}"></script>
@@ -50,6 +50,7 @@
     <script src="{{ URL::to('js/angular-spinner.js') }}"></script>
     <script src="{{ URL::to('js/spin.js') }}"></script>
     <script src="{{ URL::to('js/select.js') }}"></script>
+    <script src="{{ URL::to('js/angular-fullscreen.js') }}"></script>
 
     <script src="{{ URL::to('app.js') }}"></script>
 </head>

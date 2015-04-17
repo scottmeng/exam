@@ -20,8 +20,11 @@ class CourseController extends BaseController {
 				$course = $course->getExamsWithSubmissions($user);
 				$course->questions = $course->questions()->get();
 				if($course->pivot->role_id == ADMIN){
-					$course->facilitators = $course->getFacilitator();
+					foreach($course->exams as $exam){
+						$exam = $exam->getGrader();
+					}
 				}
+				$course->facilitators = $course->users()->where('course_user.role_id','=',FACILITATOR)->count();
 				return Response::success($course);
 			}
 		}

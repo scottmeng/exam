@@ -4,7 +4,7 @@ var examApp = angular
 	.module('examApp', ['ngRoute', 'angularMoment', 'checklist-model','ui.bootstrap.modal','ui.bootstrap.tabs',
 		'ui.ace','textAngular','ui.bootstrap.buttons','ui.bootstrap.collapse', 'ui.bootstrap.progressbar', 'ui.bootstrap.carousel','ui.bootstrap.dropdown',
 		'mgcrea.ngStrap.datepicker','mgcrea.ngStrap.timepicker','mgcrea.ngStrap.scrollspy','mgcrea.ngStrap.affix',
-		'timer','hljs','ui.grid','ui.grid.selection','ui.grid.exporter','chart.js','angularSpinner','ui.select', 'ngSanitize'])
+		'timer','hljs','ui.grid','ui.grid.selection','ui.grid.exporter','chart.js','angularSpinner','ui.select', 'ngSanitize','FBAngular'])
 	.constant('QN_TYPES', {
 		'QN_MCQ'	: 1,
 		'QN_MRQ'	: 2,
@@ -23,6 +23,10 @@ var examApp = angular
 		'NOT_GRADED'	:	1,
 		'GRADING'		: 	2, 
 		'GRADED'		: 	3
+	})
+	.constant('RESPONSE_STATUS',{
+		'NORMAL'		:	1,
+		'UNAVAILABLE'	: 	0
 	})
 	.constant('GRAPH_LEVEL',6);
 
@@ -415,14 +419,14 @@ examApp.controller('confirmAddQnModalController',function($scope,$modalInstance,
 	}
 });
 
-examApp.controller('viewPaperController', ['$scope', '$routeParams', '$http', 'QN_TYPES', 
-	function($scope, $routeParams, $http, QN_TYPES) {
+examApp.controller('viewPaperController', 
+	function($scope, $routeParams, $http, QN_TYPES, RESPONSE_STATUS) {
 		$scope.examId = $routeParams.examId;
 
 		$scope.getExamInfo = function() {
 			$http.get('/api/exam/' + $scope.examId + '/examinfo')
 				.success(function(data){
-					if (data.code === 200) {
+					if (data.code === RESPONSE_STATUS.NORMAL) {
 						$scope.getSubmissionInfo(data.data);
 					} else {
 						$scope.error = data.data;
@@ -434,7 +438,7 @@ examApp.controller('viewPaperController', ['$scope', '$routeParams', '$http', 'Q
 			console.log('get submission info');
 			$http.get('/api/exam/' + $scope.examId + '/submission')
 				.success(function(data) {
-					if (data.code === 200) {
+					if (data.code === RESPONSE_STATUS.NORMAL) {
 						$scope.submission = data.data;
 						$scope.mergeSubmissionToExam(exam, data.data);
 					}
@@ -475,26 +479,18 @@ examApp.controller('viewPaperController', ['$scope', '$routeParams', '$http', 'Q
 			$scope.exam = exam;
 		};
 
-		// $scope.generatePDF = function () {
-		// 	console.log('I was here!');
-		//     $scope.printElement(document.getElementById("printsection"));
-		//     window.print();
-		// }
-
-
 		$scope.getExamInfo();
-}]);
+});
 
-examApp.controller('viewQuestionController',['$scope', '$http', '$routeParams',
-	'QN_TYPES', 'EXAM_STATUS',
-	function($scope, $http, $routeParams, QN_TYPES, EXAM_STATUS){
+examApp.controller('viewQuestionController',
+	function($scope, $http, $routeParams, QN_TYPES, EXAM_STATUS, RESPONSE_STATUS){
 	
 	$scope.questionId = $routeParams.questionId;
 
 	$scope.getQuestionInfo = function() {
 		$http.get('/api/question/' + $scope.questionId + '/editinfo')
 			.success(function(data){
-				if (data.code === 200) {
+				if (data.code === RESPONSE_STATUS.NORMAL) {
 					console.log(data.data);
 					$scope.question = data.data;
 				}
@@ -519,11 +515,10 @@ examApp.controller('viewQuestionController',['$scope', '$http', '$routeParams',
 	$scope.getQuestionInfo();
 
 
-}]);
+});
 
-examApp.controller('previewExamController', ['$scope', '$http', '$routeParams', '$location',
-	'QN_TYPES', 'EXAM_STATUS', 'moment',
-	function($scope, $http, $routeParams, $location, QN_TYPES, EXAM_STATUS, moment){
+examApp.controller('previewExamController', 
+	function($scope, $http, $routeParams, $location, QN_TYPES, EXAM_STATUS, moment, RESPONSE_STATUS){
 	
 	$scope.examId = $routeParams.examId;
 
@@ -531,7 +526,7 @@ examApp.controller('previewExamController', ['$scope', '$http', '$routeParams', 
 		console.log($scope.examId);
 		$http.get('/api/exam/' + $scope.examId + '/examinfo')
 			.success(function(data){
-				if (data.code === 200) {
+				if (data.code === RESPONSE_STATUS.NORMAL) {
 					console.log(data.data);
 					$scope.exam = data.data;
 					var time = moment.tz($scope.exam.starttime, 'GMT').toDate();
@@ -585,10 +580,10 @@ examApp.controller('previewExamController', ['$scope', '$http', '$routeParams', 
 	}
 
 	$scope.getExamInfo();
-}]);
+});
 
-examApp.controller('headerController', ['$scope', 'sessionService', '$location', 'AuthService',
-	function($scope, sessionService, $location, AuthService) {
+examApp.controller('headerController', 
+	function($scope, sessionService, $location, AuthService, RESPONSE_STATUS) {
 
 		$scope.isLogin = false;
 		$scope.userName = '';
@@ -623,9 +618,9 @@ examApp.controller('headerController', ['$scope', 'sessionService', '$location',
 		};
 
 		$scope.updateLoginStatus();
-}]);
+});
 
-examApp.controller('appController', ['$scope', '$rootScope', 'AuthService', 
+examApp.controller('appController', 
 	function($scope, $rootScope, AuthService) {
 		$rootScope.currentUser = null;
 	  	$rootScope.isAuthorized = AuthService.isAuthorized;
@@ -633,9 +628,9 @@ examApp.controller('appController', ['$scope', '$rootScope', 'AuthService',
 	  	$scope.setCurrentUser = function (user) {
 		    $rootScope.currentUser = user;
 		};
-}]);
+});
 
-examApp.controller('loginController', ['$scope', '$rootScope','$location', '$window', '$http', 'AuthService',
+examApp.controller('loginController', 
 	function($scope, $rootScope, $location, $window, $http, AuthService) {
 		
 		var init = function() {
@@ -677,7 +672,7 @@ examApp.controller('loginController', ['$scope', '$rootScope','$location', '$win
 
 		init();
 	}
-]);
+);
 
 examApp.controller('addQnModalController',function($scope,$modalInstance,questions,$window,QN_TYPES){
 	$scope.questions = questions;
@@ -717,7 +712,7 @@ examApp.controller('confirmDeleteQnModalController',function($scope,$modalInstan
 	}
 });
 
-examApp.controller('DeleteModalController',function($scope,$modalInstance,$http,exam){
+examApp.controller('DeleteModalController',function($scope,$modalInstance,$http,exam,RESPONSE_STATUS){
 	$scope.exam = exam;
 
 	$scope.cancel = function(){
@@ -730,7 +725,7 @@ examApp.controller('DeleteModalController',function($scope,$modalInstance,$http,
 
 		$http.post('/api/delete-exam-n-qns', exam_id)
 			.success(function(data, status, header, config) {
-				if (data.code === 200) {
+				if (data.code === RESPONSE_STATUS.NORMAL) {
 					$modalInstance.close();
 				} 
 			});	
@@ -741,7 +736,7 @@ examApp.controller('DeleteModalController',function($scope,$modalInstance,$http,
 
 		$http.post('/api/delete-exam', exam_id)
 			.success(function(data, status, header, config) {
-				if (data.code === 200) {
+				if (data.code === RESPONSE_STATUS.NORMAL) {
 					$modalInstance.close();
 				} 
 			});	
@@ -760,19 +755,18 @@ examApp.controller('ConfirmModalController',function($scope,$modalInstance,data)
 	}
 });
 
-examApp.controller('ModalInstanceCtrl', function ($scope, $modalInstance, $http, courses) {
+examApp.controller('ModalInstanceCtrl', function($scope, $modalInstance, $http, courses,RESPONSE_STATUS) {
 	$scope.courses = courses;
 	$scope.exam = {
 		'course_id':$scope.courses[0].id,
 		'title':""
 	};
-// console.log($scope.exam);
 	$scope.ok = function () {
 
 		$scope.createError = null;
 		$http.post('/api/create-exam', $scope.exam)
 			.success(function(data, status, header, config) {
-				if (data.code === 200) {
+				if (data.code === RESPONSE_STATUS.NORMAL) {
 					var exam = data.data;
 					$modalInstance.close(exam);
 				} else {
@@ -789,8 +783,8 @@ examApp.controller('ModalInstanceCtrl', function ($scope, $modalInstance, $http,
 	};
 });
 
-examApp.controller('dashboardController', ['$scope', '$location', '$modal', '$http', 'EXAM_STATUS','$route',
-	function($scope, $location, $modal, $http, EXAM_STATUS,$route) {
+examApp.controller('dashboardController', 
+	function($scope, $location, $modal, $http, EXAM_STATUS,$route,RESPONSE_STATUS) {
 	
 	$scope.selectedTab = 1;
 
@@ -810,7 +804,7 @@ examApp.controller('dashboardController', ['$scope', '$location', '$modal', '$ht
 
 		$http.get('/api/get-admin-courses')
 		.success(function(data,status,header,config){
-			if(data.code === 200){
+			if(data.code === RESPONSE_STATUS.NORMAL){
 				if(data.data.length==0){
 					$scope.adminCourse = [];
 					$scope.isAdmin = false;
@@ -824,12 +818,9 @@ examApp.controller('dashboardController', ['$scope', '$location', '$modal', '$ht
 
 		$http.get('/api/get-courses')
 			.success(function(data, status, header, config) {
-				if (data.code === 200) {
+				if (data.code === RESPONSE_STATUS.NORMAL) {
 					console.log(data.data);
 					$scope.courses = data.data;
-				}
-				else if (data.code === 401){
-					$location.path('/');
 				}
 			})
 			.error(function(data, status, header, config) {
@@ -917,11 +908,10 @@ examApp.controller('dashboardController', ['$scope', '$location', '$modal', '$ht
 	};
 
 	$scope.init();
-}]);
+});
 
-examApp.controller('viewCourseController', ['$scope', '$http', '$routeParams', 
-	'EXAM_STATUS','SUBMISSION_STATUS', '$location','$modal', '$route', '$window', 'QN_TYPES',
-	function($scope, $http, $routeParams, EXAM_STATUS,SUBMISSION_STATUS,$location,$modal,$route,$window,QN_TYPES) {
+examApp.controller('viewCourseController', 
+	function($scope, $http, $routeParams, EXAM_STATUS,SUBMISSION_STATUS,$location,$modal,$route,$window,QN_TYPES,RESPONSE_STATUS) {
 
 	$scope.courseId = $routeParams.courseId;
 	$scope.isDescriptionCollapsed = true;
@@ -960,7 +950,7 @@ examApp.controller('viewCourseController', ['$scope', '$http', '$routeParams',
 	$scope.markAllMCQs = function(exam_id){
 		$http.get('/api/exam/' + exam_id + '/markmcq')
 			.success(function(data){
-				if(data.code===200){
+				if(data.code===RESPONSE_STATUS.NORMAL){
 					var modalData = {
 										"message":"All MCQs has been graded!",
 										"header": "Automatic Grading"
@@ -1010,28 +1000,24 @@ examApp.controller('viewCourseController', ['$scope', '$http', '$routeParams',
 	}
 
 	$scope.updateExam = function(selectedExam){
-
 		for(var i in $scope.course.exams){
 			if ($scope.course.exams[i].id===selectedExam.id){
 				$scope.selectedExamIndex = i;
 				break;
 			}
 		}
-
-		console.log($scope.course.facilitators[0].exams[$scope.selectedExamIndex]);
-
 	}
 
 	$scope.getCourseInfo = function() {
 		// get course information
 		$http.get('/api/course/' + $scope.courseId + '/course')
 			.success(function(data) {
-				if (data.code === 200) {
+				if (data.code === RESPONSE_STATUS.NORMAL) {
 					$scope.prepareExams(data.data.exams);
+					console.log(data.data);
 					$scope.course = data.data;
 					$scope.isAdmin = $scope.course.user_role === 'admin';
 					$scope.course.exams.selected=$scope.course.exams[$scope.selectedExamIndex];
-					console.log($scope.course);
 				}else {
 					$scope.error = data.data;
 				}
@@ -1042,7 +1028,7 @@ examApp.controller('viewCourseController', ['$scope', '$http', '$routeParams',
 		var exam_id = $scope.course.exams[$scope.selectedExamIndex].id;
 		$http.get('/api/exam/' + exam_id + '/distributepaper')
 			.success(function(data){
-				if(data.code===200){	
+				if(data.code===RESPONSE_STATUS.NORMAL){	
 					$route.reload();
 				}
 			});
@@ -1056,7 +1042,7 @@ examApp.controller('viewCourseController', ['$scope', '$http', '$routeParams',
 	$scope.randomStart = function(exam_id){
 		$http.get('/api/exam/' + exam_id + '/randomsubmission')
 			.success(function(data){
-				if(data.code===200){
+				if(data.code===RESPONSE_STATUS.NORMAL){
 					
 					var submissionId = data.data.id;
 					$location.path('/exam/' + exam_id + '/submission/' + submissionId);
@@ -1193,12 +1179,11 @@ examApp.controller('viewCourseController', ['$scope', '$http', '$routeParams',
 	}
 
 	$scope.getCourseInfo();
-}]);
+});
 
 
-examApp.controller('examDetailsController', ['$scope', '$http', '$routeParams', 'EXAM_STATUS',
-	'SUBMISSION_STATUS', '$location','$modal','uiGridConstants','$route', 'GRAPH_LEVEL',
-	function($scope, $http, $routeParams, EXAM_STATUS,SUBMISSION_STATUS,$location,$modal,uiGridConstants,$route,GRAPH_LEVEL) {
+examApp.controller('examDetailsController', 
+	function($scope, $http, $routeParams, EXAM_STATUS,SUBMISSION_STATUS,$location,$modal,uiGridConstants,$route,GRAPH_LEVEL,RESPONSE_STATUS) {
 
 	$scope.examId = $routeParams.examId;
 	$scope.isDescriptionCollapsed = true;
@@ -1278,7 +1263,7 @@ examApp.controller('examDetailsController', ['$scope', '$http', '$routeParams', 
 	$scope.getExamInfo = function() {
 		$http.get('/api/exam/' + $scope.examId + '/examsubmissions')
 			.success(function(data) {
-				if (data.code === 200) {
+				if (data.code === RESPONSE_STATUS.NORMAL) {
 					if(data.data.submissions.length>0){
 						$scope.prepareExams(data.data);
 						data.data.isPublished = data.data.status === EXAM_STATUS.PUBLISHED;
@@ -1297,7 +1282,7 @@ examApp.controller('examDetailsController', ['$scope', '$http', '$routeParams', 
 	$scope.randomStart = function(){
 		$http.get('/api/exam/' + $scope.examId + '/randomsubmission')
 			.success(function(data){
-				if(data.code===200){
+				if(data.code===RESPONSE_STATUS.NORMAL){
 					var submissionId = data.data.id;
 					$location.path('/exam/' + $scope.examId + '/submission/' + submissionId);
 				}
@@ -1307,7 +1292,7 @@ examApp.controller('examDetailsController', ['$scope', '$http', '$routeParams', 
 	$scope.markAllMCQs = function(){
 		$http.get('/api/exam/' + $scope.examId + '/markmcq')
 			.success(function(data){
-				if(data.code===200){
+				if(data.code===RESPONSE_STATUS.NORMAL){
 					var modalData = {
 										message:"All MCQs has been graded!",
 										header: "Automatic Grading"
@@ -1334,7 +1319,7 @@ examApp.controller('examDetailsController', ['$scope', '$http', '$routeParams', 
 		//TODO: popup window to collect feedback
 		$http.get('/api/exam/' + $scope.examId + '/publish')
 			.success(function(data){
-				if(data.code===200){
+				if(data.code===RESPONSE_STATUS.NORMAL){
 					var modalData = {
 										message:"Result has been published!",
 										header:"Publish Result"
@@ -1425,7 +1410,7 @@ examApp.controller('examDetailsController', ['$scope', '$http', '$routeParams', 
 
 		$http.get('/api/exam/' + $scope.examId + '/griddata')
 			.success(function(data) {
-				if (data.code === 200) {
+				if (data.code === RESPONSE_STATUS.NORMAL) {
 					console.log(data.data);
 					$scope.AllSubmissionsGrid.data = data.data.all;
 					$scope.gradedSubmissionsGrid.data = data.data.graded;
@@ -1438,7 +1423,7 @@ examApp.controller('examDetailsController', ['$scope', '$http', '$routeParams', 
 
 		$http.get('/api/exam/' + $scope.examId + '/graphdata')
 			.success(function(data) {
-				if (data.code === 200) {
+				if (data.code === RESPONSE_STATUS.NORMAL) {
 					console.log(data.data);
 					$scope.graph = data.data;
 				}else {
@@ -1503,11 +1488,11 @@ examApp.controller('examDetailsController', ['$scope', '$http', '$routeParams', 
 	};
 
 	$scope.getExamInfo();
-}]);
+});
 
-examApp.controller('viewExamController', ['$scope', '$http', '$routeParams', 
-	'QN_TYPES', 'EXAM_STATUS', 'moment','$timeout', '$route','$location', '$modal',
-	function($scope, $http, $routeParams, QN_TYPES, EXAM_STATUS,moment,$timeout,$route,$location,$modal) {
+examApp.controller('viewExamController', 
+	function($scope, $http, $routeParams, QN_TYPES, EXAM_STATUS,moment,$timeout,
+			$route,$location,$modal,Fullscreen,RESPONSE_STATUS) {
 
 	$scope.curQnIndex = 0;
 	$scope.examId = $routeParams.examId;
@@ -1539,11 +1524,11 @@ examApp.controller('viewExamController', ['$scope', '$http', '$routeParams',
 
 		$http.get('/api/exam/' + $scope.examId + '/examinfo')
 			.success(function(data){
-				if (data.code === 200) {
+				if (data.code === RESPONSE_STATUS.NORMAL) {
 					console.log(data.data);
 					$scope.exam = data.data;
+					$scope.exam.starttime = moment.tz($scope.exam.starttime, 'UTC').toDate();
 					var endtime = moment.tz($scope.exam.starttime, 'GMT').add($scope.exam.duration,'minutes');
-					$scope.exam.starttime = moment.tz($scope.exam.starttime, 'GMT').toDate();
 
 					if (moment().isAfter(moment.tz($scope.exam.starttime, 'GMT').add($scope.exam.duration,'minutes'))){
 						$scope.examAction="Exam Has Finished!"
@@ -1569,6 +1554,7 @@ examApp.controller('viewExamController', ['$scope', '$http', '$routeParams',
 
 		// start timer 
 		// todo calculate based on server returned current time
+		$scope.isExamFullscreen = true;
 		$scope.startExamSubmission();
 		// $scope.timerEndTime = parseInt(moment.tz($scope.exam.starttime, 'GMT').add($scope.exam.duration,'minutes').format('x'),10);
 		
@@ -1596,7 +1582,7 @@ examApp.controller('viewExamController', ['$scope', '$http', '$routeParams',
 		// or get a new one
 		$http.get('/api/exam/' + $scope.examId + '/submission')
 			.success(function(data) {
-				if (data.code === 200) {
+				if (data.code === RESPONSE_STATUS.NORMAL) {
 					console.log(data.data);
 					$scope.submission = data.data;
 					$scope.goToQuestion(0);
@@ -1607,6 +1593,7 @@ examApp.controller('viewExamController', ['$scope', '$http', '$routeParams',
 				        $scope.$broadcast('timer-start');
 				    },0);	   
 				   	$scope.canAnswerQuestion = true;
+				   	$scope.isExamInfoCollapsed = true;
 				}else {
 					$scope.error = data.data;
 				}
@@ -1623,7 +1610,7 @@ examApp.controller('viewExamController', ['$scope', '$http', '$routeParams',
 			// id does exist, update submission
 			$http.put('/api/submission/' + $scope.submission.id + '/questionsubmission', $scope.curQnSubmission)
 			.success(function(data){
-				if (data.code === 200){
+				if (data.code === RESPONSE_STATUS.NORMAL){
 					console.log(data.data);
 					$scope.updateQuestionSubmission(data.data);
 				}
@@ -1632,7 +1619,7 @@ examApp.controller('viewExamController', ['$scope', '$http', '$routeParams',
 			// id does not exist, create submission
 			$http.post('/api/submission/' + $scope.submission.id + '/questionsubmission', $scope.curQnSubmission)
 			.success(function(data){
-				if (data.code === 200) {
+				if (data.code === RESPONSE_STATUS.NORMAL) {
 					$scope.updateQuestionSubmission(data.data);
 				}
 			});
@@ -1743,11 +1730,11 @@ examApp.controller('viewExamController', ['$scope', '$http', '$routeParams',
 	};
 
 	$scope.getExamInfo();
-}]);
+});
 
-examApp.controller('markExamController', ['$scope', '$routeParams', '$http', 'QN_TYPES', 'EXAM_STATUS', 
-	'SUBMISSION_STATUS','$timeout','$location','$modal','$rootScope','usSpinnerService',
-	function($scope, $routeParams, $http, QN_TYPES, EXAM_STATUS,SUBMISSION_STATUS,$timeout,$location,$modal,$rootScope,usSpinnerService) {
+examApp.controller('markExamController', 
+	function($scope, $routeParams, $http, QN_TYPES, EXAM_STATUS,SUBMISSION_STATUS,$timeout,
+			$location,$modal,$rootScope,usSpinnerService,RESPONSE_STATUS) {
 
 	$scope.examId = $routeParams.examId;
 	$scope.submissionId = $routeParams.submissionId;
@@ -1837,7 +1824,7 @@ examApp.controller('markExamController', ['$scope', '$routeParams', '$http', 'QN
 		// }
 		$http.get('/api/submission/' + $scope.submissionId + '/nextsubmission')
 			.success(function(data){
-				if(data.code===200){
+				if(data.code===RESPONSE_STATUS.NORMAL){
 					var submissionId = data.data.id;
 					$location.path('/exam/' + $scope.examId + '/submission/' + submissionId);
 				}
@@ -1868,7 +1855,7 @@ examApp.controller('markExamController', ['$scope', '$routeParams', '$http', 'QN
 		$scope.startSpin('spinner-1');
 		$http.put('/api/submission/' + $scope.submissionId + '/qnmarking', 
 			$scope.exam.questions[index].submission).success(function(data){
-				if(data.code===200){
+				if(data.code===RESPONSE_STATUS.NORMAL){
 					$scope.stopSpin('spinner-1');
 					$scope.exam.questions[index].submission.submissionstate_id = SUBMISSION_STATUS.GRADED;
 				}
@@ -1897,7 +1884,7 @@ examApp.controller('markExamController', ['$scope', '$routeParams', '$http', 'QN
 	$scope.getExamInfo = function() {
 		$http.get('/api/exam/' + $scope.examId + '/examinfo')
 		.success(function(data){
-			if (data.code === 200) {
+			if (data.code === RESPONSE_STATUS.NORMAL) {
 				for (var i in data.data.questions) {
 					$scope.isQuestionCollapsed.push(true);
 					$scope.isQuestionActive.push(false);
@@ -1920,7 +1907,7 @@ examApp.controller('markExamController', ['$scope', '$routeParams', '$http', 'QN
 		// get exam submission data from server
 		$http.get('/api/submission/' + $scope.submissionId + '/examsubmission')
 		.success(function(data){
-			if (data.code === 200) {
+			if (data.code === RESPONSE_STATUS.NORMAL) {
 				console.log('here here here');
 				console.log(data.data);
 				$scope.submission = data.data;
@@ -1953,13 +1940,11 @@ examApp.controller('markExamController', ['$scope', '$routeParams', '$http', 'QN
 			}
 			//$scope.exam.questions[i].answers = [];
 		}
-
-		console.log($scope.exam);
 	};
 
-	$scope.data = {
-		choice: 14
-	};
+	// $scope.data = {
+	// 	choice: 14
+	// };
 
 	$scope.getQuestionSubmission = function(questionId) {
 		for (var i in $scope.submission.questions) {
@@ -1998,7 +1983,7 @@ examApp.controller('markExamController', ['$scope', '$routeParams', '$http', 'QN
 		}
 		$scope.submission.total_marks = $total;
 
-		console.log($scope.submission.total_marks);
+		// console.log($scope.submission.total_marks);
 	};
 
 	$scope.CompileRun = function(submission){
@@ -2009,7 +1994,7 @@ examApp.controller('markExamController', ['$scope', '$routeParams', '$http', 'QN
 
 		$http.post('/api/test-code',student_answer)
 		.success(function(data){
-			if (data.code === 200) {
+			if (data.code === RESPONSE_STATUS.NORMAL) {
 				console.log(data);
 				submission.resultReady = true;
 				if(data.data.compilation.length>0){
@@ -2060,10 +2045,10 @@ examApp.controller('markExamController', ['$scope', '$routeParams', '$http', 'QN
 	}
 
 	$scope.getExamInfo();
-}]);
+});
 
-examApp.controller('newQuestionController',['$scope','$location','$http','QN_TYPES','taSelection','$routeParams','$modal',
-	function($scope,$location,$http,QN_TYPES,taSelection,$routeParams,$modal){
+examApp.controller('newQuestionController',
+	function($scope,$location,$http,QN_TYPES,taSelection,$routeParams,$modal,RESPONSE_STATUS){
 
 		$scope.courseId = $routeParams.courseId;
 		$scope.questionId = $routeParams.questionId;
@@ -2091,7 +2076,7 @@ examApp.controller('newQuestionController',['$scope','$location','$http','QN_TYP
 		$scope.getQuestionTypes = function() {
 			$http.get('/api/get-qn-types')
 				.success(function(data, status, header, config) {
-					if (data.code === 200) {
+					if (data.code === RESPONSE_STATUS.NORMAL) {
 						$scope.questionTypes = data.data;
 					}
 				});	
@@ -2100,7 +2085,7 @@ examApp.controller('newQuestionController',['$scope','$location','$http','QN_TYP
 		$scope.getQuestionInfo = function(){
 			$http.get('/api/question/'+$scope.questionId+'/editinfo')
 				.success(function(data, status, header, config) {
-					if (data.code === 200) {
+					if (data.code === RESPONSE_STATUS.NORMAL) {
 						console.log(data.data);
 						$scope.question = data.data;
 					}
@@ -2111,7 +2096,7 @@ examApp.controller('newQuestionController',['$scope','$location','$http','QN_TYP
 			if($scope.courseId){
 				$http.post('/api/course/'+$scope.courseId+'/createqn', $scope.question)
 				.success(function(data){
-					if (data.code === 200) {
+					if (data.code === RESPONSE_STATUS.NORMAL) {
 
 						var modalInstance = $modal.open({
 							templateUrl: 'confirmModal.html',
@@ -2130,7 +2115,7 @@ examApp.controller('newQuestionController',['$scope','$location','$http','QN_TYP
 			}else{
 				$http.post('/api/question/'+$scope.questionId +'/edit', $scope.question)
 				.success(function(data){
-					if (data.code === 200) {
+					if (data.code === RESPONSE_STATUS.NORMAL) {
 						console.log('success');
 						$location.path('/course/'+$scope.question.course_id);
 					}
@@ -2193,11 +2178,11 @@ examApp.controller('newQuestionController',['$scope','$location','$http','QN_TYP
 
 		$scope.init();	
 
-	}]);
+});
 
-examApp.controller('newExamController', ['$scope', '$location','$http', '$routeParams', 
-	'QN_TYPES', 'EXAM_STATUS', 'moment', 'taSelection','$modal','usSpinnerService','$rootScope',
-	function($scope, $location, $http, $routeParams, QN_TYPES, EXAM_STATUS, moment, taSelection,$modal,usSpinnerService,$rootScope) {
+examApp.controller('newExamController', 
+	function($scope, $location, $http, $routeParams, QN_TYPES, EXAM_STATUS, moment, 
+			taSelection,$modal,usSpinnerService,$rootScope,RESPONSE_STATUS) {
 
 	$scope.examId = $routeParams.examId;
 	$scope.isExamInfoCollapsed = true;
@@ -2229,7 +2214,7 @@ examApp.controller('newExamController', ['$scope', '$location','$http', '$routeP
 	$scope.getQuestionTypes = function() {
 		$http.get('/api/get-qn-types')
 			.success(function(data, status, header, config) {
-				if (data.code === 200) {
+				if (data.code === RESPONSE_STATUS.NORMAL) {
 					$scope.questionTypes = data.data;
 				}
 			})
@@ -2243,7 +2228,7 @@ examApp.controller('newExamController', ['$scope', '$location','$http', '$routeP
 		console.log($scope.exam);
 		$http.put('/api/exam/' + $scope.examId + '/editexam', $scope.exam)
 			.success(function(data){
-				if (data.code === 200) {
+				if (data.code === RESPONSE_STATUS.NORMAL) {
 					for (var key in data.data) {
 						$scope.exam[key] = data.data[key];
 					}
@@ -2254,7 +2239,7 @@ examApp.controller('newExamController', ['$scope', '$location','$http', '$routeP
 	$scope.saveNPreview = function(){
 		$http.put('/api/exam/' + $scope.examId + '/editexam',$scope.exam)
 		.success(function(data){
-			if (data.code === 200) {
+			if (data.code === RESPONSE_STATUS.NORMAL) {
 				$scope.exam = data.data;
 			}
 		})
@@ -2265,7 +2250,7 @@ examApp.controller('newExamController', ['$scope', '$location','$http', '$routeP
 
 		$http.get('/api/exam/' + $scope.examId + '/examinfo')
 		.success(function(data){
-			if (data.code === 200) {
+			if (data.code === RESPONSE_STATUS.NORMAL) {
 				$scope.exam = data.data;
 				console.log($scope.exam);
 
@@ -2292,7 +2277,7 @@ examApp.controller('newExamController', ['$scope', '$location','$http', '$routeP
 	$scope.initQuestions = function(){
 		$http.get('/api/exam/' + $scope.examId + '/questions')
 		.success(function(data){
-			if (data.code === 200) {
+			if (data.code === RESPONSE_STATUS.NORMAL) {
 				if (data.data.length>0) {
 					$scope.exam.questions = data.data;
 				} else {	
@@ -2304,12 +2289,12 @@ examApp.controller('newExamController', ['$scope', '$location','$http', '$routeP
 
 	$scope.submitQuestion = function(index){
 		$scope.startSpin('spinner-1');
-		$scope.questions[index].index=index+1;
+		$scope.exam.questions[index].index=index+1;
 		if ($scope.exam.questions[index].id) {
 			// id does exist, update question
 			$http.put('/api/exam/' + $scope.examId + '/question', $scope.exam.questions[index])
 			.success(function(data){
-				if (data.code === 200) {
+				if (data.code === RESPONSE_STATUS.NORMAL) {
 					$scope.stopSpin('spinner-1');
 					console.log(data.data);
 					$scope.exam.questions[index] = data.data;
@@ -2319,7 +2304,9 @@ examApp.controller('newExamController', ['$scope', '$location','$http', '$routeP
 			// id does not exist, create question
 			$http.post('/api/exam/' + $scope.examId + '/question', $scope.exam.questions[index])
 			.success(function(data){
-				if (data.code === 200) {
+				if (data.code === RESPONSE_STATUS.NORMAL) {
+					$scope.stopSpin('spinner-1');
+					console.log(data.data);
 					$scope.exam.questions[index] = data.data;
 					$scope.exam.totalqn += 1;
 				}
@@ -2350,7 +2337,7 @@ examApp.controller('newExamController', ['$scope', '$location','$http', '$routeP
 
 		$http.get('/api/exam/' + $scope.examId + '/availableqns')
 			.success(function(data){
-				if (data.code === 200) {
+				if (data.code === RESPONSE_STATUS.NORMAL) {
 
 					$scope.available_questions = data.data;
 					var modalInstance = $modal.open({
@@ -2365,11 +2352,12 @@ examApp.controller('newExamController', ['$scope', '$location','$http', '$routeP
 
 					modalInstance.result.then(function (selected_questions) {
 					for(var i in selected_questions){
+						selected_questions[i].index = $scope.exam.questions.length;
 						$scope.exam.questions.push(selected_questions[i]);
 					}
 					$http.post('/api/exam/' + $scope.examId + '/addqns', selected_questions)
 					.success(function(data){
-						if (data.code === 200) {
+						if (data.code === RESPONSE_STATUS.NORMAL) {
 							$scope.exam.totalqn += selected_questions.length;
 						}
 					});			
@@ -2398,7 +2386,7 @@ examApp.controller('newExamController', ['$scope', '$location','$http', '$routeP
 				var question={'id':$scope.exam.questions[index].id};
 				$http.post('/api/exam/' + $scope.examId + '/deletequestion', question)
 					.success(function(data){
-						if (data.code === 200) {
+						if (data.code === RESPONSE_STATUS.NORMAL) {
 							$scope.exam.totleqn-=1;
 						}
 					})
@@ -2412,7 +2400,7 @@ examApp.controller('newExamController', ['$scope', '$location','$http', '$routeP
 			if($scope.exam.hasOwnProperty('id')){
 				$http.post('/api/exam/' + $scope.examId + '/removequestion', $scope.exam.questions[index])
 					.success(function(data){
-						if (data.code === 200) {
+						if (data.code === RESPONSE_STATUS.NORMAL) {
 							$scope.exam.totleqn-=1;
 						}
 					})
@@ -2462,4 +2450,4 @@ examApp.controller('newExamController', ['$scope', '$location','$http', '$routeP
 	// initialization
 	$scope.getExamInfo();
 	$scope.getQuestionTypes();
-}]);
+});

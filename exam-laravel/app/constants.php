@@ -4,6 +4,7 @@ define('GRAPH_LEVEL', 5);
 define('ADMIN',  1);
 define('FACILITATOR',2);
 define('STUDENT',3);
+define('UNKNOWN',0);
 
 define('DRAFT',1);
 define('ACTIVE',2);
@@ -20,6 +21,7 @@ define('STATUS_NOT_STARTED','not_started');
 define('STATUS_IN_EXAM','in_exam');
 define('STATUS_FINISHED','finished');
 define('STATUS_PUBLISHED','published');
+define('STATUS_UNKNOWN','unknown');
 
 define('MCQ',1);
 define('MRQ',2);

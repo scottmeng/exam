@@ -21,7 +21,6 @@ class Course extends Eloquent {
     }
 
     public function getExamStatus($exam){
-
 		$status = STATUS_UNAVAILABLE;
 
 		if($exam->examstate_id == DRAFT)
@@ -83,26 +82,11 @@ class Course extends Eloquent {
 		return false;
 	}
 
-	public function getFacilitator(){
-		if ($this->pivot->role_id != ADMIN){
-			return Response::error(403,'Unauthorized');
+	public function isFacilitator(){
+		if ($this->pivot->role_id === ADMIN || $this->pivot->role_id === FACILITATOR){
+			return true;
 		}
-		$facilitators = $this->users()->where('course_user.role_id','=',FACILITATOR)->get();
-		foreach($facilitators as $facilitator){
-			$exams = array();
-			foreach($this->exams()->get() as $exam){
-				$new_exam = array(
-					'id'=>$exam->id,
-					'assigned'=>($exam->submissions()->where('grader_id','=',$facilitator->id)->count()),
-					'graded'=>($exam->submissions()->whereRaw('grader_id = ? and submissionstate_id = ?',array($facilitator->id,GRADED))->count()),
-					'grading'=>($exam->submissions()->whereRaw('grader_id = ? and submissionstate_id = ?', array($facilitator->id, GRADING))->count()),
-					'average'=>($exam->submissions()->whereRaw('grader_id = ? and submissionstate_id = ?',array($facilitator->id,GRADED))->sum('total_marks'))
-				);
-				array_push($exams,$new_exam);
-			}
-			$facilitator->exams = $exams;
-		}
-		return $facilitators;
+		return false;		
 	}
 
 	public function getExamsWithSubmissions($user){

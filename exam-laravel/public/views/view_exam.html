@@ -12,84 +12,86 @@
 
 <h3 data-ng-if="error">{{ error }}</h3>
 <div data-ng-if="exam">
-<div class="panel">
-<div class="row" style="margin:5px">
-	<div class="col-md-6">
-		<h3>{{ exam.title }}
-			<button class="btn btn-warning" data-ng-click="isExamInfoCollapsed=!isExamInfoCollapsed">{{ (isExamInfoCollapsed) ? 'View details' : 'Hide details'}}</button>
-		</h3>
-	</div>
+	<div fullscreen="isExamFullscreen" id="exam-fullsize">
+		<div class="panel">
+			<div class="row" style="margin:5px">
+				<div class="col-md-6">
+					<h3>{{ exam.title }}
+						<button class="btn btn-warning" data-ng-click="isExamInfoCollapsed=!isExamInfoCollapsed">{{ (isExamInfoCollapsed) ? 'View details' : 'Hide details'}}</button>
+					</h3>
+				</div>
 
-	<h3 class="col-md-6 text-right" data-ng-show="canAnswerQuestion">
-		<timer ng-show="showTimer" end-time="timerEndTime" finish-callback="onTimeUp();" >{{hours}} hours, {{minutes}} minutes, {{seconds}} seconds.</timer>
-		<button class="button-transparent" data-ng-click="showTimer=!showTimer">
-			<small><i class="fa fa-eye fa-sm"></i></small>
-		</button>
-	</h3>
-</div>
-<div class="panel-body" collapse="isExamInfoCollapsed">
-	<div class="row">
-		<label class="col-md-2 text-right">Total Marks:</label>
-		<p class="col-md-1 text-left">{{ exam.fullmarks }}</p>
-		<label class="col-md-2 text-right">Exam Time:</label>
-		<p class="col-md-3">{{ exam.starttime | date:'yyyy-MM-dd HH:mm'}}</p>
-		<label class="col-md-1 text-left">Duration:</label>
-		<p class="col-md-2">{{ exam.duration }} minutes</p>
-	</div>
-	<div class="row well">
-		<div data-ng-bind-html="exam.description"></div>
-	</div>
-</div>
-<div class="col-md-7" data-ng-hide="canAnswerQuestion">
-	<button class="col-md-4 btn btn-info pull-right" ng-disabled="startDisabled" data-ng-click="startExam()">{{examAction}}</button>
-</div>
-</div>
-
-<div data-ng-if="canAnswerQuestion">
-	<div class="well">
-		<label>Progress: 
-			<a data-ng-repeat="question in exam.questions" data-ng-click="goToQuestion($index)" class="question-id label" data-ng-class="{'label-primary': $index === curQnIndex, 'label-info': $index !== curQnIndex}">Qn {{ $index + 1}}</a>
-		</label>
-	</div>
-	<div class="panel panel-info" data-ng-if="exam.questions.length > 0">
-		<div class="panel-heading">
-			<div class="row">
-				<button class="btn btn-primary btn-xs" style="margin-right: 10px" data-ng-disabled="curQnIndex<=0;" data-ng-click="goToQuestion(curQnIndex - 1);">Previous Question</button>
-				<button class="btn btn-primary btn-xs" style="margin-right: 10px" data-ng-disabled="curQnIndex>=exam.questions.length - 1;" data-ng-click="goToQuestion(curQnIndex + 1);">Next Question</button>
-				<div class="col-md-8">Question {{ curQnIndex + 1 }}: {{exam.questions[curQnIndex].title}} ({{ exam.questions[curQnIndex].full_marks}} marks)</div>
+				<h3 class="col-md-6 text-right" data-ng-show="canAnswerQuestion">
+					<timer ng-show="showTimer" end-time="timerEndTime" finish-callback="onTimeUp();" >{{hours}} hours, {{minutes}} minutes, {{seconds}} seconds.</timer>
+					<button class="button-transparent" data-ng-click="showTimer=!showTimer">
+						<small><i class="fa fa-eye fa-sm"></i></small>
+					</button>
+				</h3>
+			</div>
+			<div class="exam-info" collapse="isExamInfoCollapsed">
+				<div class="row">
+					<label class="col-md-2 text-right">Total Marks:</label>
+					<p class="col-md-1 text-left">{{ exam.fullmarks }}</p>
+					<label class="col-md-2 text-right">Exam Time:</label>
+					<p class="col-md-3">{{ exam.starttime | date:'yyyy-MM-dd HH:mm'}}</p>
+					<label class="col-md-1 text-left">Duration:</label>
+					<p class="col-md-2">{{ exam.duration }} minutes</p>
+				</div>
+				<div class="row well">
+					<div data-ng-bind-html="exam.description"></div>
+				</div>
+			</div>
+			<div class="col-md-7" data-ng-hide="canAnswerQuestion">
+				<button class="col-md-4 btn btn-info pull-right" ng-disabled="startDisabled" data-ng-click="startExam()">{{examAction}}</button>
 			</div>
 		</div>
-		<div class="panel-body">
-<!-- 			<div data-ng-bind-html="exam.questions[curQnIndex].content" hljs class="question-body"></div>
- -->			
- 			<codearea raw="exam.questions[curQnIndex].content" class="question-body"></codearea>
-			<div data-ng-if="isMCQ(exam.questions[curQnIndex]);" >
-				<div style="margin-bottom: 10px" data-ng-repeat="option in exam.questions[curQnIndex].options">
-					<label class="checkbox-inline">
-						<input type="radio" name="exam.questions[curQnIndex].id" ng-checked="isChecked(option.id)" value="{{option.id}}" data-ng-model="curQnSubmission.choice">
-						{{ option.content }}
-					</label>
+
+		<div data-ng-if="canAnswerQuestion" class="wrapper">
+			<div class="well">
+				<label>Progress: 
+					<a data-ng-repeat="question in exam.questions" data-ng-click="goToQuestion($index)" class="question-id label" data-ng-class="{'label-primary': $index === curQnIndex, 'label-info': $index !== curQnIndex}">Qn {{ $index + 1}}</a>
+				</label>
+			</div>
+			<div class="panel panel-info" data-ng-if="exam.questions.length > 0">
+				<div class="panel-heading">
+					<div class="row">
+						<button class="btn btn-primary btn-xs" style="margin-right: 10px" data-ng-disabled="curQnIndex<=0;" data-ng-click="goToQuestion(curQnIndex - 1);">Previous Question</button>
+						<button class="btn btn-primary btn-xs" style="margin-right: 10px" data-ng-disabled="curQnIndex>=exam.questions.length - 1;" data-ng-click="goToQuestion(curQnIndex + 1);">Next Question</button>
+						<div class="col-md-8">Question {{ curQnIndex + 1 }}: {{exam.questions[curQnIndex].title}} ({{ exam.questions[curQnIndex].full_marks}} marks)</div>
+					</div>
+				</div>
+				<div class="panel-body">
+		<!-- 			<div data-ng-bind-html="exam.questions[curQnIndex].content" hljs class="question-body"></div>
+		 -->			
+		 			<codearea raw="exam.questions[curQnIndex].content" class="question-body"></codearea>
+					<div data-ng-if="isMCQ(exam.questions[curQnIndex]);" >
+						<div style="margin-bottom: 10px" data-ng-repeat="option in exam.questions[curQnIndex].options">
+							<label class="checkbox-inline">
+								<input type="radio" name="exam.questions[curQnIndex].id" ng-checked="isChecked(option.id)" value="{{option.id}}" data-ng-model="curQnSubmission.choice">
+								{{ option.content }}
+							</label>
+						</div>
+					</div>
+					<div data-ng-if="isMRQ(exam.questions[curQnIndex]);">
+						<div style="margin-bottom: 10px" data-ng-repeat="option in exam.questions[curQnIndex].options">
+								<input type="checkbox" ng-checked="isChecked(option.id)" checklist-value="option.id" checklist-model="curQnSubmission.choices">
+								{{ option.content }}
+							</label>
+						</div>
+					</div>			
+					<div data-ng-if="isShortQuestion(exam.questions[curQnIndex]);">
+						<textarea class="form-control" data-ng-model="curQnSubmission.answer" rows="10"></textarea>
+					</div>
+					<div data-ng-if="isCodingQuestion(exam.questions[curQnIndex]);" class="row">
+						<div id="coding-area" >
+							<div id="editor" ui-ace=aceOptions data-ng-model="curQnSubmission.answer" rows="4"></div>
+						</div>
+					</div>
 				</div>
 			</div>
-			<div data-ng-if="isMRQ(exam.questions[curQnIndex]);">
-				<div style="margin-bottom: 10px" data-ng-repeat="option in exam.questions[curQnIndex].options">
-						<input type="checkbox" ng-checked="isChecked(option.id)" checklist-value="option.id" checklist-model="curQnSubmission.choices">
-						{{ option.content }}
-					</label>
-				</div>
-			</div>			
-			<div data-ng-if="isShortQuestion(exam.questions[curQnIndex]);">
-				<textarea class="form-control" data-ng-model="curQnSubmission.answer" rows="10"></textarea>
+			<div class="pull-right">
+				<button class="btn btn-success" data-ng-click="onTimeUp()" ng-disabled="disableStart">Finish</button>
 			</div>
-			<div data-ng-if="isCodingQuestion(exam.questions[curQnIndex]);" class="row">
-				<div id="coding-area" >
-					<div id="editor" ui-ace=aceOptions data-ng-model="curQnSubmission.answer" rows="4"></div>
-				</div>
-			</div>
-		</div>
+		</div>	
 	</div>
-	<div class="pull-right">
-		<button class="btn btn-success" data-ng-click="onTimeUp()" ng-disabled="disableStart">Finish</button>
-	</div>
-</div>	
 </div>
