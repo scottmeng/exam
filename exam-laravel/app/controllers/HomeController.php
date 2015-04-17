@@ -144,10 +144,10 @@ class HomeController extends BaseController {
 		switch ($lang) {
 			case 'c':
 			case 'c++':
-				$command = './' . $file_name . ' 2>&1';
+				$command = './timeout.sh -t 2 ./' . $file_name . ' 2>&1';
 				break;
 			case 'java':
-				$command = 'java ' . $file_name . ' 2>&1';
+				$command = './timeout.sh -t 2 java ' . $file_name . ' 2>&1';
 				break;
 			default:
 				return 'unknown language';		
@@ -168,7 +168,7 @@ class HomeController extends BaseController {
 		$lang = Input::get('lang');
 		$extension = $this->getExtension($lang);
 
-		$code = "#include <stdio.h> \nint main() {\nprintf(" . '"' . "Hello world" . '")' . ";\nreturn 0; }";
+		$code = "#include <stdio.h> \nint main() {\n sleep(1); printf(" . '"' . "Hello world" . '")' . ";\nreturn 0; }";
 		if ($extension === false) {
 			return Response::error(400, 'language not recognized');
 		}
@@ -183,7 +183,6 @@ class HomeController extends BaseController {
 
 		// 2. compile code
 		$compilation = $this->compileCode($code_file_name, $file_name, $lang);
-		Log::info($compilation);
 		if (!file_exists($file_name)) {
 			Log::info('compilation error');
 			$result = $this->generateResult(2, $compilation);
@@ -191,6 +190,7 @@ class HomeController extends BaseController {
 		}
 
 		// 3. run code
+		Log::info($file_name);
 		$execution = $this->runCode($file_name, $lang);
 		$result = $this->generateResult(0, $compilation, $execution);
 		return Response::success($result);
