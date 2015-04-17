@@ -170,7 +170,7 @@
 			<tab-heading>
 	        	<i class="fa fa-group"></i> Manage
 	      	</tab-heading>
-	      	<div class="tab-content">
+	      	<div class="tab-content" ng-show="course.facilitators.length">
 	      		<div class="wrapper row">
 	      			<div class="col-md-4 col-md-offset-4">
 						<ui-select ng-model="course.exams.selected"
@@ -184,27 +184,26 @@
 					    </ui-select-choices>
 					  </ui-select>
 					</div>
-
 	      		</div>
 	      		<div class="row">
 		      		<div data-ng-repeat="facilitator in course.facilitators" class="col-md-4">
 		      			 <div class="ta-box" ng-mouseover="showOverlay=true" ng-mouseleave="showOverlay=false">
 			      			 <div class="ta-box-content">
 				      			 <div class="text-center">
-				      			 	<span class="grader-title">{{facilitator.name}}<span>
+				      			 	<div class="grader-title">{{facilitator.name}}</div>
 				      			 </div>
 				      			 <div class="text-left">
 				      			 	<div class="assigned-paper wrapper">
-				      			 		<span>Assigned: {{facilitator.exams[selectedExamIndex].assigned}}</span>
+				      			 		<span>Assigned: <b>{{facilitator.exams[selectedExamIndex].assigned}}</b></span>
 				      			 	</div>
 				      			 	<div class="graded-paper wrapper">
-				      			 		<span>Graded: {{facilitator.exams[selectedExamIndex].graded}}</span>
+				      			 		<span>Graded: <b>{{facilitator.exams[selectedExamIndex].graded}}</b></span>
 				      			 	</div>
 				      			 	<div class="grading-paper wrapper">
-				      			 		<span>Grading: {{facilitator.exams[selectedExamIndex].grading}}</span>
+				      			 		<span>Grading: <b>{{facilitator.exams[selectedExamIndex].grading}}</b></span>
 				      			 	</div>
 				      			 </div>
-				      			 <div class="box-footer">
+				      			 <div class="box-footer text-left">
 				      			 	Average Score (graded): {{facilitator.exams[selectedExamIndex].average}}
 				      			 </div>
 			      			 </div>
@@ -217,6 +216,9 @@
 	      		<div class="row wrapper">
 	      			<button class="btn btn-primary col-md-2 col-md-offset-5" data-ng-click="distributePapers()">Distribute Papers</button>
 	      		</div>
+	      	</div>
+	      	<div data-ng-show="!course.facilitators.length">
+	      		Test
 	      	</div>
 		</tab>
 	</tabset>

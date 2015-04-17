@@ -25,7 +25,11 @@
 
 <h3 data-ng-if="error">{{ error }}</h3>
 <div data-ng-if="!error">
-
+	<ol class="breadcrumb">
+	  <li><a href="/">Home</a></li>
+	  <li><a href="/course/{{exam.course.id}}">{{exam.course.nus_id}}</a></li>
+	  <li class="active">{{exam.title}}</li>
+	</ol>
 	<div class="tab-content">
 		<h3>Editing {{ exam.title }}
 			<button data-ng-click="isExamInfoCollapsed=!isExamInfoCollapsed" class="btn btn-default pull-right" data-ng-hide="isExamInfoCollapsed"><small><i class="fa fa-chevron-up fa-lg"></i></small></button>

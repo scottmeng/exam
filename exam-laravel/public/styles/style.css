@@ -48,27 +48,32 @@ body {
   cursor:pointer;
 }
 
+.big-image{
+  align:middle;
+}
+
 .grader-title{
-  font-weight: lighter;
+  font-weight: 100;
+  font-family: "HelveticaNeue-Light";
   font-size: 30px;
-  color:DimGray;
+  margin-bottom: 10px;
 }
 
 .assigned-paper{
   font-size: 15px;
-  font-weight: bold;
-  color:#30394F;
+  font-weight: lighter;
+  color:#436492;
 }
 
 .graded-paper{
   font-size: 15px;
-  font-weight: bold;
+  font-weight: lighter;
   color:#446448;
 }
 
 .grading-paper{
   font-size: 15px;
-  font-weight: bold;
+  font-weight: lighter;
   color:#A84802;
 }
 

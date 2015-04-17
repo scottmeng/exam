@@ -61,6 +61,7 @@ examApp.config(['$routeProvider', '$locationProvider',
 			.when('/', {
 				templateUrl: 'views/login.html',
 				controller: 'loginController',
+				title:"Paperless Test",
 				resolve: {
 					auth: function resolveAuthentication(AuthResolver) {
 						return AuthResolver.resolve(false);
@@ -70,6 +71,7 @@ examApp.config(['$routeProvider', '$locationProvider',
 			.when('/home', {
 				templateUrl: 'views/dashboard.html',
 				controller: 'dashboardController',
+				title:"Home",
 				resolve: {
 					auth: function resolveAuthentication(AuthResolver) {
 						return AuthResolver.resolve(true);
@@ -79,6 +81,7 @@ examApp.config(['$routeProvider', '$locationProvider',
 			.when('/exam/:examId/view_paper', {
 				templateUrl: 'views/view_graded_paper.html',
 				controller: 'viewPaperController',
+				title:"View Exam",
 				resolve: {
 					auth: function resolveAuthentication(AuthResolver) {
 						return AuthResolver.resolve(true);
@@ -88,6 +91,7 @@ examApp.config(['$routeProvider', '$locationProvider',
 			.when('/exam/:examId/edit', {
 				templateUrl: 'views/create_exam.html',
 				controller: 'newExamController',
+				title:"Edit Exam",
 				resolve: {
 					auth: function resolveAuthentication(AuthResolver) {
 						return AuthResolver.resolve(true);
@@ -97,6 +101,7 @@ examApp.config(['$routeProvider', '$locationProvider',
 			.when('/exam/:examId', {
 				templateUrl: 'views/view_exam.html',
 				controller: 'viewExamController',
+				title:"Exam",
 				resolve: {
 					auth: function resolveAuthentication(AuthResolver) {
 						return AuthResolver.resolve(true);
@@ -106,6 +111,7 @@ examApp.config(['$routeProvider', '$locationProvider',
 			.when('/course/:courseId', {
 				templateUrl: 'views/view_course.html',
 				controller: 'viewCourseController',
+				title:"Course",
 				resolve: {
 					auth: function resolveAuthentication(AuthResolver) {
 						return AuthResolver.resolve(true);
@@ -115,6 +121,7 @@ examApp.config(['$routeProvider', '$locationProvider',
 			.when('/exam/:examId/preview',{
 				templateUrl: 'views/preview_exam.html',
 				controller: 'previewExamController',
+				title:"Preview Exam",
 				resolve: {
 					auth: function resolveAuthentication(AuthResolver) {
 						return AuthResolver.resolve(true);
@@ -124,6 +131,7 @@ examApp.config(['$routeProvider', '$locationProvider',
 			.when('/exam/:examId/submission/:submissionId', {
 				templateUrl: 'views/mark_exam.html',
 				controller: 'markExamController',
+				title:"Mark",
 				resolve: {
 					auth: function resolveAuthentication(AuthResolver) {
 						return AuthResolver.resolve(true);
@@ -133,6 +141,7 @@ examApp.config(['$routeProvider', '$locationProvider',
 			.when('/exam/:examId/submissions',{
 				templateUrl: 'views/exam_details.html',
 				controller: 'examDetailsController',
+				title:"Statistics",
 				resolve: {
 					auth: function resolveAuthentication(AuthResolver) {
 						return AuthResolver.resolve(true);
@@ -142,6 +151,7 @@ examApp.config(['$routeProvider', '$locationProvider',
 			.when('/course/:courseId/new-question',{
 				templateUrl: 'views/new_question.html',
 				controller: 'newQuestionController',
+				title:"New Question",
 				resolve: {
 					auth: function resolveAuthentication(AuthResolver) {
 						return AuthResolver.resolve(true);
@@ -151,6 +161,7 @@ examApp.config(['$routeProvider', '$locationProvider',
 			.when('/question/:questionId/edit',{
 				templateUrl: 'views/new_question.html',
 				controller: 'newQuestionController',
+				title:"Edit Question",
 				resolve: {
 					auth: function resolveAuthentication(AuthResolver) {
 						return AuthResolver.resolve(true);
@@ -160,6 +171,7 @@ examApp.config(['$routeProvider', '$locationProvider',
 			.when('/question/:questionId/view',{
 				templateUrl: 'views/view_question.html',
 				controller: 'viewQuestionController',
+				title:"View Question",
 				resolve: {
 					auth: function resolveAuthentication(AuthResolver) {
 						return AuthResolver.resolve(true);
@@ -168,6 +180,7 @@ examApp.config(['$routeProvider', '$locationProvider',
 			})
 			.when('/unauthorized',{
 				templateUrl: 'views/unauthorized.html',
+				title:"Paperless Test",
 				resolve: {
 					auth: function resolveAuthentication(AuthResolver) {
 						return AuthResolver.resolve(false);
@@ -176,6 +189,7 @@ examApp.config(['$routeProvider', '$locationProvider',
 			})
 			.otherwise({
 				templateUrl: 'views/not_found.html',
+				title:"Not Found",
 				resolve: {
 					auth: function resolveAuthentication(AuthResolver) {
 						return AuthResolver.resolve(false);
@@ -289,21 +303,13 @@ examApp.service('sessionService', function() {
 	};
 });
 
-// examApp.controller('CarouselDemoCtrl', function ($scope) {
-//   $scope.myInterval = 0;
-//   var slides = $scope.slides = [];
-//   $scope.addSlide = function() {
-//     var newWidth = 600 + slides.length + 1;
-//     slides.push({
-//       image: 'http://placekitten.com/' + newWidth + '/300',
-//       text: ['More','Extra','Lots of','Surplus'][slides.length % 4] + ' ' +
-//         ['Cats', 'Kittys', 'Felines', 'Cutes'][slides.length % 4]
-//     });
-//   };
-//   for (var i=0; i<4; i++) {
-//     $scope.addSlide();
-//   }
-// });
+examApp.run(['$rootScope', '$route', function($rootScope, $route) {
+    $rootScope.$on('$routeChangeSuccess', function(newVal, oldVal) {
+        if (oldVal !== newVal) {
+            document.title = $route.current.title;
+        }
+    });
+}]);
 
 'use strict';
 

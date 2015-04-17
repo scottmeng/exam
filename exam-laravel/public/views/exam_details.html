@@ -12,6 +12,11 @@
 
 <h3 data-ng-if="error">{{ error }}</h3>
 <div data-ng-if="!error">
+	<ol class="breadcrumb">
+	  <li><a href="/">Home</a></li>
+	  <li><a href="/course/{{exam.course.id}}">{{exam.course.nus_id}}</a></li>
+	  <li class="active">{{exam.title}}</li>
+	</ol>
 	<div class="row" style="margin:10px">
 		<h2> {{exam.title}}
 		<div class="button-group pull-right">
