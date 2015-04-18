@@ -261,7 +261,7 @@ class ExamController extends BaseController {
 				          ->orWhere('submissionstate_id','=',GRADING);
 				})->get();
 			}else{
-				$submissions = $exam->submissions()->where('grader_id','=',$user['id'])->where(function ($query) {
+				$submissions = $exam->submissions()->where('grader_id','=',Session::get('userid'))->where(function ($query) {
 				    $query->where('submissionstate_id','=',SUBMITTED)
 				          ->orWhere('submissionstate_id','=',GRADING);
 				})->get();
@@ -339,8 +339,12 @@ class ExamController extends BaseController {
 			$gradedSubmissionData = array();
 			$gradingSubmissionData = array();
 			$notGradedSubmissionData = array();
-
-			$submissions = $exam->submissions()->get();
+			
+			if($this->checkUser($exam) == FACILITATOR){
+				$submissions = $exam->submissions()->where('grader_id','=',Session::get('userid'))->get();				
+			}else{
+				$submissions = $exam->submissions()->get();
+			}
 
 			foreach($submissions as $submission){
 				$submission_entry = array(
@@ -395,10 +399,17 @@ class ExamController extends BaseController {
 			$dataWrapper=array();
 			$graphData=array();
 
-			$lowest_mark = $exam->submissions()->where('submissionstate_id','=',GRADED)->min('total_marks');
-			$highest_mark = $exam->submissions()->where('submissionstate_id','=',GRADED)->max('total_marks');
-			$graph_step =ceil(floatval($highest_mark - $lowest_mark)/GRAPH_LEVEL);
-			$starting_range = $highest_mark-$graph_step*GRAPH_LEVEL;
+			if($this->checkUser($exam) == FACILITATOR){
+				$lowest_mark = $exam->submissions()->where('submissionstate_id','=',GRADED)->where('grader_id','=',Session::get('userid'))->min('total_marks');
+				$highest_mark = $exam->submissions()->where('submissionstate_id','=',GRADED)->where('grader_id','=',Session::get('userid'))->max('total_marks');
+				$graph_step =ceil(floatval($highest_mark - $lowest_mark)/GRAPH_LEVEL);
+				$starting_range = $highest_mark-$graph_step*GRAPH_LEVEL;
+			}else{
+				$lowest_mark = $exam->submissions()->where('submissionstate_id','=',GRADED)->min('total_marks');
+				$highest_mark = $exam->submissions()->where('submissionstate_id','=',GRADED)->max('total_marks');
+				$graph_step =ceil(floatval($highest_mark - $lowest_mark)/GRAPH_LEVEL);
+				$starting_range = $highest_mark-$graph_step*GRAPH_LEVEL;
+			}
 			if($starting_range>0){
 				array_push($graphLabels,'[0,'.$starting_range.')');
 				array_push($graphData, $exam->submissions()->where('submissionstate_id','=',GRADED)->whereRaw('total_marks >= ? and total_marks < ?',
@@ -406,25 +417,48 @@ class ExamController extends BaseController {
 			}else{$starting_range=0;}
 
 			if($graph_step!=0){
-				for($index=0; $index<GRAPH_LEVEL; $index++){
-					if($starting_range+$graph_step<$highest_mark){
-						array_push($graphLabels,'['.$starting_range.', '.($starting_range+$graph_step).')');
-						array_push($graphData, $exam->submissions()->where('submissionstate_id','=',GRADED)->whereRaw('total_marks >= ? and total_marks < ?',
-												array($starting_range,$starting_range+$graph_step))->count());
+				if($this->checkUser($exam) == FACILITATOR){
+					for($index=0; $index<GRAPH_LEVEL; $index++){
+						if($starting_range+$graph_step<$highest_mark){
+							array_push($graphLabels,'['.$starting_range.', '.($starting_range+$graph_step).')');
+							array_push($graphData, $exam->submissions()->where('submissionstate_id','=',GRADED)->where('grader_id','=',Session::get('userid'))->whereRaw('total_marks >= ? and total_marks < ?',
+													array($starting_range,$starting_range+$graph_step))->count());
 
-					}else{
-						array_push($graphLabels,'['.$starting_range.', '.$highest_mark.')');
-						array_push($graphData, $exam->submissions()->where('submissionstate_id','=',GRADED)->whereRaw('total_marks >= ? and total_marks < ?',
-												array($starting_range,$highest_mark))->count());
-						array_push($graphLabels,strval($highest_mark));	
-						array_push($graphData, $exam->submissions()->where('submissionstate_id','=',GRADED)->where('total_marks','=',$highest_mark)->count());
-						break;			
+						}else{
+							array_push($graphLabels,'['.$starting_range.', '.$highest_mark.')');
+							array_push($graphData, $exam->submissions()->where('submissionstate_id','=',GRADED)->where('grader_id','=',Session::get('userid'))->whereRaw('total_marks >= ? and total_marks < ?',
+													array($starting_range,$highest_mark))->count());
+							array_push($graphLabels,strval($highest_mark));	
+							array_push($graphData, $exam->submissions()->where('submissionstate_id','=',GRADED)->where('grader_id','=',Session::get('userid'))->where('total_marks','=',$highest_mark)->count());
+							break;			
+						}
+						$starting_range += $graph_step;
 					}
-					$starting_range += $graph_step;
+				}else{
+					for($index=0; $index<GRAPH_LEVEL; $index++){
+						if($starting_range+$graph_step<$highest_mark){
+							array_push($graphLabels,'['.$starting_range.', '.($starting_range+$graph_step).')');
+							array_push($graphData, $exam->submissions()->where('submissionstate_id','=',GRADED)->whereRaw('total_marks >= ? and total_marks < ?',
+													array($starting_range,$starting_range+$graph_step))->count());
+
+						}else{
+							array_push($graphLabels,'['.$starting_range.', '.$highest_mark.')');
+							array_push($graphData, $exam->submissions()->where('submissionstate_id','=',GRADED)->whereRaw('total_marks >= ? and total_marks < ?',
+													array($starting_range,$highest_mark))->count());
+							array_push($graphLabels,strval($highest_mark));	
+							array_push($graphData, $exam->submissions()->where('submissionstate_id','=',GRADED)->where('total_marks','=',$highest_mark)->count());
+							break;			
+						}
+						$starting_range += $graph_step;
+					}					
 				}
 			}else{
-				array_push($graphLabels,strval($highest_mark));	
-				array_push($graphData, ExamSubmission::where('submissionstate_id','=',GRADED)->where('total_marks','=',$highest_mark)->count());
+				array_push($graphLabels,strval($highest_mark));
+				if($this->checkUser($exam) == FACILITATOR){
+					array_push($graphData, ExamSubmission::where('submissionstate_id','=',GRADED)->where('grader_id','=',Session::get('userid'))->where('total_marks','=',$highest_mark)->count());
+				}else{
+					array_push($graphData, ExamSubmission::where('submissionstate_id','=',GRADED)->where('total_marks','=',$highest_mark)->count());					
+				}	
 			}
 			array_push($dataWrapper, $graphData);
 			$graphStats = array(
