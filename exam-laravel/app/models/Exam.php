@@ -186,6 +186,11 @@ class Exam extends Eloquent{
         $this->save();
     }
 
+    public function updateTotalQn(){
+        $this->totalqn = $this->questions->count();
+        $this->save();       
+    }
+
     public function isAdmin($user){
         $course_id = $this->course->id;
         $course = $user->courses()->where('courses.id', '=', $course_id)->first();

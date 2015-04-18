@@ -523,7 +523,6 @@ examApp.controller('previewExamController',
 	$scope.examId = $routeParams.examId;
 
 	$scope.getExamInfo = function() {
-		console.log($scope.examId);
 		$http.get('/api/exam/' + $scope.examId + '/examinfo')
 			.success(function(data){
 				if (data.code === RESPONSE_STATUS.NORMAL) {
@@ -1013,6 +1012,7 @@ examApp.controller('viewCourseController',
 		$http.get('/api/course/' + $scope.courseId + '/course')
 			.success(function(data) {
 				if (data.code === RESPONSE_STATUS.NORMAL) {
+					console.log(data.data);
 					$scope.prepareExams(data.data.exams);
 					$scope.course = data.data;
 					$scope.isAdmin = $scope.course.user_role === 'admin';

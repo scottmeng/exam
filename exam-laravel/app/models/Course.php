@@ -22,6 +22,8 @@ class Course extends Eloquent {
 	public function getExams($user){
 		$exams = $this->exams()->orderBy('updated_at','desc')->get();
 		foreach($exams as $key => $exam){
+			$exam->updateTotalQn();
+			$exam->updateFullmarks();
 			$status = $exam->getStatus($user);
 			if ($status == STATUS_UNAVAILABLE){
 				unset($exams[$key]);
@@ -35,6 +37,8 @@ class Course extends Eloquent {
 	public function getExamsWithSubmissions($user){
 		$exams = $this->exams()->orderBy('updated_at','desc')->get();
 		foreach($exams as $key => $exam){
+			$exam->updateTotalQn();
+			$exam->updateFullmarks();
 			$status = $exam->getStatus($user);
 			if ($status == STATUS_UNAVAILABLE){
 				unset($exams[$key]);

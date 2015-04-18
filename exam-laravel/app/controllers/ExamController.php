@@ -281,6 +281,8 @@ class ExamController extends BaseController {
 			Response::error('404','Exam Not Found');
 		}
 		if($this->isFacilitator($exam)){
+			$exam->updateTotalQn();
+			$exam->updateFullmarks();
 			$status = $exam->getStatus(User::find(Session::get('userid')));
 			// stop user from receiving any information if data is not ready
 			if ($status == STATUS_UNAVAILABLE) {
@@ -288,7 +290,7 @@ class ExamController extends BaseController {
 			}else if ($status == STATUS_DRAFT || $status == STATUS_NOT_STARTED){
 				return Response::error(403,'The requested page is not available!');
 			}else{
-				if($course->isAdmin()){
+				if($this->isAdmin($exam)){
 					$exam = $exam->getAllSubmissions(true, false);
 				}else{
 					$exam = $exam->getSubmissions($user->id, true, false);
@@ -478,6 +480,8 @@ class ExamController extends BaseController {
 		if(!$exam){
 			return Response::error(406,'Page Not Found!');
 		}
+		$exam->updateTotalQn();
+		$exam->updateFullmarks();
 		$status = $exam->getStatus(User::find(Session::get('userid')));
 		if ($status == STATUS_UNAVAILABLE) {
 			return Response::error(403, 'You are unauthorized to view this page!');
@@ -492,7 +496,6 @@ class ExamController extends BaseController {
 			$exam->questions = null;
 		}
 		$exam->status = $status;
-		$exam->totalqn = $exam->questions()->get()->count();
 		$exam->fullmarks = $exam->questions->sum('full_marks');
 		$exam->user_role = $this->checkRole($exam);
 		return Response::success($exam);
