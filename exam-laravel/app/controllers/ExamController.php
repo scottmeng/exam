@@ -480,16 +480,13 @@ class ExamController extends BaseController {
 		if(!$exam){
 			return Response::error(406,'Page Not Found!');
 		}
-		$exam->updateTotalQn();
-		$exam->updateFullmarks();
 		$status = $exam->getStatus(User::find(Session::get('userid')));
 		if ($status == STATUS_UNAVAILABLE) {
 			return Response::error(403, 'You are unauthorized to view this page!');
 		}
 		if(!$this->isFacilitator($exam) && $status == 'in_exam'){
 			$exam->questions = $this->retrieveQuestions($exam,False);
-		}
-		else if($status != STATUS_UNAVAILABLE){
+		}else if($status != STATUS_UNAVAILABLE){
 			$exam->questions = $this->retrieveQuestions($exam,True);
 		}
 		else{
@@ -521,6 +518,7 @@ class ExamController extends BaseController {
 				$question['options']=$question->options()->get();
 			}
 		}
+		Log::info($questions);
 		return $questions;
 	}
 	private function newSubmission($exam,$user){

@@ -1674,7 +1674,6 @@ examApp.controller('viewExamController',
 	$scope.goToQuestion = function(newIndex) {
 		$scope.submitCurrentQuestion();
 		// get question submission by question id
-		console.log($scope.exam.questions);
 		$scope.curQnSubmission = $scope.getQuestionSubmission($scope.exam.questions[newIndex].id);
 		$scope.curQnIndex = newIndex;	
 	};
@@ -1710,6 +1709,7 @@ examApp.controller('viewExamController',
 
 		if($scope.canAnswerQuestion){
 			$scope.submitCurrentQuestion();
+			$scope.isExamFullscreen = false;
 			var modalData = {
 								message:"All changes has been saved. Good luck!",
 								header: "Exam Finished"
