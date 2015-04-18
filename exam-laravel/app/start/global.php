@@ -86,16 +86,24 @@ require app_path().'/constants.php';
 Response::macro('success', function($data)
 {
     return Response::json(array(
-    	'code'=>200,
+    	'code'=>1,
     	'data'=>$data
     ));
 });
 
+Response::macro('unavailable', function($data)
+{
+     return Response::json(array(
+    	'code'=>0,
+    	'data'=>$data
+    ));
+});
 
 Response::macro('error', function($code, $message)
 {
     return App::abort($code, $message);
 });
+
 
 
 

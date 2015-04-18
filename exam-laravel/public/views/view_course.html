@@ -44,12 +44,25 @@
     </div>
 </script>
 
+<script type="text/ng-template" id="confirmDeleteQnModal.html">
+    <div class="modal-header">
+        <h3 class="modal-title" data-ng-model="exam">{{'Deleting ' + question.title}}</h3>
+    </div>
+    <div class="modal-body">
+    	Are you sure you want to delete {{question.title}}? This action is non-recoverable.
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-danger" ng-click="confirm()">Delete</button>
+        <button class="btn btn-primary" ng-click="cancel()">Cancel</button>
+    </div>
+</script>
+
 <script type="text/ng-template" id="confirmModal.html">
     <div class="modal-header">
-        <h4 class="modal-title" data-ng-model="exam">Automatic Grading</h4>
+        <h4 class="modal-title" data-ng-model="exam">{{modalData.header}}</h4>
     </div>
     <div class="modal-body alert alert-success">
-    	All MCQs has been graded!
+    	{{modalData.message}}
     </div>
     <div class="modal-footer">
         <button class="btn btn-primary" ng-click="OK()">Close</button>
@@ -58,55 +71,69 @@
 
 <h3 data-ng-if="error">{{ error }}</h3>
 <div data-ng-if="!error">
-	<div style="padding-top: 20px">
-		<div>
-			<h3>{{ course.nus_id + " " + course.name }}
-				<button data-ng-click="saveAndToggle();" class="btn btn-default pull-right" ng-show="isAdmin"><small><i class="fa fa-pencil fa-lg"></i></small></button>
-				<button data-ng-click="addExam();" class="btn btn-default pull-right" ng-show="isAdmin"><small><i class="fa fa-plus fa-lg"></i></small></button>
-			</h3>
-		</div>
-		<div class=" row panel-body" collapse="isDescriptionCollapsed">
-				<button type="button" style="margin-right: 20px" class="close" data-ng-click="isDescriptionCollapsed=!isDescriptionCollapsed"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-				<div class="col-md-12" text-angular ta-toolbar="[['h3','h4','h5'],['pre','quote'],['bold','italics','underline'],['ul','ol'],['justifyLeft','justifyCenter','justifyRight'],['undo','redo','html']]" ng-model="course.description"></div>
-		</div>
-		<tabset style="padding-top:30px">
-			<tab>
-				<tab-heading>
-		        	Exams
-		      	</tab-heading>
-				<div class="well" style="margin:10px" data-ng-repeat="exam in course.exams">
-					<div>
-						<h4> {{exam.title}}
-							<small><span class="label" ng-class="getExamLabel(exam)">{{exam.statusText}}</span></small>
-								<button data-ng-click="startExam(exam.id);" class="btn btn-primary col-md-1 pull-right" ng-show="exam.status=='in_exam'"><small><i class="fa fa-play-circle" style="color:white"></i></small></button>
-								<button data-ng-click="removeExam(exam);" class="btn btn-danger pull-right" ng-show="course.user_role=='admin'&&exam.status=='draft'"><small><i class="fa fa-trash-o" style="color:white"></i></small></button>
-								<button data-ng-click="editExam(exam.id);" class="btn btn-default pull-right" ng-show="course.user_role=='admin'&&exam.status=='draft'"><small><i class="fa fa-pencil"></i></small></button>
-								<button data-ng-click="previewExam(exam.id);" class="btn btn-default pull-right" ng-show="(course.user_role!='student'&&exam.status!='draft')||isAdmin"><small><i class="fa fa-eye"></i></small></button>
-						</h4>
-						<small ng-show="isExamFinished(exam.status)"><i class="fa fa-clock-o" style="color:grey"></i><span am-time-ago="exam.starttime" style="font-weight:light;color:grey;margin-left:5px"></span></small>
-
+	<div>
+		<h2>{{ course.nus_id + " " + course.name }}
+			<div class="btn-group pull-right" dropdown>
+				<button data-ng-click="saveAndToggle();" class="btn btn-default" ng-show="isAdmin"><i class="fa fa-pencil fa-lg"></i></button>
+				<button type="button" class="btn btn-default dropdown-toggle" dropdown-toggle ng-show="isAdmin"><i class="fa fa-plus fa-lg"></i></button>
+			      <ul class="dropdown-menu" role="menu">
+			        <li ng-click="addExam()">Exam</li>
+			        <li class="divider"></li>
+			        <li ng-click="addQuestion()">Question</li>
+			      </ul>
+			</div>
+		</h2>
+	</div>
+	<div class=" row panel-body" collapse="isDescriptionCollapsed">
+			<button type="button" style="margin-right: 20px" class="close" data-ng-click="isDescriptionCollapsed=!isDescriptionCollapsed"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+			<div class="col-md-12" text-angular ta-toolbar="[['h3','h4','h5'],['pre','quote'],['bold','italics','underline'],['ul','ol'],['justifyLeft','justifyCenter','justifyRight'],['undo','redo','html']]" ng-model="course.description"></div>
+	</div>
+	<tabset style="padding-top:30px">
+		<tab>
+			<tab-heading>
+	        	 Exams
+	      	</tab-heading>
+			<div class="well" style="margin:10px;" data-ng-repeat="exam in course.exams">
+				<div>
+					<h4>{{exam.title}}</a>
+						<small><span class="label" ng-class="getExamLabel(exam)">{{exam.statusText}}</span></small>
+						<div class="pull-right" role="group">
+							<button type="button" data-ng-click="editExam(exam.id);" class="btn btn-default" ng-show="course.user_role=='admin'&&exam.status=='draft'"><small><i class="fa fa-pencil"></i></small></button>
+							<button type="button" data-ng-click="previewExam(exam.id);" class="btn btn-default" ng-show="(course.user_role!='student'&&exam.status!='draft')||isAdmin"><small><i class="fa fa-eye"></i></small></button>
+							<button type="button" data-ng-click="removeExam(exam);" class="btn btn-danger" ng-show="course.user_role=='admin'&&exam.status=='draft'"><small><i class="fa fa-trash-o" style="color:white"></i></small></button>
+							<button type="button" data-ng-click="startExam(exam.id);" class="btn btn-success" ng-show="exam.status=='in_exam'">Start <small><i class="fa fa-play-circle" style="color:white"></i></small></button>
+							<button type="button" class="btn btn-primary" data-ng-click="showExamStats(exam.id)" data-ng-show="isExamFinished(exam.status)"><small><i class="fa fa-bar-chart-o" style="color:white"></i></small></button>
+						</div>
+					</h4>
+					<small ng-show="isExamFinished(exam.status)"><i class="fa fa-clock-o" style="color:grey"></i><span am-time-ago="exam.starttime" style="font-weight:light;color:grey;margin-left:5px"></span></small>
+				</div>
+				<div data-ng-show="isExamFinished(exam.status)==false" style="margin-top:20px">
+					<b>{{exam.totalqn}}</b> Questions:
+					<span data-ng-repeat="question in exam.questions"><a data-ng-click="viewQuestion(question.id)">{{question.title}}</a> |</span>
+				</div>
+				<div data-ng-show="isExamFinished(exam.status)" style="margin-top:30px">
+					<div class="row" style="margin:10px" >
+						<small><em>Marking Progress:</em></small>
+						<progress><bar ng-repeat="status in exam.status_data track by $index" value="status.value" type="{{status.type}}"><span ng-hide="status.value < 5"><small><em>{{status.text + status.count}}</small></em></span></bar></progress>
 					</div>
-					<div data-ng-show="isExamFinished(exam.status)" style="margin-top:30px">
-						<div class="row" style="margin:10px" >
-							<small><em>Marking Progress:</em></small>
-							<progress><bar ng-repeat="status in exam.status_data track by $index" value="status.value" type="{{status.type}}"><span ng-hide="status.value < 5"><small><em>{{status.text + status.count}}</small></em></span></bar></progress>
+					<div class="row" style="margin:10px">					
+ 						<div class="button-group pull-right">
+							<button class='btn btn-primary' data-ng-click="randomStart(exam.id)" data-ng-show="exam.grading_finished==false">Start Marking</button>
+							<button class='btn btn-info'data-ng-hide="exam.grading_finished" data-ng-click="markAllMCQs(exam.id)">Mark All MCQs</button>
+							<button class='btn btn-warning' data-ng-show="exam.grading_finished && exam.status!='published'">Publish</button>
 						</div>
-						<div class="row" style="margin:10px">
-							<span data-ng-repeat="group in course.groups"><a>{{group.name}} </a>|</span>
-							<button class='btn btn-primary col-md-1 pull-right' data-ng-show="exam.grading_finished">Publish</button>
-							<button class='btn btn-success col-md-2 pull-right' data-ng-click="randomStart(exam.id)">Start Marking</button>
-							<button class='btn btn-info col-md-2 pull-right'data-ng-hide="exam.grading_finished" data-ng-click="markAllMCQs(exam.id)">Mark All MCQs</button>
-							<button class="btn btn-default col-md-1 pull-right" data-ng-click="showExamStats(exam.id)"><i class="fa fa-bar-chart-o"></i></button>
+					</div>
+					<div class="row">
+						<div class="col-md-offset-5" data-ng-click="areSubmissionsCollapsed=!areSubmissionsCollapsed">
+							<a>Show All Submissions.. </a>
+							<span class="button-transparent"><i class="fa fa-chevron-down"></i></span>
 						</div>
-						<div class="row">
-							<div class="col-md-offset-5" data-ng-click="areSubmissionsCollapsed=!areSubmissionsCollapsed">
-								<a>Show All Submissions.. </a>
-								<span class="button-transparent"><i class="fa fa-chevron-down"></i></span>
-							</div>
-						</div>
-						<div name="submissions" style="overflow:auto" collapse="areSubmissionsCollapsed">
+					</div>
+					<div name="submissions" collapse="areSubmissionsCollapsed">
+						<input id="submission_filter" class="form-control empty" type="search" ng-model="q" placeholder="&#xF002; filter submissions..." />
+						<div class="scrollable-select">
 							<div class="list-group">
-								<div class="list-group-item" data-ng-repeat="submission in exam.submissions" data-ng-click="gradePaper(exam.id,submission.id);">
+								<div class="list-group-item" data-ng-repeat="submission in exam.submissions | filter:q as results" data-ng-click="gradePaper(exam.id,submission.id);">
 									{{($index+1) + ".  " }} <a>{{submission.user}}</a>
 									<span class="label {{getStatusClass(submission)}} pull-right">{{submission.statusText}}</span>
 								</div>
@@ -114,13 +141,89 @@
 						</div>
 					</div>
 				</div>
-			</tab>
-			<tab>
-				<tab-heading>
-		        	Groups
-		      	</tab-heading>
-			</tab>
-		</tabset>
-
-	</div>
+			</div>
+		</tab>
+		<tab>
+			<tab-heading>
+	        	Questions
+	      	</tab-heading>
+  			<div name="questions">
+				<input id="question_filter" class="form-control empty" type="search" ng-model="q" placeholder="&#xF002; filter questions..." />
+				<div class="question-fixed-height">
+					<div class="list-group">
+						<div class="list-group-item" data-ng-repeat="question in course.questions | filter:q as results" style="padding-top:10px">
+							<h4 style="padding:10px">	
+								{{($index+1) + ".  " }} {{question.title}}
+								<small><span class="label label-default">{{getQuestionType(question.questiontype_id)}}</span></small>
+								<div class="pull-right" role="group" style="margin-left:10px">
+									<button type="button" data-ng-click="viewQuestion(question.id);" class="btn btn-default"><small><i class="fa fa-eye"></i></small></button>
+									<button type="button" data-ng-click="editQuestion(question.id);" class="btn btn-default"  data-ng-show="course.user_role=='admin'"><small><i class="fa fa-pencil"></i></small></button>
+									<button type="button" data-ng-click="deleteQuestion(question);" class="btn btn-danger" data-ng-show="course.user_role=='admin'"><small><i class="fa fa-trash-o" style="color:white"></i></small></button>
+								</div>
+							</h4>
+						</div>
+					</div>
+				</div>
+			</div>
+		</tab>
+		<tab data-ng-if="course.user_role=='admin'">
+			<tab-heading>
+	        	<i class="fa fa-group"></i> Manage
+	      	</tab-heading>
+	      	<div class="tab-content" ng-show="(course.exams | filter:{status:'finished'}).length">
+	      		<div class="wrapper row">
+	      			<div class="col-md-4 col-md-offset-4">
+						<ui-select ng-model="course.exams.selected"
+					             theme="bootstrap"
+					             ng-disabled="disabled"
+					             reset-search-input="false"
+					             style="width: 300px;" ng-change="updateExam($select.selected)">
+					    <ui-select-match>{{$select.selected.title}}</ui-select-match>
+					    <ui-select-choices repeat="exam in course.exams | filter: $select.search | filter:{status:'finished'}">
+					    	<div ng-bind-html="exam.title"></div>
+					    </ui-select-choices>
+					  </ui-select>
+					</div>
+	      		</div>
+	      		<div class="row" data-ng-show="course.exams.selected.graders.length">
+		      		<div data-ng-repeat="grader in course.exams.selected.graders" class="col-md-4">
+		      			 <div class="ta-box" ng-mouseover="showOverlay=true" ng-mouseleave="showOverlay=false">
+			      			 <div class="ta-box-content">
+				      			 <div class="text-center">
+				      			 	<div class="grader-title">{{grader.name}}</div>
+				      			 </div>
+				      			 <div class="text-left">
+				      			 	<div class="assigned-paper wrapper">
+				      			 		<span>Assigned: <b>{{grader.assigned}}</b></span>
+				      			 	</div>
+				      			 	<div class="graded-paper wrapper">
+				      			 		<span>Graded: <b>{{grader.graded}}</b></span>
+				      			 	</div>
+				      			 	<div class="grading-paper wrapper">
+				      			 		<span>Grading: <b>{{grader.grading}}</b></span>
+				      			 	</div>
+				      			 </div>
+				      			 <div class="box-footer text-left">
+				      			 	Average Score (graded): {{grader.average | number:1}}
+				      			 	<span ng-if="!grader.average">NA</span>
+				      			 </div>
+			      			 </div>
+			      			 <div class="box-overlay" ng-class="{'visible-overlay':showOverlay==true}">
+							    <span class="action"><i class="fa fa-eye white-icon"></i></span>
+							 </div>
+						</div> 
+		      		</div>
+	      		</div>
+		      	<div data-ng-show="course.exams.selected && !course.exams.selected.graders.length">
+		      		<img src="../images/grading_not_found.jpg" alt="no grading info" class="not_found_img">
+		      		<div class="row wrapper" id="distribute-paper">
+			      			<button class="btn btn-primary col-md-2 col-md-offset-5" data-ng-click="distributePapers()">Distribute Papers</button>
+			      	</div>	      	
+			    </div>
+			</div>
+			<div data-ng-show="!(course.exams | filter:{status:'finished'}).length">
+				<img src="../images/exam_not_found.jpg" alt="no grading info" class="not_found_img">
+			</div>
+		</tab>
+	</tabset>
 </div>

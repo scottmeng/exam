@@ -1,3 +1,162 @@
+body {
+  font-family: "Helvetica";
+}
+.qn-page-header{
+  padding:10px;
+}
+
+.not_found_img{
+  max-height: 70%;
+  max-width: 70%;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.scrollable-select{
+  height:300px;
+  overflow: auto;
+  width: auto;
+}
+
+#distribute-paper{
+  margin-top:20px;
+}
+
+.question-fixed-height{
+  overflow: auto;
+  height:500px;
+  width: auto;
+}
+
+.wrapper{
+  margin:10px;
+}
+
+.container{
+    height: 80%;
+    width: 80%; 
+}
+
+.exam-info{
+  padding:15px;
+}
+
+#exam-fullsize {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+}
+
+.box-footer{
+  border-top-style: solid;
+  border-top-width: 1px;
+  font-size: 18px;
+  padding:10px;
+  margin-top:10px;
+  font-weight: lighter;
+}
+
+.ta-box{  
+  width:auto;
+  height:250px;
+  /*box-shadow:inset 1px 1px 40px 0 rgba(0,0,0,.45);*/
+  border-bottom:2px solid #fff;
+  border-right:2px solid #fff;
+  margin:20px;
+  background: #ECECEC;
+  background-size:cover;
+  border-radius:5px;
+  overflow:hidden;
+  position:relative;
+}
+
+.dropdown{
+  cursor:pointer;
+}
+
+.big-image{
+  align:middle;
+}
+
+.grader-title{
+  font-weight: 100;
+  font-family: "HelveticaNeue-Light";
+  font-size: 30px;
+  margin-bottom: 10px;
+}
+
+.assigned-paper{
+  font-size: 15px;
+  font-weight: lighter;
+  color:#436492;
+}
+
+.graded-paper{
+  font-size: 15px;
+  font-weight: lighter;
+  color:#446448;
+}
+
+.grading-paper{
+  font-size: 15px;
+  font-weight: lighter;
+  color:#A84802;
+}
+
+.ta-box-content{
+    width: 100%;
+    height:100%;
+    padding:20px;
+    position: absolute;
+}
+
+.box-overlay{
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,.75);
+  text-align:center;
+  line-height: 250px;
+  vertical-align: middle;
+  opacity:0;
+  position:absolute;
+  cursor:pointer;
+  -webkit-transition: opacity .25s ease;
+  -moz-transition: opacity .25s ease;
+}
+.visible-overlay{
+  opacity: 1
+}
+
+.white-icon{
+  color:white;
+}
+
+.dashboard-heading{
+  background-color: #DCDCDC !important;
+}
+
+.graph-label{
+  font-weight: light;
+  color:grey;
+  padding-top:10px;
+}
+
+.dropdown-menu{
+  padding:10px;
+}
+
+input.empty {
+    font-family: FontAwesome;
+    font-style: normal;
+    font-weight: normal;
+    text-decoration: inherit;
+}
+
+.dashboard-title{
+    color:#585858 !important;
+}
+
 .nav-tabs > li, .nav-pills > li {
     float:none;
     display:inline-block;

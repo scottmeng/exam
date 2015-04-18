@@ -1,16 +1,21 @@
 <script type="text/ng-template" id="confirmModal.html">
     <div class="modal-header">
-        <h4 class="modal-title" data-ng-model="exam">Automatic Grading</h4>
+        <h4 class="modal-title" data-ng-model="exam">{{modalData.header}}</h4>
     </div>
     <div class="modal-body alert alert-success">
-    	All papers has been marked!
+    	{{modalData.message}}
     </div>
     <div class="modal-footer">
         <button class="btn btn-primary" ng-click="OK()">Close</button>
     </div>
 </script>
 <h3 data-ng-if="error">{{ error }}</h3>
-<div data-ng-if="!error">
+<div data-ng-if="exam">
+	<ol class="breadcrumb">
+	  <li><a href="/">Home</a></li>
+	  <li><a href="/course/{{exam.course.id}}">{{exam.course.nus_id}}</a></li>
+	  <li class="active">{{exam.title}}</li>
+	</ol>
 	<div class="well">
 		<div style="margin-top:10px">
 			<h3 class="text-center">
@@ -44,30 +49,30 @@
 
 					<div class="row tab-content text-left">
 						<div data-ng-if="isMCQ(question);" style="height:200px;">
-							<div style="height:80px">
-								<span data-ng-repeat="option in question.options">
+							<div style="padding-bottom:10px">
+								<div data-ng-repeat="option in question.options">
 									<label class="checkbox-inline">
-										<input type="radio" name="question.id" ng-checked="option.id===question.submission.choice" ng-model="selected" value="{{option.id}}" disabled>
+										<input type="radio" ng-model="question.submission.choice" ng-value="option.id" disabled>
 										{{ option.content }}
 									</label>
-								</span>	
+								</div>	
 							</div>
-							<div class="tab-content" style="height:50px;margin-top=20px">
+							<div class="tab-content" style="height:50px;margin-top=30px">
 								<label>Answers:</label>
 								<div ng-repeat="option in question.options" ng-show="option.correctOption == 1"><h5 style="color:green">{{option.content}}</h5>
 								</div>
 							</div>
 						</div>
 						<div data-ng-if="isMRQ(question);" class="tab-content" style="height:200px">
-							<div style="height:80px">
-								<span data-ng-repeat="option in question.options">
+							<div style="padding-bottom:10px">
+								<div data-ng-repeat="option in question.options">
 									</label class="checkbox-inline">
 										<input type="checkbox" checklist-value="option.id" checklist-model="question.submission.choices" disabled>
 										{{ option.content }}
 									</label>
-								</span>
+								</div>
 							</div>
-							<div class="tab-content" style="height:50px;margin-top=20px">
+							<div class="tab-content" style="height:50px;margin-top=30px">
 								<label>Answers:</label>
 								<div ng-repeat="option in question.options" ng-show="option.correctOption == 1"><h5 style="color:green">{{option.content}}</h5>
 								</div>
@@ -81,7 +86,7 @@
 							<div class="row" style="margin-right:10px">
 								<button class="btn btn-warning pull-right" style="margin-top: 10px;" data-ng-click="CompileRun(question.submission)">Compile and Execute</button>
 							</div>
-							<div name="code output" data-ng-show="question.submission.resultReady">
+							<div name="code_output" data-ng-show="question.submission.resultReady">
 								<label>Output:</label>
 								<div class="row" style="margin:10px">
 									<div class="alert alert-danger" data-ng-show="question.submission.compilation_fail">{{question.submission.compilation_error}}</div>
@@ -90,11 +95,11 @@
 							</div>	
 						</div>
 						<div class="well" style="margin-top:20px">
-							<form class="form-horizontal">
-								<div class="form-group">
+							<form class="form-horizontal" name="feedbackForm">
+								<div class="form-group" ng-class="{'has-error':feedbackForm.marks.$invalid && feedbackForm.marks.$dirty}">
 									<label class="col-md-2 control-label text-right">Marks:</label>
 									<div class="col-md-9 text-left">
-										<input type="number" max="{{question.full_marks}}" data-ng-model="question.submission.marks_obtained" placeholder="{{ question.full_marks }}"/> / {{ question.full_marks }}
+										<input class="form-control" type="number" name="marks" min="0" max="{{question.full_marks}}" data-ng-model="question.submission.marks_obtained" placeholder="{{question.full_marks}}/{{ question.full_marks }}"> 
 									</div>
 								</div>
 								<div class="form-group">
@@ -106,7 +111,7 @@
 							</form>
 						</div>
 						<div class="row">
-							<button class="btn btn-success col-md-offset-5 col-md-2 text-right" style="padding:10px" ng-click="markQuestion($index)">OK</button>
+							<button class="btn btn-success col-md-offset-5 col-md-2 text-right" style="padding:10px" ng-click="markQuestion($index)" data-ng-disabled="feedbackForm.$dirty==false||feedbackForm.$invalid" >OK</button> <span us-spinner="{width:2,length:4,radius:5}" spinner-key="spinner-1"></span>
 						</div>
 					</div>
 				</div>

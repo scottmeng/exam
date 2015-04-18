@@ -42,17 +42,16 @@ class ExamSubmission extends Eloquent{
     }
 
     public function updateStatus(){
-        $question_submissions = $this->questionsubmissions()->get();
-        $graded = true;
-        foreach($question_submissions as $question_submission){
-            if  ($question_submission->status->id != GRADED){
-                $graded = false;
-                break;
-            }
-        }
-        if($graded){
+        // $question_submissions = $this->questionsubmissions()->get();
+        $ungraded = $this->questionsubmissions()->where('submissionstate_id','<>',GRADED)->count();
+        if($ungraded===0){
             $graded_status= SubmissionState::where('name','like','graded')->first();
             $graded_status->examsubmissions()->save($this);
+        }else{
+            $grading_status= SubmissionState::where('name','like','grading')->first();
+            $grading_status->examsubmissions()->save($this);           
         }
+        $this->total_marks = $this->questionsubmissions()->sum('marks_obtained');
+        $this->save();
     }
 }

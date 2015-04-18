@@ -2,7 +2,8 @@
 
 class Option extends Eloquent {
 
-	protected $fillable = array('index','content','question_id','correctOption');
+	protected $fillable = array('content','question_id','correctOption');
+	protected $touches = ['question'];
 
     public function question()
     {
@@ -11,6 +12,11 @@ class Option extends Eloquent {
 
     public function selections(){
     	return $this->hasMany('SelectedOption');
+    }
+
+    public function deleteOption(){
+    	$this->selections()->delete();
+    	$this->delete();
     }
 
 }

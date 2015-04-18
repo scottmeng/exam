@@ -1,0 +1,28 @@
+
+<div class="panel panel-info" data-ng-modal="question">
+	<div class="panel-heading">
+		<div class="row">
+			<div class="col-md-8">{{question.title}} ({{ question.full_marks}} marks)</div>
+		</div>
+	</div>
+
+	<div class="panel-body">
+		<codearea raw="question.content"></codearea>
+	 	<div data-ng-if="isMCQ(question);">
+			<div style="margin-bottom: 10px" data-ng-repeat="option in question.options">
+				<label class="checkbox-inline">
+					<input type="radio" name="question.id" ng-checked="isChecked(option.id)" value="{{option.id}}" data-ng-model="curQnSubmission.choice">
+					{{ option.content }}
+				</label>
+			</div>
+		</div>
+		<div data-ng-if="isMRQ(question);">
+			<div style="margin-bottom: 10px" data-ng-repeat="option in question.options">
+				<label class="checkbox-inline">
+					<input type="checkbox" ng-checked="isChecked(option.id)" checklist-value="option.id" checklist-model="curQnSubmission.choices">
+					{{ option.content }}
+				</label>
+			</div>
+		</div>			
+	</div>
+</div>

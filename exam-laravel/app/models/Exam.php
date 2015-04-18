@@ -1,8 +1,10 @@
 <?php
+use Carbon\Carbon;
 
 class Exam extends Eloquent{
 
     protected $fillable = array('name', 'course_id', 'examstate_id','description','duration_in_min','full_marks','total_qn', 'start_time');
+    protected $touches = ['course'];
 
     public function course(){
 		return $this->belongsTo('Course');
@@ -13,7 +15,7 @@ class Exam extends Eloquent{
     }
 
     public function questions(){
-    	return $this->hasMany('Question');
+    	return $this->belongsToMany('Question')->withPivot('index');;
     }
 
     public function submissions(){
@@ -59,7 +61,6 @@ class Exam extends Eloquent{
             $student = $exam_submission->user_id;
             $exam_submission->user = User::findOrFail($student)->nus_id;
             $exam_submission->status = SubmissionState::findOrFail($exam_submission->submissionstate_id)->description;
-            $exam_submission->group = User::findOrFail($student)->group()->first();
             
             if($returnGroup){
                switch ($exam_submission->submissionstate_id) {
@@ -104,8 +105,7 @@ class Exam extends Eloquent{
                     $submission = $submission->getQnSubmissions();
                 }      
                 $submission->user = User::findOrFail($submission->user_id)->nus_id;
-                $exam_submission->status = SubmissionState::findOrFail($exam_submission->submissionstate_id)->description;
-                $exam_submission->group = User::findOrFail($submission->user_id)->group()->first();
+                $submission->status = SubmissionState::findOrFail($submission->submissionstate_id)->description;
 
                if($returnGroup){
                    switch ($exam_submission.submissionstate_id) {
@@ -141,8 +141,35 @@ class Exam extends Eloquent{
         $this->delete();
     }
 
+    public function addQuestion($question_id, $index){
+        if(!$this->questions->contains($question_id)){
+            $this->questions()->attach($question_id,array('index'=>$index));
+            $this->updateFullmarks();
+        }else{
+            $this->questions()->updateExistingPivot($question_id,array('index'=>$index));
+        }
+    }
+
+    public function getGrader(){
+        $graders = User::whereIn('id',$this->submissions()->select('grader_id')->distinct()->get()->toArray())
+                        ->get(); 
+        $graders_info=array();
+        foreach($graders as $grader){
+            $grading_info = array(
+                'id'=>$grader->nus_id,
+                'name'=>$grader->name,
+                'assigned'=>$grader->assignedsubmissions()->where('exam_id','=',$this->id)->count(),
+                'graded'=>$grader->assignedsubmissions()->where('submissionstate_id', '=', GRADED)->where('exam_id','=',$this->id)->count(),
+                'grading'=>$grader->assignedsubmissions()->where('submissionstate_id', '=', GRADING)->where('exam_id','=',$this->id)->count(),
+                'average'=>$grader->assignedsubmissions()->where('submissionstate_id', '=', GRADED)->where('exam_id','=',$this->id)->avg('total_marks')
+            );
+            array_push($graders_info,$grading_info);
+        }
+        $this->graders = $graders_info;
+        return $this;
+    }
+
     public function getRandomSubmission(){
-        
         $submissions = ExamSubmission::where(function ($query) {
             $query->where('submissionstate_id','=',SUBMITTED)
                   ->orWhere('submissionstate_id','=',GRADING);
@@ -153,4 +180,69 @@ class Exam extends Eloquent{
 
         return Response::success($next_submission);
     }
+
+    public function updateFullmarks (){
+        $this->fullmarks = $this->questions->sum('full_marks');
+        $this->save();
+    }
+
+    public function updateTotalQn(){
+        $this->totalqn = $this->questions->count();
+        $this->save();       
+    }
+
+    public function isAdmin($user){
+        $course_id = $this->course->id;
+        $course = $user->courses()->where('courses.id', '=', $course_id)->first();
+        if(!$course || $course->pivot->role_id != ADMIN){
+            return false;
+        }
+        return true;
+    }
+
+    public function isFacilitator($user){
+        $course_id = $this->course->id;
+        $course = $user->courses()->where('courses.id', '=', $course_id)->first();
+        if(!$course || ($course->pivot->role_id != ADMIN && $course->pivot->role_id != FACILITATOR)){
+            return false;
+        }
+        return true;
+    }
+
+    public function checkRole($user){
+        $course_id = $this->course->id;
+        $course = $user->courses()->where('courses.id', '=', $course_id)->first();
+        if(!$course){
+            return UNKNOWN;
+        }
+        return $course->pivot->role_id;
+    }
+
+    public function getStatus($user){
+        $status = STATUS_UNAVAILABLE;
+        if($this->examstate_id == DRAFT && $this->isAdmin($user)){
+                $status = STATUS_DRAFT;
+        }
+        else if($this->examstate_id == ACTIVE){
+            $now = Carbon::now('Asia/Singapore');
+            $starttime = new Carbon($this->starttime,'GMT');
+            $endtime = (new Carbon($this->starttime,'GMT'))->addMinutes($this->duration);
+            $visibletime = (new Carbon($this->starttime,'GMT'))->subMinutes($this->grace_period);
+
+            if($this->isFacilitator($user)){
+                if($now->lt($visibletime)){
+                    $status = STATUS_NOT_STARTED;
+                }else if($now->gt($endtime)){    
+                    $status = STATUS_FINISHED;
+                }
+            }  
+            if($now->between($visibletime,$endtime)){
+                $status = STATUS_IN_EXAM;
+            }
+        }else if($this->examstate_id == PUBLISHED){
+            $status = STATUS_PUBLISHED;
+        }
+        return $status;
+    }
+
 }

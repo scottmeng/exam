@@ -27,15 +27,16 @@
     <link rel='stylesheet' href="{{ URL::to('styles/hljs-default.css') }}">
     <link rel='stylesheet' href="{{ URL::to('styles/ui-grid-unstable.css') }}">
     <link rel='stylesheet' href="{{ URL::to('styles/angular-chart.css') }}">
+    <link rel='stylesheet' href="{{ URL::to('styles/select.css') }}">
 
     <script src="{{ URL::to('js/textAngular/textAngular-rangy.min.js') }}"></script>
     <script src="{{ URL::to('js/textAngular/textAngular-sanitize.min.js') }}"></script>
     <script src="{{ URL::to('js/textAngular/textAngular.min.js') }}"></script>
     <script src="{{ URL::to('js/timer.js') }}"></script>
     <script src="{{ URL::to('js/i18nService.js') }}"></script>
-    <script src="{{ URL::to('js/moment.min.js') }}"></script>
-    <script src="{{ URL::to('js/angular-moment.js') }}"></script>
+    <script src="{{ URL::to('js/moment.js') }}"></script>
     <script src="{{ URL::to('js/moment-timezone-with-data.js') }}"></script>
+    <script src="{{ URL::to('js/angular-moment.js') }}"></script>
 
     <script src="{{ URL::to('js/humanize-duration.js') }}"></script>
     <script src="{{ URL::to('js/checklist-model.js') }}"></script>
@@ -46,6 +47,10 @@
     <script src="{{ URL::to('js/ui-grid-unstable.js') }}"></script>
     <script src="{{ URL::to('js/Chart.js') }}"></script>
     <script src="{{ URL::to('js/angular-chart.js') }}"></script>
+    <script src="{{ URL::to('js/angular-spinner.js') }}"></script>
+    <script src="{{ URL::to('js/spin.js') }}"></script>
+    <script src="{{ URL::to('js/select.js') }}"></script>
+    <script src="{{ URL::to('js/angular-fullscreen.js') }}"></script>
 
     <script src="{{ URL::to('app.js') }}"></script>
 </head>
@@ -56,7 +61,7 @@
         <nav class="navbar navbar-default navbar-fixed-top">
         <div class="container">
             <div class="navbar-header">
-                <a class="navbar-brand" href="/home" style="color:white">Home</a>
+                <a class="navbar-brand" href="@{{ if (userName) ? '/home' : '/'}}" style="color:white">Paperless Test</a>
             </div>
 
             <ul class="nav navbar-nav navbar-right">

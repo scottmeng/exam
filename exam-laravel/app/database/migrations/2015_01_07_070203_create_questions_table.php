@@ -15,26 +15,20 @@ class CreateQuestionsTable extends Migration {
 		Schema::create('questions', function(Blueprint $table)
 		{
 			$table->increments('id');
-			$table->integer('index');
-			$table->integer('subindex')->nullable()->default(0);
+			$table->integer('index')->unsigned();
 			$table->integer('questiontype_id')->unsigned();
-			$table->integer('exam_id')->unsigned();
+			$table->foreign('questiontype_id')->references('id')->on('questiontypes');
+			$table->integer('course_id')->unsigned();
+			$table->foreign('course_id')->references('id')->on('courses');
 			$table->string('title')->nullable();
 			$table->text('content')->nullable();
-			$table->boolean('coding_qn')->default(0);
-			$table->boolean('compiler_enable')->default(0);
-			$table->boolean('randomizeOptions')->default(0);
+			$table->boolean('compiler_enable')->default(0);//not used for now
+			$table->string('language')->default('c');
 			$table->text('marking_scheme')->nullable();
 			$table->integer('full_marks')->default(0);
 			$table->text('suggested_answer')->nullable();
 			$table->text('general_feedback')->nullable();
 			$table->timestamps();
-		});
-
-		Schema::table('questions', function(Blueprint $table)
-		{
-			$table->foreign('exam_id')->references('id')->on('exams');
-			$table->foreign('questiontype_id')->references('id')->on('questiontypes');
 		});
 	}
 
