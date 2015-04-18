@@ -295,7 +295,7 @@ class ExamController extends BaseController {
 				if($this->checkUser($exam) == ADMIN){
 					$exam = $exam->getAllSubmissions(true, false);
 				}else{
-					$exam = $exam->getSubmissions($user->id, true, false);
+					$exam = $exam->getSubmissions(Session::get('userid'), true, false);
 				}	
 			}
 			$exam->status = $status; 
@@ -569,8 +569,7 @@ class ExamController extends BaseController {
 			Response::error(401,'not log in');
 			return;
 		}
-		return Role::find($exam->checkRole($user));
-	}		
+		return $exam->checkRole($user);	
 	}
 
 	private function checkRole($exam){
