@@ -201,6 +201,7 @@ class Exam extends Eloquent{
     }
 
     public function isFacilitator($user){
+        Log::info($user);
         $course_id = $this->course->id;
         $course = $user->courses()->where('courses.id', '=', $course_id)->first();
         if(!$course || ($course->pivot->role_id != ADMIN && $course->pivot->role_id != FACILITATOR)){

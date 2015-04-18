@@ -84,7 +84,7 @@
 						<div data-ng-if="isCodingQuestion(question);">
 							<div id="editor" ui-ace=aceOptions data-ng-model="question.submission.answer_copy" style="height:180px"></div>
 							<div class="row" style="margin-right:10px">
-								<button class="btn btn-warning pull-right" style="margin-top: 10px;" data-ng-click="CompileRun(question.submission)">Compile and Execute</button>
+								<button class="btn btn-warning pull-right" style="margin-top: 10px;" data-ng-click="CompileRun(question.submission)">Compile and Execute</button><span us-spinner="{width:2,length:4,radius:5}" spinner-key="spinner-2"></span>
 							</div>
 							<div name="code_output" data-ng-show="question.submission.resultReady">
 								<label>Output:</label>

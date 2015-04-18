@@ -1998,11 +1998,11 @@ examApp.controller('markExamController',
 			'code':submission.answer_copy,
 			'lang':'c++'
 		};
-
+		$scope.startSpin('spinner-2');
 		$http.post('/api/test-code',student_answer)
 		.success(function(data){
 			if (data.code === RESPONSE_STATUS.NORMAL) {
-				console.log(data);
+				$scope.stopSpin('spinner-2');
 				submission.resultReady = true;
 				if(data.data.compilation.length>0){
 					submission.compilation_fail = true;
