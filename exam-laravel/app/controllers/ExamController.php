@@ -255,7 +255,7 @@ class ExamController extends BaseController {
 			Response::error('404','Exam Not Found');
 		}		
 		if($this->isFacilitator($exam)){
-			if($this->isAdmin($exam)){
+			if($this->checkUser($exam) == ADMIN){
 				$submissions = $exam->submissions()->where(function ($query) {
 				    $query->where('submissionstate_id','=',SUBMITTED)
 				          ->orWhere('submissionstate_id','=',GRADING);
@@ -271,6 +271,8 @@ class ExamController extends BaseController {
 				$next_submission = $submissions[$rand];
 
 				return Response::success($next_submission);
+			}else{
+				return Response::unavailable('no more papers');
 			}
 		}
 	}
@@ -290,7 +292,7 @@ class ExamController extends BaseController {
 			}else if ($status == STATUS_DRAFT || $status == STATUS_NOT_STARTED){
 				return Response::error(403,'The requested page is not available!');
 			}else{
-				if($this->isAdmin($exam)){
+				if($this->checkUser($exam) == ADMIN){
 					$exam = $exam->getAllSubmissions(true, false);
 				}else{
 					$exam = $exam->getSubmissions($user->id, true, false);
@@ -484,7 +486,7 @@ class ExamController extends BaseController {
 		if ($status == STATUS_UNAVAILABLE) {
 			return Response::error(403, 'You are unauthorized to view this page!');
 		}
-		if(!$this->isFacilitator($exam) && $status == 'in_exam'){
+		if($this->checkUser($exam) == STUDENT && $status == 'in_exam'){
 			$exam->questions = $this->retrieveQuestions($exam,False);
 		}else if($status != STATUS_UNAVAILABLE){
 			$exam->questions = $this->retrieveQuestions($exam,True);
@@ -518,7 +520,6 @@ class ExamController extends BaseController {
 				$question['options']=$question->options()->get();
 			}
 		}
-		Log::info($questions);
 		return $questions;
 	}
 	private function newSubmission($exam,$user){
@@ -562,6 +563,16 @@ class ExamController extends BaseController {
 		}
 		return true;		
 	}
+	private function checkUser($exam){
+		$user = User::find(Session::get('userid'));
+		if(!$user){
+			Response::error(401,'not log in');
+			return;
+		}
+		return Role::find($exam->checkRole($user));
+	}		
+	}
+
 	private function checkRole($exam){
 		$user = User::find(Session::get('userid'));
 		if(!$user){

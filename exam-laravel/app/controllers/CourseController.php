@@ -85,7 +85,7 @@ class CourseController extends BaseController {
 		}
 		if($this->isFacilitator($course_id)){
 			$course = $course->getExamsWithSubmissions(User::find(Session::get('userid')));				
-			if($this->isAdmin($course_id)){
+			if($this->checkUser($course_id) == ADMIN){
 				foreach($course->exams as $exam){
 					$exam = $exam->getGrader();
 				}
@@ -119,7 +119,10 @@ class CourseController extends BaseController {
 			return false;
 		}
 		$course = $user->courses()->where('courses.id', '=', $course_id)->first();
+		// Log::info($course->pivot->role_id != FACILITATOR);
+		// Log::info(!$course || ($course->pivot->role_id != ADMIN && $course->pivot->role_id != FACILITATOR));
         if(!$course || ($course->pivot->role_id != ADMIN && $course->pivot->role_id != FACILITATOR)){
+			Log::info("I was here");
   			Response::error(403,'unauthorized');          
             return false;
         }

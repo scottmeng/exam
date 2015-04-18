@@ -1050,7 +1050,6 @@ examApp.controller('viewCourseController',
 		$http.get('/api/exam/' + exam_id + '/randomsubmission')
 			.success(function(data){
 				if(data.code===RESPONSE_STATUS.NORMAL){
-					
 					var submissionId = data.data.id;
 					$location.path('/exam/' + exam_id + '/submission/' + submissionId);
 				}
