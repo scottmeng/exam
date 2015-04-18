@@ -14,4 +14,9 @@ class Option extends Eloquent {
     	return $this->hasMany('SelectedOption');
     }
 
+    public function deleteOption(){
+    	$this->selections()->delete();
+    	$this->delete();
+    }
+
 }

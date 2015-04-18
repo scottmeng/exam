@@ -6,7 +6,7 @@ class ExamController extends BaseController {
 	//edit exam
 	public function putEditexam($exam_id)
 	{
-		$exam = Exam::findOrFail($exam_id);
+		$exam = Exam::find($exam_id);
 		if(!$exam){
 			Response::error('404','Exam Not Found');
 		}
@@ -24,7 +24,7 @@ class ExamController extends BaseController {
 			if(count($questions)>0){
 				foreach($questions as $question){
 					if (array_key_exists('id', $question)) {
-						$old_qn = Question::findOrFail($question['id']);
+						$old_qn = Question::find($question['id']);
 						$question = $old_qn->updateQuestion($question,$exam);
 					}else{
 						$new_qn = New Question();
@@ -36,6 +36,32 @@ class ExamController extends BaseController {
 			return Response::success($exam);
 		}
 	}
+	//delete exam and questions
+	public function postDeletewithqn($exam_id)
+	{
+		$exam = Exam::find($exam_id);
+		if(!$exam){
+			Response::error('404','Exam Not Found');
+		}
+		if($this->isAdmin($exam)){
+			$exam->deleteExamWithQns();
+			return Response::success('deleted');
+		}
+	}
+	//delete exam only
+	public function postDelete($exam_id){
+		Log::info('i was here');
+		$exam = Exam::find($exam_id);
+		if(!$exam){
+			Response::error('404','Exam Not Found');
+		}
+		if($this->isAdmin($exam)){
+			DB::statement('SET FOREIGN_KEY_CHECKS = 0');
+			Exam::destroy($exam_id);
+			DB::statement('SET FOREIGN_KEY_CHECKS = 1');
+			return Response::success('deleted');
+		}
+	}
 	//get available existing questions
 	public function getAvailableqns($exam_id){
 		$exam = Exam::find($exam_id);
@@ -43,7 +69,7 @@ class ExamController extends BaseController {
 			Response::error('404','Exam Not Found');
 		}		
 		if($this->isAdmin($exam)){
-			$questions = $course->questions()
+			$questions = $exam->course->questions()
 					->whereNotIn('questions.id',Question::whereHas('exams',function($query) use($exam_id) {
 	    					$query->whereRaw('exams.id = ?',array($exam_id));
 	    				})->select('questions.id')->get()->toArray())
@@ -85,7 +111,7 @@ class ExamController extends BaseController {
 	//add new question
 	public function postQuestion($exam_id)
 	{
-		$exam = Exam::findOrFail($exam_id);
+		$exam = Exam::find($exam_id);
 		if(!$exam){
 			Response::error('404','Exam Not Found');
 		}		
@@ -117,7 +143,7 @@ class ExamController extends BaseController {
 		}		
 		if($this->isAdmin($exam)){
 			$question_id = Input::get('id');
-			$question = Question::findOrFail($question_id);
+			$question = Question::find($question_id);
 			$new_index = Input::get('index');
 			$updated = new Question();
 
@@ -178,7 +204,7 @@ class ExamController extends BaseController {
 	}
 	//publish exam
 	public function getPublish($exam_id){
-		$exam = Exam::findOrFail($exam_id);
+		$exam = Exam::find($exam_id);
 		if(!$exam){
 			Response::error('404','Exam Not Found');
 		}
@@ -189,7 +215,7 @@ class ExamController extends BaseController {
 	}
 	//unpublish exam
 	public function getUnpublish($exam_id){
-		$exam = Exam::findOrFail($exam_id);
+		$exam = Exam::find($exam_id);
 		if(!$exam){
 			Response::error('404','Exam Not Found');
 		}
@@ -224,7 +250,7 @@ class ExamController extends BaseController {
 	/******************* Admin/TA Actions *******************/
 	//get a paper for marking
 	public function getRandomsubmission($exam_id){
-		$exam = Exam::findOrFail($exam_id);
+		$exam = Exam::find($exam_id);
 		if(!$exam){
 			Response::error('404','Exam Not Found');
 		}		
@@ -279,7 +305,7 @@ class ExamController extends BaseController {
 			Response::error('404','Exam Not Found');
 		}	
 		if($this->isFacilitator($exam)){
-			$mcq_qns = Exam::findOrFail($exam_id)->questions()->where('questiontype_id','=',MCQ)->get();
+			$mcq_qns = Exam::find($exam_id)->questions()->where('questiontype_id','=',MCQ)->get();
 			foreach($mcq_qns as $qn){
 				$correctOption = $qn->options()->where('correctOption','=',1)->first()->id;
 				$qn_submissions = $qn->submissions()->get();
@@ -430,7 +456,7 @@ class ExamController extends BaseController {
 	//get and update total question count
 	public function getQncount($exam_id)
 	{	
-		$exam = Exam::findOrFail($exam_id);
+		$exam = Exam::find($exam_id);
 		if(!$exam){
 			Response::error('404','Exam Not Found');
 		}	
@@ -448,20 +474,15 @@ class ExamController extends BaseController {
 	{
 		//1.user role + exam status
 		//error when not accessable
-		$user = User::find(Session::get('userid'));
-		if(!$user){
-			return Response::error(401,'Please Login First!');
-		}
 		$exam = Exam::find($exam_id);
 		if(!$exam){
 			return Response::error(406,'Page Not Found!');
 		}
-
 		$status = $exam->getStatus(User::find(Session::get('userid')));
 		if ($status == STATUS_UNAVAILABLE) {
 			return Response::error(403, 'You are unauthorized to view this page!');
 		}
-		if($course->pivot->role_id != ADMIN && $course->pivot->role_id != FACILITATOR && $status == 'in_exam'){
+		if(!$this->isFacilitator($exam) && $status == 'in_exam'){
 			$exam->questions = $this->retrieveQuestions($exam,False);
 		}
 		else if($status != STATUS_UNAVAILABLE){
@@ -473,9 +494,10 @@ class ExamController extends BaseController {
 		$exam->status = $status;
 		$exam->totalqn = $exam->questions()->get()->count();
 		$exam->fullmarks = $exam->questions->sum('full_marks');
-		$exam->user_role = Role::find($course->pivot->role_id)->name;
+		$exam->user_role = $this->checkRole($exam);
 		return Response::success($exam);
 	}
+	/******************* End of Common Actions *******************/
 
 
 	/******************* Helper Functions *******************/
@@ -496,10 +518,8 @@ class ExamController extends BaseController {
 				$question['options']=$question->options()->get();
 			}
 		}
-
 		return $questions;
 	}
-
 	private function newSubmission($exam,$user){
 		$exam_submission = new ExamSubmission(array(
 				'user_id' => $user->id
@@ -517,7 +537,6 @@ class ExamController extends BaseController {
 		$exam_submission->questions = $qnsubmissions;
 		return $exam_submission;
 	}
-
 	private function isAdmin($exam){
 		$user = User::find(Session::get('userid'));
 		if(!$user){
@@ -530,7 +549,6 @@ class ExamController extends BaseController {
 		}
 		return true;	
 	}
-
 	private function isFacilitator($exam){
 		$user = User::find(Session::get('userid'));
 		if(!$user){
@@ -543,13 +561,12 @@ class ExamController extends BaseController {
 		}
 		return true;		
 	}
-	
-	private function checkUser($exam){
+	private function checkRole($exam){
 		$user = User::find(Session::get('userid'));
 		if(!$user){
 			Response::error(401,'not log in');
 			return;
 		}
-		return array('id'=>$user->id,'role'=>$exam->checkRole($user));
+		return Role::find($exam->checkRole($user))->name;
 	}
 }

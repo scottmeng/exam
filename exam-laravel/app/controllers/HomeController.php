@@ -1,13 +1,12 @@
 <?php
-// use GuzzleHttp\Client;
 
 class HomeController extends BaseController {
-
+	/******************* Common Actions *******************/
 	public function getHome()
 	{
 		return View::make('home');
 	}
-
+	//get course information for home
 	public function getCourses()
 	{
 		$user = User::find(Session::get('userid'));
@@ -18,7 +17,7 @@ class HomeController extends BaseController {
 
 		return Response::success($courses);
 	}
-
+	//get list of admin courses
 	public function getAdminCourses()
 	{
 		$user = User::find(Session::get('userid'));
@@ -35,87 +34,39 @@ class HomeController extends BaseController {
 		return Response::success(Questiontype::all());
 	}
 
-	public function newExam()
-	{
-		$user = User::find(Session::get('userid'));
-		if(!$user){
-			return Response::error(401,'Please Login First!');
+	public function testCode() {
+		$code = Input::get('code');
+		$lang = Input::get('lang');
+		$extension = $this->getExtension($lang);
+
+		//$code = "#include <stdio.h> \nint main() {\nprintf(" . '"' . "Hello world" . '")' . ";\nreturn 0; }";
+		if ($extension === false) {
+			return Response::error(400, 'language not recognized');
+		}
+		$file_name = $this->generateFileName($code, $lang);
+
+		// 1. create file
+		$file_name = $this->saveCode($file_name, $code, $extension);
+		if ($file_name === false) {
+			return Response::error(500, 'cannot create file');
+		}
+		$code_file_name = $file_name . $extension;
+
+		// 2. compile code
+		$compilation = $this->compileCode($code_file_name, $file_name, $lang);
+		if (!file_exists($file_name)) {
+			$result = $this->generateResult(2, $compilation);
+			return Response::success($result);
 		}
 
-		$course_id = Input::get('course_id');
-		$course = $user->courses()->where('courses.id','=',$course_id)->first();
-		if(!$course){
-			return Response::error(401,'Page not available!');
-		}else if($course->pivot->role_id != ADMIN){
-			return Response::error(401,'You are unauthorized to view this page!');
-		}
-
-		$title = Input::get('title');
-
-		//check if exam with the same title under the same course already exists
-		$valid_exam = Exam::whereRaw('course_id = ? and title = ?',array($course_id,$title))->get()->isEmpty();
-
-		if($valid_exam == True){
-
-		 	$exam = new Exam();
-			$exam->title=$title;	
-			$course->exams()->save($exam);
-
-			return Response::success($exam);
-		}
-		else{
-		    return Response::error(406,'Exam already exists!');
-		}
+		// 3. run code
+		$execution = $this->runCode($file_name, $lang);
+		$result = $this->generateResult(0, $compilation, $execution);
+		return Response::success($result);
 	}
-
-	public function deleteExamWithQns()
-	{
-		$user = User::find(Session::get('userid'));
-		if(!$user){
-			return Response::error(401,'Please Login First!');
-		}
-
-		$exam_id = Input::get('id');
-		$exam = Exam::find($exam_id);
-
-		$course_id = $exam->course->id;
-		$course = $user->courses()->where('courses.id','=',$course_id)->first();
-		if(!$course){
-			return Response::error(401,'Page not available!');
-		}else if($course->pivot->role_id != ADMIN){
-			return Response::error(401,'You are unauthorized to view this page!');
-		}
-
-		$exam->deleteExamWithQns();
-
-		return Response::success('deleted');
-	}
-
-	public function deleteExam(){
-
-		$user = User::find(Session::get('userid'));
-		if(!$user){
-			return Response::error(401,'Please Login First!');
-		}
-
-		$exam_id = Input::get('id');
-		$exam = Exam::find($exam_id);
-
-		$course_id = $exam->course->id;
-		$course = $user->courses()->where('courses.id','=',$course_id)->first();
-		if(!$course){
-			return Response::error(401,'Page not available!');
-		}else if($course->pivot->role_id != ADMIN){
-			return Response::error(401,'You are unauthorized to view this page!');
-		}
-
-		DB::statement('SET FOREIGN_KEY_CHECKS = 0');
-		Exam::destroy($exam_id);
-		DB::statement('SET FOREIGN_KEY_CHECKS = 1');
-
-		return Response::success('deleted');
-	}
-
+	/******************* End of Common Actions *******************/
+	
+	/******************* Helper Actions *******************/
 	// reformat code
 	// store code snippet in designated directory
 	private function saveCode($file_name, $code, $extension) {
@@ -200,36 +151,34 @@ class HomeController extends BaseController {
 		return $base32 . '_' . $lang;
 	}
 
-	public function testCode() {
-		$code = Input::get('code');
-		$lang = Input::get('lang');
-		$extension = $this->getExtension($lang);
-
-		//$code = "#include <stdio.h> \nint main() {\nprintf(" . '"' . "Hello world" . '")' . ";\nreturn 0; }";
-		if ($extension === false) {
-			return Response::error(400, 'language not recognized');
+	private function isAdmin($course_id){
+		$user = User::find(Session::get('userid'));
+		if(!$user){
+			Response::error(401,'Please Login First!');
+			return false;
 		}
-		$file_name = $this->generateFileName($code, $lang);
-
-		// 1. create file
-		$file_name = $this->saveCode($file_name, $code, $extension);
-		if ($file_name === false) {
-			return Response::error(500, 'cannot create file');
+		$course = $user->courses()->where('courses.id','=',$course_id)->first();
+		if(!$course){
+			Response::error(403,'unauthorized');
+			return false;
+		}else if(!$course->isAdmin()){
+			return false;
 		}
-		$code_file_name = $file_name . $extension;
-
-		// 2. compile code
-		$compilation = $this->compileCode($code_file_name, $file_name, $lang);
-		Log::info($compilation);
-		if (!file_exists($file_name)) {
-			Log::info('compilation error');
-			$result = $this->generateResult(2, $compilation);
-			return Response::success($result);
+		return true;
+	}
+	private function isFacilitator($course_id){
+		$user = User::find(Session::get('userid'));
+		if(!$user){
+			Response::error(401,'Please Login First!');
+			return false;
 		}
-
-		// 3. run code
-		$execution = $this->runCode($file_name, $lang);
-		$result = $this->generateResult(0, $compilation, $execution);
-		return Response::success($result);
+		$course = $user->courses()->where('courses.id','=',$course_id)->first();
+		if(!$course){
+			Response::error(403,'unauthorized');
+			return false;
+		}else if(!$course->isFacilitator()){
+			return false;
+		}
+		return true;
 	}
 }

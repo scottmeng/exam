@@ -77,7 +77,10 @@ class Question extends Eloquent {
 
     public function deleteQuestion(){
         $this->exams()->detach();
-        $this->options()->delete();
+        $options = $this->options()->get();
+        foreach($options as $option){
+            $option->deleteOption();
+        }
         $this->delete();
     }
 

@@ -18,10 +18,9 @@ class User extends Eloquent{
 	}
 
 	public function getCourses(){
-		
 		$courses = $this->courses()->orderBy('created_at','desc')->get();
 		foreach($courses as $course){
-			$course = $course->getExams();
+			$course = $course->getExams($this);
 		}
 		return $courses;
 	}
@@ -29,7 +28,7 @@ class User extends Eloquent{
 	public function getAdminCourses(){
 		$courses = $this->courses()->whereRaw('course_user.role_id = ?',array(ADMIN))->orderBy('created_at','desc')->get();
 		foreach($courses as $key => $course){
-			$course= $course->getExams();
+			$course= $course->getExams($this);
 		}
 		return $courses;
 	}

@@ -91,7 +91,7 @@ Response::macro('success', function($data)
     ));
 });
 
-Response::macro('unavailable', function($code, $data)
+Response::macro('unavailable', function($data)
 {
      return Response::json(array(
     	'code'=>0,

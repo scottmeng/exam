@@ -723,7 +723,7 @@ examApp.controller('DeleteModalController',function($scope,$modalInstance,$http,
 
 		var exam_id={'id':exam.id};
 
-		$http.post('/api/delete-exam-n-qns', exam_id)
+		$http.post('/api/exam/'+exam.id+'/deletewithqn',exam_id)
 			.success(function(data, status, header, config) {
 				if (data.code === RESPONSE_STATUS.NORMAL) {
 					$modalInstance.close();
@@ -734,7 +734,7 @@ examApp.controller('DeleteModalController',function($scope,$modalInstance,$http,
 	$scope.deleteExam = function(){
 		var exam_id={'id':exam.id};
 
-		$http.post('/api/delete-exam', exam_id)
+		$http.post('/api/exam/'+exam.id+'/delete',exam_id)
 			.success(function(data, status, header, config) {
 				if (data.code === RESPONSE_STATUS.NORMAL) {
 					$modalInstance.close();
@@ -762,9 +762,8 @@ examApp.controller('ModalInstanceCtrl', function($scope, $modalInstance, $http, 
 		'title':""
 	};
 	$scope.ok = function () {
-
 		$scope.createError = null;
-		$http.post('/api/create-exam', $scope.exam)
+		$http.post('/api/course/'+$scope.exam.course_id+'/newexam', $scope.exam)
 			.success(function(data, status, header, config) {
 				if (data.code === RESPONSE_STATUS.NORMAL) {
 					var exam = data.data;
@@ -973,21 +972,22 @@ examApp.controller('viewCourseController',
 			});
 	};
 
-	$scope.deleteQuestion = function(index){
+	$scope.deleteQuestion = function(qn){
 
 		var modalInstance = $modal.open({
 			templateUrl: 'confirmDeleteQnModal.html',
 			controller: 'confirmDeleteQnModalController',
 			resolve: {
 				question: function () {
-				  return $scope.course.questions[index];
+				  return qn;
 				}
 			}
 		});
 
 		modalInstance.result.then(function () {
-			$http.post('/api/course/'+$scope.courseId+'/deleteqn',$scope.course.questions[index])
+			$http.post('/api/course/'+$scope.courseId+'/deleteqn',qn)
 			.success(function(data){
+				var index = $scope.course.questions.indexOf(qn);
 				$scope.course.questions.splice(index,1);
 			});			
 		}, function () {
@@ -1014,16 +1014,23 @@ examApp.controller('viewCourseController',
 			.success(function(data) {
 				if (data.code === RESPONSE_STATUS.NORMAL) {
 					$scope.prepareExams(data.data.exams);
-					console.log(data.data);
 					$scope.course = data.data;
 					$scope.isAdmin = $scope.course.user_role === 'admin';
-					$scope.course.exams.selected=$scope.course.exams[$scope.selectedExamIndex];
+
+					$scope.course.exams.selected=$scope.findDefaultExam();
 				}else {
 					$scope.error = data.data;
 				}
 			});
 	};
 
+	$scope.findDefaultExam = function(){
+	    for(var i in $scope.course.exams) {
+	        if($scope.course.exams[i]['status'] === EXAM_STATUS.FINISHED) {
+	            return $scope.course.exams[i];
+	        }
+	    }
+	}
 	$scope.distributePapers = function(){
 		var exam_id = $scope.course.exams[$scope.selectedExamIndex].id;
 		$http.get('/api/exam/' + exam_id + '/distributepaper')
@@ -1071,7 +1078,7 @@ examApp.controller('viewCourseController',
 		});
 
 		modalInstance.result.then(function (exam) {
-			$location.path('/exam/' + exam.id + '/edit');
+			$route.reload();
 		}, function () {
 		});	
 	};

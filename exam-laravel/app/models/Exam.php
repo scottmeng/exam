@@ -1,4 +1,5 @@
 <?php
+use Carbon\Carbon;
 
 class Exam extends Eloquent{
 
@@ -213,12 +214,30 @@ class Exam extends Eloquent{
     }
 
     public function getStatus($user){
-        $course_id = $this->course->id;
-        $course = $user->courses()->where('courses.id', '=', $course_id)->first();
-         if(!$course){
-            return STATUS_UNKNOWN;
+        $status = STATUS_UNAVAILABLE;
+        if($this->examstate_id == DRAFT && $this->isAdmin($user)){
+                $status = STATUS_DRAFT;
         }
-        return $course->getExamStatus($this);
+        else if($this->examstate_id == ACTIVE){
+            $now = Carbon::now('Asia/Singapore');
+            $starttime = new Carbon($this->starttime,'GMT');
+            $endtime = (new Carbon($this->starttime,'GMT'))->addMinutes($this->duration);
+            $visibletime = (new Carbon($this->starttime,'GMT'))->subMinutes($this->grace_period);
+
+            if($this->isFacilitator($user)){
+                if($now->lt($visibletime)){
+                    $status = STATUS_NOT_STARTED;
+                }else if($now->gt($endtime)){    
+                    $status = STATUS_FINISHED;
+                }
+            }  
+            if($now->between($visibletime,$endtime)){
+                $status = STATUS_IN_EXAM;
+            }
+        }else if($this->examstate_id == PUBLISHED){
+            $status = STATUS_PUBLISHED;
+        }
+        return $status;
     }
 
 }
