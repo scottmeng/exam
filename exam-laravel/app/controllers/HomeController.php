@@ -133,10 +133,10 @@ class HomeController extends BaseController {
 		switch ($lang) {
 			case 'c':
 			case 'c++':
-				$command = './' . $file_name . ' 2>&1';
+				$command = './timeout.sh -t 5 ./' . $file_name . ' 2>&1';
 				break;
 			case 'java':
-				$command = 'java ' . $file_name . ' 2>&1';
+				$command = './timeout.sh -t 5 java ' . $file_name . ' 2>&1';
 				break;
 			default:
 				return 'unknown language';		
@@ -151,34 +151,64 @@ class HomeController extends BaseController {
 		return $base32 . '_' . $lang;
 	}
 
-	private function isAdmin($course_id){
-		$user = User::find(Session::get('userid'));
-		if(!$user){
-			Response::error(401,'Please Login First!');
-			return false;
-		}
-		$course = $user->courses()->where('courses.id','=',$course_id)->first();
-		if(!$course){
-			Response::error(403,'unauthorized');
-			return false;
-		}else if(!$course->isAdmin()){
-			return false;
-		}
-		return true;
-	}
-	private function isFacilitator($course_id){
-		$user = User::find(Session::get('userid'));
-		if(!$user){
-			Response::error(401,'Please Login First!');
-			return false;
-		}
-		$course = $user->courses()->where('courses.id','=',$course_id)->first();
-		if(!$course){
-			Response::error(403,'unauthorized');
-			return false;
-		}else if(!$course->isFacilitator()){
-			return false;
-		}
-		return true;
-	}
+// <<<<<<< HEAD
+// 	public function testCode() {
+// 		$code = Input::get('code');
+// 		Log::info($code);
+// 		$lang = Input::get('lang');
+// 		$extension = $this->getExtension($lang);
+
+// 		$code = "#include <stdio.h> \nint main() {\n sleep(1); printf(" . '"' . "Hello world" . '")' . ";\nreturn 0; }";
+// 		if ($extension === false) {
+// 			return Response::error(400, 'language not recognized');
+// =======
+// 	private function isAdmin($course_id){
+// 		$user = User::find(Session::get('userid'));
+// 		if(!$user){
+// 			Response::error(401,'Please Login First!');
+// 			return false;
+// >>>>>>> master
+// 		}
+// 		$course = $user->courses()->where('courses.id','=',$course_id)->first();
+// 		if(!$course){
+// 			Response::error(403,'unauthorized');
+// 			return false;
+// 		}else if(!$course->isAdmin()){
+// 			return false;
+// 		}
+// <<<<<<< HEAD
+// 		$code_file_name = $file_name . $extension;
+
+// 		// 2. compile code
+// 		$compilation = $this->compileCode($code_file_name, $file_name, $lang);
+// 		if (!file_exists($file_name)) {
+// 			Log::info('compilation error');
+// 			$result = $this->generateResult(2, $compilation);
+// 			return Response::success($result);
+// 		}
+
+// 		// 3. run code
+// 		Log::info($file_name);
+// 		$execution = $this->runCode($file_name, $lang);
+// 		$result = $this->generateResult(0, $compilation, $execution);
+// 		return Response::success($result);
+// =======
+// 		return true;
+// 	}
+// 	private function isFacilitator($course_id){
+// 		$user = User::find(Session::get('userid'));
+// 		if(!$user){
+// 			Response::error(401,'Please Login First!');
+// 			return false;
+// 		}
+// 		$course = $user->courses()->where('courses.id','=',$course_id)->first();
+// 		if(!$course){
+// 			Response::error(403,'unauthorized');
+// 			return false;
+// 		}else if(!$course->isFacilitator()){
+// 			return false;
+// 		}
+// 		return true;
+// >>>>>>> master
+// 	}
 }
