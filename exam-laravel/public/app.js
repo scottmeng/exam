@@ -1828,7 +1828,8 @@ examApp.controller('markExamController',
 		// 	$http.get('/api/submission/' + $scope.submissionId + '/finish')
 		// 	.success(function(data){});
 		// }
-		$http.get('/api/submission/' + $scope.submissionId + '/nextsubmission')
+		var submission={'id':$scope.submissionId};
+		$http.post('/api/exam/' + $scope.examId + '/nextsubmission',submission)
 			.success(function(data){
 				if(data.code===RESPONSE_STATUS.NORMAL){
 					var submissionId = data.data.id;

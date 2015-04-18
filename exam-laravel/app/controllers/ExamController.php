@@ -255,7 +255,7 @@ class ExamController extends BaseController {
 			Response::error('404','Exam Not Found');
 		}		
 		if($this->isFacilitator($exam)){
-			if($this->checkUser($exam) == ADMIN){
+			if($this->checkUser($exam) === ADMIN){
 				$submissions = $exam->submissions()->where(function ($query) {
 				    $query->where('submissionstate_id','=',SUBMITTED)
 				          ->orWhere('submissionstate_id','=',GRADING);
@@ -265,6 +265,35 @@ class ExamController extends BaseController {
 				    $query->where('submissionstate_id','=',SUBMITTED)
 				          ->orWhere('submissionstate_id','=',GRADING);
 				})->get();
+			}	
+			if($submissions->count()>0){
+				$rand = rand(0, $submissions->count()-1);
+				$next_submission = $submissions[$rand];
+
+				return Response::success($next_submission);
+			}else{
+				return Response::unavailable('no more papers');
+			}
+		}
+	}
+	//get next submission
+	public function postNextsubmission($exam_id){
+		$exam = Exam::find($exam_id);
+		if(!$exam){
+			Response::error('404','Exam Not Found');
+		}		
+		if($this->isFacilitator($exam)){
+			$submission_id = Input::get('id');
+			if($this->checkUser($exam) === ADMIN){
+				$submissions = $exam->submissions()->where(function ($query) {
+				    $query->where('submissionstate_id','=',SUBMITTED)
+				          ->orWhere('submissionstate_id','=',GRADING);
+				})->whereNotIn( 'id', [$submission_id])->get();
+			}else{
+				$submissions = $exam->submissions()->where('grader_id','=',Session::get('userid'))->where(function ($query) {
+				    $query->where('submissionstate_id','=',SUBMITTED)
+				          ->orWhere('submissionstate_id','=',GRADING);
+				})->whereNotIn( 'id', [$submission_id])->get();
 			}	
 			if($submissions->count()>0){
 				$rand = rand(0, $submissions->count()-1);
