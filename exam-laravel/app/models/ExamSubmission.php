@@ -44,6 +44,7 @@ class ExamSubmission extends Eloquent{
     public function updateStatus(){
         // $question_submissions = $this->questionsubmissions()->get();
         $ungraded = $this->questionsubmissions()->where('submissionstate_id','<>',GRADED)->count();
+        Log::info($ungraded);
         if($ungraded===0){
             $graded_status= SubmissionState::where('name','like','graded')->first();
             $graded_status->examsubmissions()->save($this);

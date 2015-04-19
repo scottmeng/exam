@@ -63,6 +63,8 @@ class SubmissionController extends BaseController {
 
 			$graded_status->questionsubmissions()->save($question_submission);
 			$exam = ExamSubmission::find($submission_id);
+			Log::info($submission_id);
+			Log::info($exam);
 			$exam->updateStatus();
 			return Response::success($question_submission);
 		}
