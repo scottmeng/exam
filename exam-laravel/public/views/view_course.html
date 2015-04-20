@@ -177,7 +177,7 @@
 					             theme="bootstrap"
 					             ng-disabled="disabled"
 					             reset-search-input="false"
-					             style="width: 300px;" ng-change="updateExam($select.selected)">
+					             style="width: 300px;">
 					    <ui-select-match>{{$select.selected.title}}</ui-select-match>
 					    <ui-select-choices repeat="exam in course.exams | filter: $select.search | filter:{status:'finished'}">
 					    	<div ng-bind-html="exam.title"></div>

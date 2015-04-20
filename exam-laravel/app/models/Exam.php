@@ -153,6 +153,7 @@ class Exam extends Eloquent{
     public function getGrader(){
         $graders = User::whereIn('id',$this->submissions()->select('grader_id')->distinct()->get()->toArray())
                         ->get(); 
+        Log::info($graders);
         $graders_info=array();
         foreach($graders as $grader){
             $grading_info = array(

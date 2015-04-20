@@ -914,7 +914,7 @@ examApp.controller('viewCourseController',
 	$scope.courseId = $routeParams.courseId;
 	$scope.isDescriptionCollapsed = true;
 	$scope.areSubmissionsCollapsed = true;
-	$scope.selectedExamIndex=0;
+	//$scope.selectedExamIndex=0;
 
 	$scope.gradePaper = function(exam_id,submission_id){
 		$location.path('/exam/' + exam_id + '/submission/' + submission_id);
@@ -994,17 +994,7 @@ examApp.controller('viewCourseController',
 	}
 
 	$scope.addQuestion = function(){
-		// $window.open('/course/' + $scope.courseId + '/new-question', '_blank');
 		$location.path('/course/' + $scope.courseId + '/new-question');
-	}
-
-	$scope.updateExam = function(selectedExam){
-		for(var i in $scope.course.exams){
-			if ($scope.course.exams[i].id===selectedExam.id){
-				$scope.selectedExamIndex = i;
-				break;
-			}
-		}
 	}
 
 	$scope.getCourseInfo = function() {
@@ -1016,7 +1006,6 @@ examApp.controller('viewCourseController',
 					$scope.prepareExams(data.data.exams);
 					$scope.course = data.data;
 					$scope.isAdmin = $scope.course.user_role === 'admin';
-
 					$scope.course.exams.selected=$scope.findDefaultExam();
 				}else {
 					$scope.error = data.data;
@@ -1032,7 +1021,9 @@ examApp.controller('viewCourseController',
 	    }
 	}
 	$scope.distributePapers = function(){
-		var exam_id = $scope.course.exams[$scope.selectedExamIndex].id;
+		var exam_id = $scope.course.exams.selected.id;
+		//console.log($scope.course.exams[$scope.selectedExamIndex]);
+		//console.log(exam_id);
 		$http.get('/api/exam/' + exam_id + '/distributepaper')
 			.success(function(data){
 				if(data.code===RESPONSE_STATUS.NORMAL){	

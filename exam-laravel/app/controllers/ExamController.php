@@ -226,6 +226,7 @@ class ExamController extends BaseController {
 	}
 	//distribute paper for grading
 	public function getDistributepaper($exam_id){
+		//Log::info($exam_id);
 		$exam = Exam::find($exam_id);
 		if(!$exam){
 			Response::error('404','Exam Not Found');
@@ -240,7 +241,7 @@ class ExamController extends BaseController {
 				$k = ($k+1)%($facilitators->count());
 			}
 
-			return Response::success('distributed');
+			return Response::success($submissions);
 		}
 	}
 	/******************* End of Admin Actions *******************/
