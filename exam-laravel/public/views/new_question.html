@@ -39,7 +39,7 @@
 								<label class="checkbox-inline">
 									<input type="radio" name="question.id" value="1" ng-checked="option.correctOption == 1" data-ng-model="option.correctOption" ng-change="onRadioSelection($index)"> correct option
 								</label>
-								<button type="button" style="margin-right: 40px" class="close" data-ng-click="deleteOption($parent.$index,$index);"><i class="fa fa-trash-o fa-sm"></i></button>
+								<button type="button" style="margin-right: 40px" class="close" data-ng-click="deleteOption($index);"><i class="fa fa-trash-o fa-sm"></i></button>
 							</div>
 							<button class="btn btn-primary" data-ng-click="addOption();">Add new option</button>
 					</div>
@@ -57,11 +57,11 @@
 							<button class="btn btn-primary" data-ng-click="addOption(question);">Add new option</button>
 					</div>
 				</form>
-				<div class="row" style="margin:10px" data-ng-show="isCodingQn(question.questiontype_id);">
+				<!-- <div class="row" style="margin:10px" data-ng-show="isCodingQn(question.questiontype_id);">
 					<label class="checkbox-inline">
 						<input type="checkbox" id="inlineCheckbox1" data-ng-model="question.compiler_enable"> Enable Compiler In Exam
 					</label>
-				</div>
+				</div> -->
 			</div>
 		</div>	
 		<div class="panel-footer">
